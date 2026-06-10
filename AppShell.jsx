@@ -102,7 +102,7 @@ function AppTopBar({ section, onSection }) {
   return (
     <header className="app-topbar">
       <div className="app-topbar-left">
-        <a href="AGND Landing.html" title="Volver al inicio">
+        <a href="index.html" title="Volver al inicio">
           <Logo size={24} />
         </a>
         <span className="app-topbar-sep" />

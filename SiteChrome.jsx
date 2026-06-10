@@ -7,18 +7,18 @@ function SiteNav({ active }) {
   return (
     <nav className="site-nav">
       <div className="site-nav-inner">
-        <a href="AGND Landing.html" style={{ textDecoration: 'none' }}>
+        <a href="index.html" style={{ textDecoration: 'none' }}>
           <Logo size={28} />
         </a>
         <div className="site-nav-links">
-          {link('product', 'Producto', 'AGND Landing.html#features')}
-          {link('pricing', 'Precios', 'AGND Landing.html#pricing')}
-          {link('about', 'Nosotros', 'AGND QuienesSomos.html')}
-          {link('contact', 'Contacto', 'AGND Contacto.html')}
+          {link('product', 'Producto', 'index.html#features')}
+          {link('pricing', 'Precios', 'index.html#pricing')}
+          {link('about', 'Nosotros', 'quienes-somos.html')}
+          {link('contact', 'Contacto', 'contacto.html')}
         </div>
         <div className="site-nav-cta">
-          <a href="AGND Login.html" className="btn-nav ghost">Iniciar sesión</a>
-          <a href="AGND Register.html" className="btn-nav primary">Empezar gratis</a>
+          <a href="login.html" className="btn-nav ghost">Iniciar sesión</a>
+          <a href="register.html" className="btn-nav primary">Empezar gratis</a>
         </div>
       </div>
     </nav>
@@ -39,16 +39,16 @@ function SiteFooter() {
           <div>
             <h6>Producto</h6>
             <ul>
-              <li><a href="AGND Landing.html#features">Página de reserva</a></li>
-              <li><a href="AGND Landing.html#features">CRM</a></li>
-              <li><a href="AGND Landing.html#pricing">Precios</a></li>
-              <li><a href="AGND Landing.html#features">Integraciones</a></li>
+              <li><a href="index.html#features">Página de reserva</a></li>
+              <li><a href="index.html#features">CRM</a></li>
+              <li><a href="index.html#pricing">Precios</a></li>
+              <li><a href="index.html#features">Integraciones</a></li>
             </ul>
           </div>
           <div>
             <h6>Recursos</h6>
             <ul>
-              <li><a href="AGND Contacto.html">Contacto</a></li>
+              <li><a href="contacto.html">Contacto</a></li>
               <li><a href="#">Centro de ayuda</a></li>
               <li><a href="#">API</a></li>
               <li><a href="#">Estado del sistema</a></li>
@@ -57,10 +57,10 @@ function SiteFooter() {
           <div>
             <h6>Empresa</h6>
             <ul>
-              <li><a href="AGND QuienesSomos.html">Sobre AGND</a></li>
-              <li><a href="AGND Privacidad.html">Privacidad</a></li>
-              <li><a href="AGND Terminos.html">Términos</a></li>
-              <li><a href="AGND Login.html">Iniciar sesión</a></li>
+              <li><a href="quienes-somos.html">Sobre AGND</a></li>
+              <li><a href="privacidad.html">Privacidad</a></li>
+              <li><a href="terminos.html">Términos</a></li>
+              <li><a href="login.html">Iniciar sesión</a></li>
             </ul>
           </div>
         </div>

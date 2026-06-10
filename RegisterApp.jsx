@@ -109,7 +109,7 @@ function Step1({ form, update, blur, touched, onNext }) {
 
         <label className="checkbox-row" style={{ marginBottom: 8 }}>
           <input type="checkbox" checked={form.terms} onChange={update('terms')} />
-          <span>Acepto los <a href="AGND Terminos.html" target="_blank">Términos</a> y la <a href="AGND Privacidad.html" target="_blank">Política de privacidad</a>.</span>
+          <span>Acepto los <a href="terminos.html" target="_blank">Términos</a> y la <a href="privacidad.html" target="_blank">Política de privacidad</a>.</span>
         </label>
 
         <button type="submit" className="btn btn-primary auth-submit" disabled={!canNext}>
@@ -117,7 +117,7 @@ function Step1({ form, update, blur, touched, onNext }) {
         </button>
 
         <div className="auth-footer">
-          ¿Ya tienes cuenta? <a href="AGND Login.html">Inicia sesión</a>
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
         </div>
       </form>
     </>
@@ -196,7 +196,7 @@ function Step3({ onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setTimeout(() => { window.location.href = 'AGND App.html'; }, 1200);
+    setTimeout(() => { window.location.href = 'app.html'; }, 1200);
   };
 
   const activeDays = DAYS.filter(d => schedule[d.key].on).length;
@@ -280,7 +280,7 @@ function RegisterApp() {
   return (
     <div className="auth-shell">
       <main className="auth-form-col">
-        <TopBar rightLabel="¿Ya tienes cuenta?" rightLinkText="Inicia sesión" rightHref="AGND Login.html" />
+        <TopBar rightLabel="¿Ya tienes cuenta?" rightLinkText="Inicia sesión" rightHref="login.html" />
 
         <div className="auth-form-wrap">
           <RegStepper step={step} />

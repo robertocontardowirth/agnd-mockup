@@ -64,8 +64,8 @@ function LegalApp({ kind }) {
                   <p>Escríbenos y te respondemos en menos de 24 horas hábiles.</p>
                 </div>
                 <div className="end-actions">
-                  <a href="AGND Contacto.html" className="btn-end primary">Contactar a AGND <i data-lucide="arrow-right" style={{ width: 14, height: 14 }}></i></a>
-                  <a href={kind === 'privacy' ? 'AGND Terminos.html' : 'AGND Privacidad.html'} className="btn-end ghost">
+                  <a href="contacto.html" className="btn-end primary">Contactar a AGND <i data-lucide="arrow-right" style={{ width: 14, height: 14 }}></i></a>
+                  <a href={kind === 'privacy' ? 'terminos.html' : 'privacidad.html'} className="btn-end ghost">
                     Ver {kind === 'privacy' ? 'Términos' : 'Privacidad'}
                   </a>
                 </div>
@@ -99,7 +99,7 @@ const TERMS_DOC = {
       <>
         <p>Al crear una cuenta o usar los servicios de AGND.CL SpA ("AGND", "nosotros"), aceptas quedar sujeto a estos Términos y Condiciones. Si usas AGND en nombre de una empresa, declaras que tienes autoridad para obligar a esa empresa.</p>
         <p>Si no estás de acuerdo con alguno de los puntos, te pedimos que no uses la plataforma.</p>
-        <Callout icon="info">Estos términos forman, junto con nuestra <a href="AGND Privacidad.html">Política de Privacidad</a>, el contrato completo entre tú y AGND.</Callout>
+        <Callout icon="info">Estos términos forman, junto con nuestra <a href="privacidad.html">Política de Privacidad</a>, el contrato completo entre tú y AGND.</Callout>
       </>
     )},
     { id: 'cuenta', title: 'Tu cuenta', body: (
@@ -116,7 +116,7 @@ const TERMS_DOC = {
     )},
     { id: 'planes-pagos', title: 'Planes, pagos y facturación', body: (
       <>
-        <p><strong>Plan gratuito.</strong> AGND ofrece un plan gratuito sin tarjeta. Sus límites están publicados en la página de <a href="AGND Landing.html#pricing">Precios</a>.</p>
+        <p><strong>Plan gratuito.</strong> AGND ofrece un plan gratuito sin tarjeta. Sus límites están publicados en la página de <a href="index.html#pricing">Precios</a>.</p>
         <p><strong>Planes de pago.</strong> Los planes pagados se facturan mensual o anualmente, en pesos chilenos (CLP) más IVA cuando corresponda. La renovación es automática salvo que canceles antes del próximo ciclo.</p>
         <p><strong>Cancelación.</strong> Puedes cancelar en cualquier momento. Mantienes el acceso hasta el final del período pagado. No hacemos reembolsos por períodos parciales, salvo lo exigido por la ley chilena.</p>
         <p><strong>Cambios de precio.</strong> Te avisaremos con al menos 30 días de anticipación por email.</p>

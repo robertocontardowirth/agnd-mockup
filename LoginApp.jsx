@@ -26,7 +26,7 @@ function LoginApp() {
   return (
     <div className="auth-shell">
       <main className="auth-form-col">
-        <TopBar rightLabel="¿Sin cuenta?" rightLinkText="Crear cuenta" rightHref="AGND Register.html" />
+        <TopBar rightLabel="¿Sin cuenta?" rightLinkText="Crear cuenta" rightHref="register.html" />
 
         <div className="auth-form-wrap">
           <div className="auth-eyebrow">Bienvenid@ de vuelta</div>
@@ -52,7 +52,7 @@ function LoginApp() {
                 value={form.password}
                 onChange={update('password')}
                 placeholder="Tu contraseña"
-                labelAside={<a href="AGND Recovery.html">¿Olvidaste tu contraseña?</a>}
+                labelAside={<a href="recovery.html">¿Olvidaste tu contraseña?</a>}
                 autoComplete="current-password"
               />
 
@@ -74,7 +74,7 @@ function LoginApp() {
             </button>
 
             <div className="auth-footer">
-              ¿Aún no tienes cuenta? <a href="AGND Register.html">Pruébalo gratis</a>
+              ¿Aún no tienes cuenta? <a href="register.html">Pruébalo gratis</a>
             </div>
           </form>
         </div>

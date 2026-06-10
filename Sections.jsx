@@ -357,7 +357,7 @@ function Pricing({ visible }) {
               <li>Recordatorios por email</li>
               <li>CRM básico</li>
             </ul>
-            <a href="AGND Register.html" className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+            <a href="register.html" className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>
               Empezar gratis
             </a>
           </div>
@@ -376,7 +376,7 @@ function Pricing({ visible }) {
               <li>Todas las integraciones</li>
               <li>Soporte prioritario</li>
             </ul>
-            <a href="AGND Register.html" className="btn" style={{ background: 'var(--agnd-aqua-300)', color: 'var(--agnd-plum-700)', width: '100%', justifyContent: 'center' }}>
+            <a href="register.html" className="btn" style={{ background: 'var(--agnd-aqua-300)', color: 'var(--agnd-plum-700)', width: '100%', justifyContent: 'center' }}>
               Probar Pro 14 días
             </a>
           </div>
@@ -437,7 +437,7 @@ function FinalCTA({ visible }) {
           Crea tu página de reserva en cinco minutos. Sin tarjeta, sin onboarding, sin llamadas.
         </p>
         <div className="actions">
-          <a href="AGND Register.html" className="btn" style={{ background: 'var(--agnd-aqua-300)', color: 'var(--agnd-plum-700)' }}>
+          <a href="register.html" className="btn" style={{ background: 'var(--agnd-aqua-300)', color: 'var(--agnd-plum-700)' }}>
             Empezar gratis
             <i data-lucide="arrow-right" style={{ width: 16, height: 16 }} />
           </a>
@@ -502,11 +502,11 @@ function Footer() {
           <div>
             <h6>Empresa</h6>
             <ul>
-              <li><a href="AGND QuienesSomos.html">Sobre AGND</a></li>
+              <li><a href="quienes-somos.html">Sobre AGND</a></li>
               <li><a href="#">Clientes</a></li>
-              <li><a href="AGND Privacidad.html">Privacidad</a></li>
-              <li><a href="AGND Terminos.html">Términos</a></li>
-              <li><a href="AGND Contacto.html">Contacto</a></li>
+              <li><a href="privacidad.html">Privacidad</a></li>
+              <li><a href="terminos.html">Términos</a></li>
+              <li><a href="contacto.html">Contacto</a></li>
             </ul>
           </div>
         </div>

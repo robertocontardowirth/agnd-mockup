@@ -22,12 +22,12 @@ function RecoveryApp() {
   return (
     <div className="auth-shell">
       <main className="auth-form-col">
-        <TopBar rightLabel="¿Recordaste tu clave?" rightLinkText="Inicia sesión" rightHref="AGND Login.html" />
+        <TopBar rightLabel="¿Recordaste tu clave?" rightLinkText="Inicia sesión" rightHref="login.html" />
 
         <div className="auth-form-wrap">
           {stage === 'request' && (
             <>
-              <a href="AGND Login.html" className="back-link">
+              <a href="login.html" className="back-link">
                 <i data-lucide="arrow-left"></i> Volver a inicio de sesión
               </a>
 
@@ -51,7 +51,7 @@ function RecoveryApp() {
                 </button>
 
                 <div className="auth-footer">
-                  ¿Aún no tienes cuenta? <a href="AGND Register.html">Crear cuenta gratis</a>
+                  ¿Aún no tienes cuenta? <a href="register.html">Crear cuenta gratis</a>
                 </div>
               </form>
             </>
@@ -85,7 +85,7 @@ function RecoveryApp() {
                 <button type="button" className="ghost-btn" onClick={() => { setStage('request'); }}>
                   Reenviar el correo
                 </button>
-                <a href="AGND Login.html" className="ghost-btn" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <a href="login.html" className="ghost-btn" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                   <i data-lucide="arrow-left" style={{ width: 14, height: 14 }}></i> Volver al login
                 </a>
               </div>

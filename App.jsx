@@ -61,7 +61,7 @@ function App() {
               </h1>
 
               <div className="hero-actions">
-                <a href="AGND Register.html" className="btn btn-primary">
+                <a href="register.html" className="btn btn-primary">
                   Crear mi página gratis
                   <i data-lucide="arrow-right" style={{ width: 16, height: 16 }} />
                 </a>

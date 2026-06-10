@@ -155,11 +155,11 @@ function QuienesSomosApp() {
               <p>Siempre estamos buscando personas excepcionales. Escríbenos.</p>
             </div>
             <div className="end-actions">
-              <a href="AGND Contacto.html" className="btn-end primary">
+              <a href="contacto.html" className="btn-end primary">
                 Contactar al equipo
                 <i data-lucide="arrow-right" style={{ width: 14, height: 14 }} />
               </a>
-              <a href="AGND Register.html" className="btn-end ghost">
+              <a href="register.html" className="btn-end ghost">
                 Probar AGND gratis
               </a>
             </div>

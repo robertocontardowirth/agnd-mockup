@@ -27,7 +27,7 @@ function MosaicBackdrop({ seed = 7 }) {
 
 // Logo wordmark for the auth top bar
 const AuthBrand = () => (
-  <a href="AGND Landing.html" className="brand-link" aria-label="AGND home">
+  <a href="index.html" className="brand-link" aria-label="AGND home">
     <Logo size={32} />
   </a>
 );
@@ -127,8 +127,8 @@ function TinyFoot() {
     <div className="auth-tiny-foot">
       <span>© 2026 AGND.CL</span>
       <div style={{ display: 'flex', gap: 18 }}>
-        <a href="AGND Terminos.html" target="_blank">Términos</a>
-        <a href="AGND Privacidad.html" target="_blank">Privacidad</a>
+        <a href="terminos.html" target="_blank">Términos</a>
+        <a href="privacidad.html" target="_blank">Privacidad</a>
         <a href="#">Soporte</a>
       </div>
     </div>

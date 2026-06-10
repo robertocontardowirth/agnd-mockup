@@ -106,7 +106,7 @@ function ContactoApp() {
                   </div>
                   <div>
                     <h3>Recibido. Gracias, {form.name.split(' ')[0] || 'crack'}.</h3>
-                    <p>Te respondemos a <strong>{form.email}</strong> en menos de 24 horas hábiles. Mientras tanto, puedes <a href="AGND Landing.html#features" style={{ color: 'var(--agnd-plum-500)', borderBottom: '1px solid', textDecoration: 'none' }}>explorar el producto</a>.</p>
+                    <p>Te respondemos a <strong>{form.email}</strong> en menos de 24 horas hábiles. Mientras tanto, puedes <a href="index.html#features" style={{ color: 'var(--agnd-plum-500)', borderBottom: '1px solid', textDecoration: 'none' }}>explorar el producto</a>.</p>
                   </div>
                 </div>
               )}

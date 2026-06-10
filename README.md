@@ -10,15 +10,15 @@ Construida con HTML, CSS y React (vía Babel CDN) sin paso de build — todo cor
 
 | Archivo | Descripción |
 |---|---|
-| `AGND Landing.html` | Landing page de marketing |
-| `AGND Login.html` | Inicio de sesión |
-| `AGND Register.html` | Registro de cliente (flujo 3 pasos) |
-| `AGND Recovery.html` | Recuperación de contraseña |
-| `AGND App.html` | Shell de la plataforma (dashboard, agenda, clientes) |
-| `AGND Contacto.html` | Formulario de contacto |
-| `AGND QuienesSomos.html` | Página institucional |
-| `AGND Terminos.html` | Términos y condiciones |
-| `AGND Privacidad.html` | Política de privacidad |
+| `index.html` | Landing page de marketing |
+| `login.html` | Inicio de sesión |
+| `register.html` | Registro de cliente (flujo 3 pasos) |
+| `recovery.html` | Recuperación de contraseña |
+| `app.html` | Shell de la plataforma (dashboard, agenda, clientes) |
+| `contacto.html` | Formulario de contacto |
+| `quienes-somos.html` | Página institucional |
+| `terminos.html` | Términos y condiciones |
+| `privacidad.html` | Política de privacidad |
 
 ## Stack
 
