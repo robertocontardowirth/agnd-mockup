@@ -1,0 +1,756 @@
+// AgendaSection.jsx — Sección Agenda: 6 sub-vistas (Hoy, Semana, Mes, Horarios, Excepciones, Bloqueos)
+
+// ── MOCK DATA ────────────────────────────────────────────────────────────────
+
+const MOCK_CITAS_HOY = [
+  { id: 1,  hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed', notas: 'Primera visita del mes' },
+  { id: 2,  hora: '10:30', duracion: 90, cliente: 'Carolina Pérez',   servicio: 'Coloración',        colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
+  { id: 3,  hora: '12:00', duracion: 45, cliente: 'Sofía Herrera',    servicio: 'Manicure',          colaborador: 'Paula R.',  estado: 'pending',   notas: 'Confirmar por WhatsApp' },
+  { id: 4,  hora: '14:00', duracion: 60, cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing',  colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
+  { id: 5,  hora: '15:30', duracion: 60, cliente: 'Daniela Torres',   servicio: 'Pedicure',          colaborador: 'Paula R.',  estado: 'pending',   notas: '' },
+  { id: 6,  hora: '17:00', duracion: 90, cliente: 'Isabel Castro',    servicio: 'Coloración',        colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
+];
+
+const MOCK_CITAS_SEMANA = [
+  { id: 10, dayIndex: 0, hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed' },
+  { id: 11, dayIndex: 0, hora: '11:00', duracion: 45, cliente: 'Sofía Herrera',    servicio: 'Manicure',         colaborador: 'Paula R.',  estado: 'pending' },
+  { id: 12, dayIndex: 1, hora: '10:00', duracion: 90, cliente: 'Carolina Pérez',   servicio: 'Coloración',       colaborador: 'Andrea M.', estado: 'confirmed' },
+  { id: 13, dayIndex: 2, hora: '09:30', duracion: 60, cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed' },
+  { id: 14, dayIndex: 2, hora: '14:00', duracion: 45, cliente: 'Fernanda Muñoz',   servicio: 'Manicure',         colaborador: 'Paula R.',  estado: 'confirmed' },
+  { id: 15, dayIndex: 3, hora: '11:00', duracion: 60, cliente: 'Daniela Torres',   servicio: 'Pedicure',         colaborador: 'Paula R.',  estado: 'done' },
+  { id: 16, dayIndex: 4, hora: '09:00', duracion: 90, cliente: 'Isabel Castro',    servicio: 'Coloración',       colaborador: 'Andrea M.', estado: 'confirmed' },
+  { id: 17, dayIndex: 4, hora: '11:30', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte',            colaborador: 'Andrea M.', estado: 'confirmed' },
+];
+
+const MOCK_CITAS_MES = [
+  { id: 20, fecha: '2026-05-04', hora: '09:00', cliente: 'Valentina Rojas',  estado: 'confirmed' },
+  { id: 21, fecha: '2026-05-04', hora: '11:00', cliente: 'Sofía Herrera',    estado: 'pending' },
+  { id: 22, fecha: '2026-05-04', hora: '14:00', cliente: 'Camila Fuentes',   estado: 'confirmed' },
+  { id: 23, fecha: '2026-05-11', hora: '10:00', cliente: 'Carolina Pérez',   estado: 'confirmed' },
+  { id: 24, fecha: '2026-05-18', hora: '09:00', cliente: 'Daniela Torres',   estado: 'confirmed' },
+  { id: 25, fecha: '2026-05-18', hora: '11:30', cliente: 'Isabel Castro',    estado: 'pending' },
+  { id: 26, fecha: '2026-05-20', hora: '09:00', cliente: 'Fernanda Muñoz',   estado: 'confirmed' },
+  { id: 27, fecha: '2026-05-26', hora: '10:00', cliente: 'Jorge Salazar',    estado: 'cancelled' },
+  { id: 28, fecha: '2026-05-28', hora: '14:00', cliente: 'Andrea García',    estado: 'confirmed' },
+];
+
+const MOCK_HORARIOS = [
+  { id: 'lun', label: 'Lunes',     activo: true,  apertura: '09:00', cierre: '19:00' },
+  { id: 'mar', label: 'Martes',    activo: true,  apertura: '09:00', cierre: '19:00' },
+  { id: 'mie', label: 'Miércoles', activo: true,  apertura: '09:00', cierre: '19:00' },
+  { id: 'jue', label: 'Jueves',    activo: true,  apertura: '09:00', cierre: '19:00' },
+  { id: 'vie', label: 'Viernes',   activo: true,  apertura: '09:00', cierre: '18:00' },
+  { id: 'sab', label: 'Sábado',    activo: true,  apertura: '10:00', cierre: '14:00' },
+  { id: 'dom', label: 'Domingo',   activo: false, apertura: '10:00', cierre: '14:00' },
+];
+
+const MOCK_EXCEPCIONES = [
+  { id: 1, fecha: '2026-06-21', motivo: 'Día del trabajo', tipo: 'closed' },
+  { id: 2, fecha: '2026-07-04', motivo: 'Fiestas Patrias', tipo: 'closed' },
+  { id: 3, fecha: '2026-05-30', motivo: 'Evento especial mañana', tipo: 'special', apertura: '09:00', cierre: '13:00' },
+];
+
+const MOCK_BLOQUEOS = [
+  { id: 1, fecha: '2026-05-20', desde: '13:00', hasta: '15:00', colaborador: 'Andrea M.', motivo: 'Reunión de equipo' },
+  { id: 2, fecha: '2026-05-22', desde: '10:00', hasta: '11:30', colaborador: 'Paula R.',  motivo: 'Capacitación' },
+  { id: 3, fecha: '2026-05-28', desde: '09:00', hasta: '12:00', colaborador: 'Todos',     motivo: 'Limpieza general' },
+];
+
+const COLABORADORES = ['Andrea M.', 'Paula R.', 'Todos'];
+
+// ── SHARED PRIMITIVES ────────────────────────────────────────────────────────
+
+function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, children }) {
+  return (
+    <div className="agenda-view-header">
+      <div className="agenda-nav-group">
+        <button className="agenda-nav-btn" onClick={onPrev} aria-label="Anterior">
+          <i data-lucide="chevron-left" />
+        </button>
+        <span className="agenda-nav-title">{title}</span>
+        <button className="agenda-nav-btn" onClick={onNext} aria-label="Siguiente">
+          <i data-lucide="chevron-right" />
+        </button>
+        {onReset && (
+          <button className="agenda-reset-btn" onClick={onReset}>
+            {resetLabel || 'Hoy'}
+          </button>
+        )}
+      </div>
+      <div className="agenda-header-actions">{children}</div>
+    </div>
+  );
+}
+
+function AgendaEmptyState({ icon, message }) {
+  return (
+    <div className="agenda-empty-state">
+      <i data-lucide={icon || 'calendar'} />
+      <span>{message || 'Sin datos'}</span>
+    </div>
+  );
+}
+
+// ── HOY VIEW ─────────────────────────────────────────────────────────────────
+
+function AgendaSummaryRow({ citas }) {
+  const total = citas.length;
+  const pendientes = citas.filter(c => c.estado === 'pending').length;
+  const horas = (citas.reduce((acc, c) => acc + c.duracion, 0) / 60).toFixed(1);
+  return (
+    <div className="agenda-summary-row">
+      <div className="agenda-summary-chip">
+        <span className="agenda-summary-num">{total}</span> citas
+      </div>
+      <div className="agenda-summary-sep" />
+      <div className="agenda-summary-chip">
+        <span className="agenda-summary-num">{horas}h</span> ocupadas
+      </div>
+      <div className="agenda-summary-sep" />
+      <div className="agenda-summary-chip">
+        <span className="agenda-summary-num">{pendientes}</span> pendientes
+      </div>
+    </div>
+  );
+}
+
+function CitaDetail({ cita, onClose }) {
+  return (
+    <div className="cita-detail-panel">
+      <div className="cita-detail-header">
+        <div className="cita-detail-client">{cita.cliente}</div>
+        <button className="cita-detail-close" onClick={onClose} aria-label="Cerrar">
+          <i data-lucide="x" />
+        </button>
+      </div>
+      <div className="cita-detail-grid">
+        <div className="cita-detail-row">
+          <div className="cita-detail-label">Servicio</div>
+          <div className="cita-detail-value">{cita.servicio}</div>
+        </div>
+        <div className="cita-detail-row">
+          <div className="cita-detail-label">Duración</div>
+          <div className="cita-detail-value">{cita.duracion} min</div>
+        </div>
+        <div className="cita-detail-row">
+          <div className="cita-detail-label">Colaborador</div>
+          <div className="cita-detail-value">{cita.colaborador}</div>
+        </div>
+        <div className="cita-detail-row">
+          <div className="cita-detail-label">Estado</div>
+          <div className="cita-detail-value"><EstadoBadge estado={cita.estado} /></div>
+        </div>
+        {cita.notas && (
+          <div className="cita-detail-row cita-detail-row--full">
+            <div className="cita-detail-label">Notas</div>
+            <div className="cita-detail-value">{cita.notas}</div>
+          </div>
+        )}
+      </div>
+      <div className="cita-detail-actions">
+        <button className="btn-sm-ghost">Editar</button>
+        <button className="btn-sm-ghost">Reagendar</button>
+        <button className="btn-sm-ghost" style={{ color: 'var(--agnd-rose-500)', borderColor: 'var(--agnd-rose-500)' }}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CitaBlock({ cita, selected, onSelect }) {
+  return (
+    <div>
+      <div
+        className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}`}
+        onClick={onSelect}
+        role="button"
+        tabIndex="0"
+      >
+        <div className="cita-block-time">{cita.hora} · {cita.duracion} min</div>
+        <div className="cita-block-client">{cita.cliente}</div>
+        <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>
+        <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>
+      </div>
+      {selected && <CitaDetail cita={cita} onClose={onSelect} />}
+    </div>
+  );
+}
+
+function TimelineSlot({ hour, citas, selectedId, onSelect }) {
+  const slotCitas = citas.filter(c => parseInt(c.hora.split(':')[0]) === hour);
+  const label = `${hour.toString().padStart(2, '0')}:00`;
+  const isEmpty = slotCitas.length === 0;
+  return (
+    <div className={`timeline-slot${isEmpty ? ' is-empty' : ''}`}>
+      <div className="timeline-slot-hour">{label}</div>
+      <div className="timeline-slot-track">
+        {isEmpty ? (
+          <button className="timeline-slot-add" aria-label="Nueva cita a las {label}">
+            <i data-lucide="plus" />
+          </button>
+        ) : (
+          slotCitas.map(c => (
+            <CitaBlock
+              key={c.id}
+              cita={c}
+              selected={selectedId === c.id}
+              onSelect={() => onSelect(selectedId === c.id ? null : c.id)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HoyView() {
+  const [dayOffset, setDayOffset] = React.useState(0);
+  const [selectedId, setSelectedId] = React.useState(null);
+
+  const today = new Date();
+  const date = new Date(today);
+  date.setDate(date.getDate() + dayOffset);
+
+  const isToday = dayOffset === 0;
+  const dayNames   = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const titleDay   = `${dayNames[date.getDay()]} ${date.getDate()} de ${monthNames[date.getMonth()]}`;
+  const title = isToday
+    ? `Hoy — ${titleDay}`
+    : titleDay.charAt(0).toUpperCase() + titleDay.slice(1);
+
+  const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+  return (
+    <div className="agenda-view">
+      <AgendaViewHeader
+        title={title}
+        onPrev={() => { setDayOffset(d => d - 1); setSelectedId(null); }}
+        onNext={() => { setDayOffset(d => d + 1); setSelectedId(null); }}
+        onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
+        resetLabel="Hoy"
+      >
+        <button className="btn-primary-sm">
+          <i data-lucide="calendar-plus" />
+          Nueva cita
+        </button>
+      </AgendaViewHeader>
+
+      <AgendaSummaryRow citas={MOCK_CITAS_HOY} />
+
+      <div className="timeline-wrap">
+        {hours.map(h => (
+          <TimelineSlot
+            key={h}
+            hour={h}
+            citas={MOCK_CITAS_HOY}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── SEMANA VIEW ───────────────────────────────────────────────────────────────
+
+function CitaCardCompact({ cita }) {
+  return (
+    <div className="semana-cita-card">
+      <div className="semana-cita-time">{cita.hora}</div>
+      <div className="semana-cita-client">{cita.cliente}</div>
+      <EstadoBadge estado={cita.estado} />
+    </div>
+  );
+}
+
+function SemanaDayColumn({ dayName, dayNumber, citas, isToday }) {
+  return (
+    <div className={`semana-col${isToday ? ' is-today' : ''}`}>
+      <div className="semana-col-header">
+        <div className="semana-col-dayname">{dayName}</div>
+        <div className={`semana-col-daynumber${isToday ? ' is-today' : ''}`}>{dayNumber}</div>
+      </div>
+      <div className="semana-col-body">
+        {citas.length === 0
+          ? <div className="semana-empty">—</div>
+          : citas.map(c => <CitaCardCompact key={c.id} cita={c} />)
+        }
+      </div>
+    </div>
+  );
+}
+
+function SemanaView() {
+  const [weekOffset, setWeekOffset] = React.useState(0);
+
+  const today = new Date();
+  const dow = today.getDay();
+  const mondayDiff = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayDiff + weekOffset * 7);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const shortMonths = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const title = `${monday.getDate()} ${shortMonths[monday.getMonth()]} — ${sunday.getDate()} ${shortMonths[sunday.getMonth()]} ${sunday.getFullYear()}`;
+
+  const dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+  const todayStr = today.toDateString();
+
+  return (
+    <div className="agenda-view">
+      <AgendaViewHeader
+        title={title}
+        onPrev={() => setWeekOffset(w => w - 1)}
+        onNext={() => setWeekOffset(w => w + 1)}
+        onReset={weekOffset !== 0 ? () => setWeekOffset(0) : null}
+        resetLabel="Esta semana"
+      />
+      <div className="semana-grid">
+        {days.map((d, i) => (
+          <SemanaDayColumn
+            key={i}
+            dayName={dayNames[i]}
+            dayNumber={d.getDate()}
+            citas={MOCK_CITAS_SEMANA.filter(c => c.dayIndex === i)}
+            isToday={d.toDateString() === todayStr}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── MES VIEW ─────────────────────────────────────────────────────────────────
+
+function MesDayCell({ date, citas, isToday, isSelected, isOut, onClick }) {
+  const dots = citas.slice(0, 2);
+  const overflow = citas.length - 2;
+  return (
+    <div
+      className={`mes-day-cell${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}${isOut ? ' is-out' : ''}`}
+      onClick={isOut ? undefined : onClick}
+      role={isOut ? undefined : 'button'}
+      tabIndex={isOut ? undefined : 0}
+    >
+      <div className={`mes-day-number${isToday ? ' today-circle' : ''}`}>{date.getDate()}</div>
+      {citas.length > 0 && (
+        <div className="mes-dot-row">
+          {dots.map((c, i) => <span key={i} className={`mes-dot status-${c.estado}`} />)}
+          {overflow > 0 && <span className="mes-overflow-count">+{overflow}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MesSidePanel({ date, citas, onClose }) {
+  const dayNames   = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const title = `${dayNames[date.getDay()]} ${date.getDate()} de ${monthNames[date.getMonth()]}`;
+  return (
+    <div className="mes-side-panel">
+      <div className="mes-side-panel-header">
+        <div className="mes-side-panel-title">{title}</div>
+        <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
+          <i data-lucide="x" />
+        </button>
+      </div>
+      <div className="mes-side-panel-body">
+        {citas.length === 0 ? (
+          <AgendaEmptyState icon="calendar" message="Sin citas este día" />
+        ) : (
+          <div className="cita-list">
+            {citas.map(c => (
+              <div key={c.id} className="cita-row">
+                <div className="cita-hora">{c.hora}</div>
+                <div className="cita-info">
+                  <div className="cita-cliente">{c.cliente}</div>
+                </div>
+                <EstadoBadge estado={c.estado} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MesView() {
+  const [monthOffset, setMonthOffset] = React.useState(0);
+  const [selectedDate, setSelectedDate] = React.useState(null);
+
+  const today = new Date();
+  const baseDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const year  = baseDate.getFullYear();
+  const month = baseDate.getMonth();
+
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const weekDayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const title = `${monthNames[month]} ${year}`;
+
+  // Build Mon-first grid (6 weeks = 42 cells)
+  const firstDay = new Date(year, month, 1);
+  const startDow = firstDay.getDay();
+  const offset = startDow === 0 ? 6 : startDow - 1;
+  const startDate = new Date(year, month, 1 - offset);
+
+  const cells = Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    return d;
+  });
+
+  const toIso = d =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  const todayIso = toIso(today);
+
+  const citasByDate = {};
+  MOCK_CITAS_MES.forEach(c => {
+    if (!citasByDate[c.fecha]) citasByDate[c.fecha] = [];
+    citasByDate[c.fecha].push(c);
+  });
+
+  const selectedIso    = selectedDate ? toIso(selectedDate) : null;
+  const selectedCitas  = selectedDate ? (citasByDate[toIso(selectedDate)] || []) : [];
+
+  const handleDayClick = d => {
+    const iso = toIso(d);
+    setSelectedDate(iso === selectedIso ? null : d);
+  };
+
+  return (
+    <div className="agenda-view">
+      <AgendaViewHeader
+        title={title}
+        onPrev={() => { setMonthOffset(m => m - 1); setSelectedDate(null); }}
+        onNext={() => { setMonthOffset(m => m + 1); setSelectedDate(null); }}
+        onReset={monthOffset !== 0 ? () => { setMonthOffset(0); setSelectedDate(null); } : null}
+        resetLabel="Mes actual"
+      />
+      <div className={`mes-layout${selectedDate ? ' has-panel' : ''}`}>
+        <div className="mes-grid-wrap">
+          <div className="mes-weekday-header">
+            {weekDayNames.map(d => <div key={d} className="mes-weekday-cell">{d}</div>)}
+          </div>
+          <div className="mes-grid">
+            {cells.map((d, i) => {
+              const iso = toIso(d);
+              return (
+                <MesDayCell
+                  key={i}
+                  date={d}
+                  citas={citasByDate[iso] || []}
+                  isToday={iso === todayIso}
+                  isSelected={iso === selectedIso}
+                  isOut={d.getMonth() !== month}
+                  onClick={() => handleDayClick(d)}
+                />
+              );
+            })}
+          </div>
+        </div>
+        {selectedDate && (
+          <MesSidePanel
+            date={selectedDate}
+            citas={selectedCitas}
+            onClose={() => setSelectedDate(null)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── HORARIOS VIEW ─────────────────────────────────────────────────────────────
+
+function AgendaToggle({ value, onChange }) {
+  return (
+    <button
+      className={`agenda-toggle${value ? ' on' : ''}`}
+      onClick={() => onChange(!value)}
+      role="switch"
+      aria-checked={value}
+    >
+      <span className="agenda-toggle-thumb" />
+    </button>
+  );
+}
+
+function HorarioRow({ dia, onChange }) {
+  return (
+    <div className="agenda-table-row">
+      <div className="horario-day-name">{dia.label}</div>
+      <AgendaToggle value={dia.activo} onChange={v => onChange({ ...dia, activo: v })} />
+      <div className={`horario-times${!dia.activo ? ' disabled' : ''}`}>
+        <div className="horario-time-group">
+          <span className="horario-time-label">Desde</span>
+          <input
+            type="time"
+            className="agenda-time-input"
+            value={dia.apertura}
+            disabled={!dia.activo}
+            onChange={e => onChange({ ...dia, apertura: e.target.value })}
+          />
+        </div>
+        <span className="horario-time-sep">—</span>
+        <div className="horario-time-group">
+          <span className="horario-time-label">Hasta</span>
+          <input
+            type="time"
+            className="agenda-time-input"
+            value={dia.cierre}
+            disabled={!dia.activo}
+            onChange={e => onChange({ ...dia, cierre: e.target.value })}
+          />
+        </div>
+      </div>
+      {!dia.activo && <span className="badge badge-closed">Cerrado</span>}
+    </div>
+  );
+}
+
+function HorariosView() {
+  const [horarios, setHorarios] = React.useState(MOCK_HORARIOS);
+  const [saved, setSaved] = React.useState(false);
+
+  const updateDia = (idx, updated) => {
+    setSaved(false);
+    setHorarios(h => h.map((d, i) => i === idx ? updated : d));
+  };
+
+  const save = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  return (
+    <div className="agenda-config-view">
+      <div className="agenda-config-header">
+        <div>
+          <div className="agenda-config-title">Horarios de atención</div>
+          <div className="agenda-config-desc">Configura los días y horarios en que tu negocio atiende reservas.</div>
+        </div>
+        <button className={`agenda-save-btn${saved ? ' saved' : ''}`} onClick={save}>
+          {saved ? <React.Fragment><i data-lucide="check" />Guardado</React.Fragment> : 'Guardar cambios'}
+        </button>
+      </div>
+      <div className="agenda-table">
+        {horarios.map((dia, i) => (
+          <HorarioRow key={dia.id} dia={dia} onChange={updated => updateDia(i, updated)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── EXCEPCIONES VIEW ──────────────────────────────────────────────────────────
+
+function ExcepcionForm({ onConfirm, onCancel }) {
+  const [form, setForm] = React.useState({ fecha: '', tipo: 'closed', motivo: '' });
+  const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const ok = form.fecha && form.motivo;
+  return (
+    <div className="agenda-form-inline">
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Fecha</label>
+        <input type="date" className="agenda-time-input" value={form.fecha} onChange={up('fecha')} />
+      </div>
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Tipo</label>
+        <select className="agenda-time-input" value={form.tipo} onChange={up('tipo')}>
+          <option value="closed">Cerrado</option>
+          <option value="special">Horario especial</option>
+        </select>
+      </div>
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Motivo</label>
+        <input
+          type="text"
+          className="agenda-time-input agenda-form-input-grow"
+          placeholder="Ej: Feriado nacional"
+          value={form.motivo}
+          onChange={up('motivo')}
+        />
+      </div>
+      <div className="agenda-form-actions">
+        <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
+          <i data-lucide="plus" />Agregar
+        </button>
+        <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
+function ExcepcionesView() {
+  const [items, setItems] = React.useState(MOCK_EXCEPCIONES);
+  const [showForm, setShowForm] = React.useState(false);
+
+  const add = form => { setItems(p => [...p, { id: Date.now(), ...form }]); setShowForm(false); };
+  const remove = id => setItems(p => p.filter(e => e.id !== id));
+
+  const fmtFecha = iso => {
+    const [y, m, d] = iso.split('-');
+    const mm = ['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${d} ${mm[parseInt(m)]} ${y}`;
+  };
+
+  return (
+    <div className="agenda-config-view">
+      <div className="agenda-config-header">
+        <div>
+          <div className="agenda-config-title">Excepciones</div>
+          <div className="agenda-config-desc">Días en que el negocio cierra o tiene horario especial.</div>
+        </div>
+        {!showForm && (
+          <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
+            <i data-lucide="plus" />Nueva excepción
+          </button>
+        )}
+      </div>
+      {showForm && <ExcepcionForm onConfirm={add} onCancel={() => setShowForm(false)} />}
+      <div className="agenda-table">
+        <div className="agenda-table-head excepciones-head">
+          <div>Fecha</div><div>Motivo</div><div>Tipo</div><div />
+        </div>
+        {items.length === 0 ? (
+          <AgendaEmptyState icon="calendar-x" message="Sin excepciones registradas" />
+        ) : items.map(exc => (
+          <div key={exc.id} className="agenda-table-row">
+            <div className="agenda-table-fecha">{fmtFecha(exc.fecha)}</div>
+            <div className="agenda-table-motivo">{exc.motivo}</div>
+            <div>
+              {exc.tipo === 'closed'
+                ? <span className="badge badge-closed">Cerrado</span>
+                : <span className="badge badge-special">Horario especial</span>
+              }
+            </div>
+            <button className="agenda-action-btn" onClick={() => remove(exc.id)} aria-label="Eliminar">
+              <i data-lucide="trash-2" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── BLOQUEOS VIEW ─────────────────────────────────────────────────────────────
+
+function BloqueoForm({ onConfirm, onCancel }) {
+  const [form, setForm] = React.useState({ fecha: '', desde: '', hasta: '', colaborador: 'Todos', motivo: '' });
+  const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const ok = form.fecha && form.desde && form.hasta && form.motivo;
+  return (
+    <div className="agenda-form-inline">
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Fecha</label>
+        <input type="date" className="agenda-time-input" value={form.fecha} onChange={up('fecha')} />
+      </div>
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Desde</label>
+        <input type="time" className="agenda-time-input" value={form.desde} onChange={up('desde')} />
+        <label className="agenda-form-label" style={{ marginLeft: 12 }}>Hasta</label>
+        <input type="time" className="agenda-time-input" value={form.hasta} onChange={up('hasta')} />
+      </div>
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Colaborador</label>
+        <select className="agenda-time-input" value={form.colaborador} onChange={up('colaborador')}>
+          {COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+      <div className="agenda-form-row">
+        <label className="agenda-form-label">Motivo</label>
+        <input
+          type="text"
+          className="agenda-time-input agenda-form-input-grow"
+          placeholder="Ej: Capacitación"
+          value={form.motivo}
+          onChange={up('motivo')}
+        />
+      </div>
+      <div className="agenda-form-actions">
+        <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
+          <i data-lucide="plus" />Agregar
+        </button>
+        <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
+function BloqueosView() {
+  const [items, setItems] = React.useState(MOCK_BLOQUEOS);
+  const [showForm, setShowForm] = React.useState(false);
+
+  const add = form => { setItems(p => [...p, { id: Date.now(), ...form }]); setShowForm(false); };
+  const remove = id => setItems(p => p.filter(b => b.id !== id));
+
+  const fmtFecha = iso => {
+    const [y, m, d] = iso.split('-');
+    const mm = ['', 'ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${d} ${mm[parseInt(m)]} ${y}`;
+  };
+
+  return (
+    <div className="agenda-config-view">
+      <div className="agenda-config-header">
+        <div>
+          <div className="agenda-config-title">Bloqueos de horario</div>
+          <div className="agenda-config-desc">Franjas de tiempo en que un colaborador no está disponible para reservas.</div>
+        </div>
+        {!showForm && (
+          <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
+            <i data-lucide="plus" />Nuevo bloqueo
+          </button>
+        )}
+      </div>
+      {showForm && <BloqueoForm onConfirm={add} onCancel={() => setShowForm(false)} />}
+      <div className="agenda-table">
+        <div className="agenda-table-head bloqueos-head">
+          <div>Fecha</div><div>Horario</div><div>Colaborador</div><div>Motivo</div><div />
+        </div>
+        {items.length === 0 ? (
+          <AgendaEmptyState icon="ban" message="Sin bloqueos registrados" />
+        ) : items.map(b => (
+          <div key={b.id} className="agenda-table-row">
+            <div className="agenda-table-fecha">{fmtFecha(b.fecha)}</div>
+            <div className="agenda-table-rango">{b.desde} — {b.hasta}</div>
+            <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{b.colaborador}</div>
+            <div className="agenda-table-motivo">{b.motivo}</div>
+            <button className="agenda-action-btn" onClick={() => remove(b.id)} aria-label="Eliminar">
+              <i data-lucide="trash-2" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────────────────────
+
+function AgendaSection({ sub }) {
+  const view = sub || 'hoy';
+  if (view === 'hoy')         return <HoyView />;
+  if (view === 'semana')      return <SemanaView />;
+  if (view === 'mes')         return <MesView />;
+  if (view === 'horarios')    return <HorariosView />;
+  if (view === 'excepciones') return <ExcepcionesView />;
+  if (view === 'bloqueos')    return <BloqueosView />;
+  return <HoyView />;
+}
+
+Object.assign(window, { AgendaSection });

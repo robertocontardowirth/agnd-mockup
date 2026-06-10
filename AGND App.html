@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AGND · App</title>
+  <link rel="icon" href="assets/mark-A.png" />
+  <link rel="stylesheet" href="colors_and_type.css" />
+  <link rel="stylesheet" href="app.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body data-theme="dark" data-accent="aqua">
+<div id="root"></div>
+
+<script type="text/babel" src="MosaicTile.jsx"></script>
+<script type="text/babel" src="Components.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="AppShell.jsx"></script>
+<script type="text/babel" src="DashboardHome.jsx"></script>
+<script type="text/babel" src="AgendaSection.jsx"></script>
+
+<script type="text/babel">
+
+const APP_TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "aqua",
+  "dark": true
+}/*EDITMODE-END*/;
+
+const SECTION_META = {
+  agenda:   { icon: 'calendar',    label: 'Agenda',   desc: 'Gestión de citas y horarios.' },
+  clientes: { icon: 'users',       label: 'Clientes', desc: 'CRM: tus clientes y su historial.' },
+  equipo:   { icon: 'user-check',  label: 'Equipo',   desc: 'Colaboradores, roles y disponibilidad.' },
+  espacios: { icon: 'building-2',  label: 'Espacios', desc: 'Salas, boxes y espacios físicos.' },
+  recursos: { icon: 'package',     label: 'Recursos', desc: 'Equipamiento y materiales por cita.' },
+};
+
+function PlaceholderView({ section }) {
+  const meta = SECTION_META[section] || { icon: 'layout', label: section, desc: '' };
+  return (
+    <div className="placeholder-view">
+      <i data-lucide={meta.icon} />
+      <h2>{meta.label}</h2>
+      <p>{meta.desc}</p>
+      <p style={{ marginTop: 4, fontSize: 12, opacity: .6 }}>Esta sección está en construcción.</p>
+    </div>
+  );
+}
+
+function AppRoot() {
+  const [section, setSection] = React.useState('home');
+  const [sub, setSub] = React.useState(null);
+  const [t, setTweak] = useTweaks(APP_TWEAK_DEFAULTS);
+
+  React.useEffect(() => {
+    document.body.dataset.theme = t.dark ? 'dark' : 'light';
+    document.body.dataset.accent = t.accent;
+  }, [t.dark, t.accent]);
+
+  React.useEffect(() => {
+    const id = setTimeout(() => window.lucide && window.lucide.createIcons(), 50);
+    return () => clearTimeout(id);
+  });
+
+  const handleSection = (s) => {
+    setSection(s);
+    setSub(null);
+  };
+
+  const content = section === 'home'
+    ? <DashboardHome />
+    : section === 'agenda'
+      ? <AgendaSection sub={sub || 'hoy'} />
+      : <PlaceholderView section={section} />;
+
+  return (
+    <>
+      <AppShell
+        section={section}
+        onSection={handleSection}
+        sub={sub}
+        onSub={setSub}
+      >
+        {content}
+      </AppShell>
+
+      <TweaksPanel title="Tweaks · AGND app">
+        <TweakSection label="Tema">
+          <TweakRadio
+            label="Acento"
+            value={t.accent}
+            options={[
+              { value: 'aqua',  label: 'Aqua' },
+              { value: 'rose',  label: 'Rosa' },
+              { value: 'plum',  label: 'Plum' },
+              { value: 'coral', label: 'Coral' },
+            ]}
+            onChange={(v) => setTweak('accent', v)}
+          />
+          <TweakToggle
+            label="Modo oscuro"
+            value={t.dark}
+            onChange={(v) => setTweak('dark', v)}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<AppRoot />);
+
+</script>
+</body>
+</html>

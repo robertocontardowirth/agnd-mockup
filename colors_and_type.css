@@ -1,0 +1,320 @@
+/* =========================================================================
+   AGND — Colors & Type
+   The foundational tokens. Import this file anywhere AGND visual identity
+   is needed.
+   ========================================================================= */
+
+/* ---------- Webfonts -------------------------------------------------------
+   AGND type system:
+   - **Display** (Sora) — large headlines and brand wordmark.
+   - **Body** (Geist) — UI text, paragraphs, labels.
+   - **Mono** (Geist Mono) — code, timestamps, metadata.
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
+
+@font-face { font-family: 'Geist'; font-weight: 100; font-style: normal; font-display: swap; src: url('fonts/Geist-Thin.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 200; font-style: normal; font-display: swap; src: url('fonts/Geist-ExtraLight.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 300; font-style: normal; font-display: swap; src: url('fonts/Geist-Light.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 400; font-style: normal; font-display: swap; src: url('fonts/Geist-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 500; font-style: normal; font-display: swap; src: url('fonts/Geist-Medium.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 600; font-style: normal; font-display: swap; src: url('fonts/Geist-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 700; font-style: normal; font-display: swap; src: url('fonts/Geist-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 800; font-style: normal; font-display: swap; src: url('fonts/Geist-ExtraBold.ttf') format('truetype'); }
+@font-face { font-family: 'Geist'; font-weight: 900; font-style: normal; font-display: swap; src: url('fonts/Geist-Black.ttf') format('truetype'); }
+
+@font-face { font-family: 'Sora'; font-weight: 100; font-style: normal; font-display: swap; src: url('fonts/Sora-Thin.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 200; font-style: normal; font-display: swap; src: url('fonts/Sora-ExtraLight.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 300; font-style: normal; font-display: swap; src: url('fonts/Sora-Light.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 400; font-style: normal; font-display: swap; src: url('fonts/Sora-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 500; font-style: normal; font-display: swap; src: url('fonts/Sora-Medium.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 600; font-style: normal; font-display: swap; src: url('fonts/Sora-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 700; font-style: normal; font-display: swap; src: url('fonts/Sora-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Sora'; font-weight: 800; font-style: normal; font-display: swap; src: url('fonts/Sora-ExtraBold.ttf') format('truetype'); }
+
+:root {
+  /* ===== Brand palette (from spec) =================================== */
+  --agnd-mint:        #DDFFF7;   /* lightest — paper / surface tint */
+  --agnd-aqua:        #93E1D8;   /* signature soft teal */
+  --agnd-coral:       #FFA69E;   /* warm accent */
+  --agnd-rose:        #AA4465;   /* deep rose / action */
+  --agnd-plum:        #222A55;   /* darkest — ink / brand */
+
+  /* Logo teal (sampled from logo, brighter than aqua) */
+  --agnd-aqua-bright: #4CD5D2;
+
+  /* ===== Tonal extensions (oklch derivations of the brand) ============ */
+  --agnd-mint-50:     #F4FFFC;
+  --agnd-mint-100:    #DDFFF7;
+  --agnd-aqua-200:    #C2EFE8;
+  --agnd-aqua-300:    #93E1D8;
+  --agnd-aqua-500:    #4CD5D2;
+  --agnd-aqua-700:    #2A8F8C;
+
+  --agnd-coral-200:   #FFD3CE;
+  --agnd-coral-400:   #FFA69E;
+  --agnd-coral-600:   #E07269;
+
+  --agnd-rose-400:    #C45D7E;
+  --agnd-rose-500:    #AA4465;
+  --agnd-rose-700:    #7A2E48;
+
+  --agnd-plum-400:    #3D4880;
+  --agnd-plum-500:    #222A55;
+  --agnd-plum-700:    #161B3A;
+  --agnd-plum-900:    #0B1024;
+
+  /* ===== Neutrals (warm, slightly plum-tinted) ======================= */
+  --agnd-paper:       #f7fbfa;   /* off-white background */
+  --agnd-bone:        #e9f2f2;
+  --agnd-fog:         #d2d9de;
+  --agnd-stone:       #9393a2;
+  --agnd-charcoal:    #3A3640;
+  --agnd-ink:         #1F1B25;
+
+  /* ===== Semantic — light theme (default) ============================ */
+  --bg:               var(--agnd-paper);
+  --bg-elevated:      #FFFFFF;
+  --bg-tint:          var(--agnd-mint-100);
+  --bg-inverse:       var(--agnd-plum-500);
+
+  --fg-1:             var(--agnd-plum-500);   /* primary text */
+  --fg-2:             #5B4C66;                /* secondary */
+  --fg-3:             #8A7E92;                /* tertiary */
+  --fg-on-dark:       var(--agnd-mint-100);
+  --fg-on-accent:     #FFFFFF;
+
+  --border:           #E6E1DA;
+  --border-strong:    var(--agnd-plum-500);
+
+  --accent:           var(--agnd-rose-500);
+  --accent-hover:     var(--agnd-rose-700);
+  --accent-soft:      var(--agnd-coral-200);
+
+  --primary:          var(--agnd-plum-500);
+  --primary-hover:    var(--agnd-plum-700);
+
+  --success:          #2A8F8C;
+  --warning:          #C97A1F;
+  --danger:           var(--agnd-rose-500);
+  --info:             var(--agnd-aqua-700);
+
+  /* ===== Type ======================================================== */
+  --font-display:     "Sora", system-ui, sans-serif;
+  --font-body:        "Geist", "Sora", system-ui, sans-serif;
+  --font-mono:        "Geist Mono", "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  /* Type scale — modular 1.250 (major third), anchored at 16px */
+  --fs-12:    0.75rem;
+  --fs-14:    0.875rem;
+  --fs-16:    1rem;
+  --fs-18:    1.125rem;
+  --fs-20:    1.25rem;
+  --fs-24:    1.5rem;
+  --fs-32:    2rem;
+  --fs-40:    2.5rem;
+  --fs-56:    3.5rem;
+  --fs-72:    4.5rem;
+  --fs-96:    6rem;
+
+  /* Line heights */
+  --lh-tight:   1.05;
+  --lh-snug:    1.2;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
+
+  /* Tracking */
+  --tr-tight:   -0.02em;
+  --tr-normal:  0;
+  --tr-wide:    0.04em;
+  --tr-caps:    0.12em;
+
+  /* ===== Spacing (8pt base) ========================================== */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+  --sp-10: 128px;
+
+  /* ===== Radii — generous, soft-mosaic feel ========================== */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  16px;
+  --r-xl:  24px;
+  --r-2xl: 36px;
+  --r-pill: 999px;
+  --r-tile: 22%;   /* the signature rounded-square logo cell radius */
+
+  /* ===== Shadows — soft, low, plum-tinted (never grey) =============== */
+  --shadow-xs:   0 1px 2px rgba(34, 42, 85, 0.06);
+  --shadow-sm:   0 2px 6px rgba(34, 42, 85, 0.08);
+  --shadow-md:   0 6px 18px -6px rgba(34, 42, 85, 0.16), 0 2px 6px rgba(34, 42, 85, 0.06);
+  --shadow-lg:   0 18px 40px -12px rgba(34, 42, 85, 0.24), 0 4px 10px rgba(34, 42, 85, 0.06);
+  --shadow-glow: 0 0 0 6px rgba(147, 225, 216, 0.35);
+
+  /* ===== Motion ====================================================== */
+  --ease-out:   cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:    cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --d-fast:     120ms;
+  --d-base:     220ms;
+  --d-slow:     420ms;
+}
+
+/* ---------- Dark theme override ------------------------------------------ */
+[data-theme="dark"] {
+  --bg:               var(--agnd-plum-700);
+  --bg-elevated:      var(--agnd-plum-500);
+  --bg-tint:          var(--agnd-plum-900);
+  --bg-inverse:       var(--agnd-mint-100);
+
+  --fg-1:             var(--agnd-mint-100);
+  --fg-2:             #C9BCD2;
+  --fg-3:             #8C7E96;
+
+  --border:           rgba(221, 255, 247, 0.10);
+  --border-strong:    var(--agnd-aqua-300);
+
+  --accent:           var(--agnd-coral-400);
+  --accent-hover:     var(--agnd-coral-600);
+}
+
+/* ============================================================
+   Semantic typography classes — the building blocks
+   ============================================================ */
+
+.h-display {
+  font-family: var(--font-display);
+  font-size: var(--fs-96);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  font-weight: 700;
+  color: var(--fg-1);
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-72);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  font-weight: 700;
+  color: var(--fg-1);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-56);
+  line-height: 1.08;
+  letter-spacing: var(--tr-tight);
+  font-weight: 600;
+  color: var(--fg-1);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-40);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--fg-1);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-body);
+  font-size: var(--fs-24);
+  line-height: var(--lh-snug);
+  font-weight: 600;
+  color: var(--fg-1);
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+h5, .h5 {
+  font-family: var(--font-body);
+  font-size: var(--fs-18);
+  line-height: var(--lh-snug);
+  font-weight: 600;
+  color: var(--fg-1);
+  margin: 0;
+}
+
+p, .body {
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-1);
+  margin: 0;
+}
+
+.body-lg {
+  font-family: var(--font-body);
+  font-size: var(--fs-20);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-1);
+}
+
+.body-sm {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: var(--fg-2);
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tr-caps);
+  color: var(--accent);
+}
+
+.caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  line-height: var(--lh-normal);
+  color: var(--fg-3);
+}
+
+code, .code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--agnd-mint-100);
+  color: var(--agnd-plum-500);
+  padding: 0.1em 0.4em;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(34, 42, 85, 0.08);
+}
+
+.lead {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--fs-24);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+  color: var(--fg-2);
+}
+
+/* ============================================================
+   Reset-ish base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  font-size: 17px;
+}
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
