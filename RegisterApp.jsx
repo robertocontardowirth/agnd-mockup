@@ -1,5 +1,9 @@
 // RegisterApp.jsx — flujo de registro AGND (3 pasos)
 
+const IcoArrowLeft  = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
+const IcoArrowRight = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>;
+const IcoRocket     = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
+
 const STEP_LABELS = ['Crear cuenta', 'Tu negocio', 'Disponibilidad'];
 
 const CATEGORIAS = [
@@ -113,7 +117,7 @@ function Step1({ form, update, blur, touched, onNext }) {
         </label>
 
         <button type="submit" className="btn btn-primary auth-submit" disabled={!canNext}>
-          Continuar <i data-lucide="arrow-right" style={{ width: 16, height: 16 }}></i>
+          Continuar <IcoArrowRight />
         </button>
 
         <div className="auth-footer">
@@ -174,10 +178,10 @@ function Step2({ form, update, onNext, onBack }) {
 
         <div className="step-nav">
           <button type="button" className="btn btn-ghost step-back" onClick={onBack}>
-            <i data-lucide="arrow-left" style={{ width: 16, height: 16 }}></i> Volver
+            <IcoArrowLeft /> Volver
           </button>
           <button type="submit" className="btn btn-primary auth-submit step-next" disabled={!canNext}>
-            Continuar <i data-lucide="arrow-right" style={{ width: 16, height: 16 }}></i>
+            Continuar <IcoArrowRight />
           </button>
         </div>
       </form>
@@ -243,7 +247,7 @@ function Step3({ onBack }) {
 
         <div className="step-nav">
           <button type="button" className="btn btn-ghost step-back" onClick={onBack}>
-            <i data-lucide="arrow-left" style={{ width: 16, height: 16 }}></i> Volver
+            <IcoArrowLeft /> Volver
           </button>
           <button
             type="submit"
@@ -252,7 +256,7 @@ function Step3({ onBack }) {
           >
             {submitting
               ? <><span className="spinner" /> Configurando…</>
-              : <>Comenzar <i data-lucide="rocket" style={{ width: 16, height: 16 }}></i></>}
+              : <>Comenzar <IcoRocket /></>}
           </button>
         </div>
       </form>
@@ -274,7 +278,9 @@ function RegisterApp() {
   const blur = (k) => () => setTouched(t => ({ ...t, [k]: true }));
 
   React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    requestAnimationFrame(() => {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    });
   });
 
   return (
