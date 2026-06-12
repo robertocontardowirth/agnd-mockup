@@ -15,7 +15,7 @@ function SiteNav({ active }) {
         </a>
         <div className="site-nav-links">
           {link('product', 'Producto', h('#features'))}
-          {link('pricing', 'Precios', h('#pricing'))}
+          {link('pricing', 'Precios', 'precios.html')}
           {link('about', 'Nosotros', 'quienes-somos.html')}
           {link('contact', 'Contacto', 'contacto.html')}
         </div>
@@ -44,7 +44,7 @@ function SiteFooter() {
             <ul>
               <li><a href={h('#features')}>Página de reserva</a></li>
               <li><a href={h('#features')}>CRM</a></li>
-              <li><a href={h('#pricing')}>Precios</a></li>
+              <li><a href="precios.html">Precios</a></li>
               <li><a href={h('#features')}>Integraciones</a></li>
             </ul>
           </div>

@@ -116,7 +116,7 @@ const TERMS_DOC = {
     )},
     { id: 'planes-pagos', title: 'Planes, pagos y facturación', body: (
       <>
-        <p><strong>Plan gratuito.</strong> AGND ofrece un plan gratuito sin tarjeta. Sus límites están publicados en la página de <a href="index.html#pricing">Precios</a>.</p>
+        <p><strong>Plan gratuito.</strong> AGND ofrece un plan gratuito sin tarjeta. Sus límites están publicados en la página de <a href="precios.html">Precios</a>.</p>
         <p><strong>Planes de pago.</strong> Los planes pagados se facturan mensual o anualmente, en pesos chilenos (CLP) más IVA cuando corresponda. La renovación es automática salvo que canceles antes del próximo ciclo.</p>
         <p><strong>Cancelación.</strong> Puedes cancelar en cualquier momento. Mantienes el acceso hasta el final del período pagado. No hacemos reembolsos por períodos parciales, salvo lo exigido por la ley chilena.</p>
         <p><strong>Cambios de precio.</strong> Te avisaremos con al menos 30 días de anticipación por email.</p>

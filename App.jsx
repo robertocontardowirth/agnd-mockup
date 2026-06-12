@@ -12,7 +12,6 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "showUseCases": true,
   "showIntegrations": true,
   "showTestimonial": true,
-  "showPricing": true,
   "showFaq": true,
   "showFinalCta": true
 } /*EDITMODE-END*/;
@@ -122,7 +121,6 @@ function App() {
       <UseCases visible={t.showUseCases} />
       <Integrations visible={t.showIntegrations} />
       <Testimonial visible={t.showTestimonial} />
-      <Pricing visible={t.showPricing} />
       <FAQ visible={t.showFaq} />
       <FinalCTA visible={t.showFinalCta} />
 
@@ -180,7 +178,6 @@ function App() {
           <TweakToggle label="Casos de uso" value={t.showUseCases} onChange={(v) => setTweak('showUseCases', v)} />
           <TweakToggle label="Integraciones" value={t.showIntegrations} onChange={(v) => setTweak('showIntegrations', v)} />
           <TweakToggle label="Testimonio" value={t.showTestimonial} onChange={(v) => setTweak('showTestimonial', v)} />
-          <TweakToggle label="Precios" value={t.showPricing} onChange={(v) => setTweak('showPricing', v)} />
           <TweakToggle label="FAQ" value={t.showFaq} onChange={(v) => setTweak('showFaq', v)} />
           <TweakToggle label="CTA final" value={t.showFinalCta} onChange={(v) => setTweak('showFinalCta', v)} />
         </TweakSection>
