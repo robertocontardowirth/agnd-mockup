@@ -308,6 +308,7 @@ code, .code {
 *, *::before, *::after { box-sizing: border-box; }
 html {
   font-size: 17px;
+  scroll-behavior: smooth;
 }
 html, body {
   margin: 0;

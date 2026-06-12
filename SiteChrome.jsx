@@ -1,5 +1,8 @@
 // SiteChrome.jsx — shared nav + footer for marketing pages
 
+const onLanding = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('index.html');
+const h = (hash) => onLanding ? hash : `index.html${hash}`;
+
 function SiteNav({ active }) {
   const link = (id, label, href) => (
     <a href={href} className={active === id ? 'active' : ''}>{label}</a>
@@ -11,8 +14,8 @@ function SiteNav({ active }) {
           <Logo size={28} />
         </a>
         <div className="site-nav-links">
-          {link('product', 'Producto', 'index.html#features')}
-          {link('pricing', 'Precios', 'index.html#pricing')}
+          {link('product', 'Producto', h('#features'))}
+          {link('pricing', 'Precios', h('#pricing'))}
           {link('about', 'Nosotros', 'quienes-somos.html')}
           {link('contact', 'Contacto', 'contacto.html')}
         </div>
@@ -39,10 +42,10 @@ function SiteFooter() {
           <div>
             <h6>Producto</h6>
             <ul>
-              <li><a href="index.html#features">Página de reserva</a></li>
-              <li><a href="index.html#features">CRM</a></li>
-              <li><a href="index.html#pricing">Precios</a></li>
-              <li><a href="index.html#features">Integraciones</a></li>
+              <li><a href={h('#features')}>Página de reserva</a></li>
+              <li><a href={h('#features')}>CRM</a></li>
+              <li><a href={h('#pricing')}>Precios</a></li>
+              <li><a href={h('#features')}>Integraciones</a></li>
             </ul>
           </div>
           <div>
