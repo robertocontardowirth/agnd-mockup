@@ -593,6 +593,17 @@ body[data-theme="dark"] .crm-name { color: var(--agnd-mint-100); }
 }
 
 /* ============== INTEGRATIONS ============== */
+.integrations-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 64px;
+  align-items: flex-start;
+}
+.integrations-intro { position: sticky; top: 100px; }
+@media (max-width: 880px) {
+  .integrations-grid { grid-template-columns: 1fr; gap: 32px; }
+  .integrations-intro { position: static; }
+}
 .integrations-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

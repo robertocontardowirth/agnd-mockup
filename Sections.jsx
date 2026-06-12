@@ -257,8 +257,8 @@ function Integrations({ visible }) {
   return (
     <section className="section section-tinted">
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 64, alignItems: 'flex-start' }}>
-          <div style={{ position: 'sticky', top: 100 }}>
+        <div className="integrations-grid">
+          <div className="integrations-intro">
             <div className="section-eyebrow">Integraciones</div>
             <h2 className="section-title" style={{ fontSize: 'clamp(36px, 4vw, 56px)' }}>
               Vive en el stack que <span style={{ color: 'var(--accent-live)', fontStyle: 'italic', fontWeight: 500 }}>ya usas.</span>
