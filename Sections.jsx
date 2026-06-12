@@ -105,7 +105,7 @@ function CrmShowcase({ visible }) {
   return (
     <section className="section">
       <div className="container">
-        <div className="mockup-wrap" style={{ gridTemplateColumns: '1fr 1.15fr' }}>
+        <div className="mockup-wrap crm">
           <div className="crm-card">
             <div className="crm-toolbar">
               <div className="crm-tabs">
