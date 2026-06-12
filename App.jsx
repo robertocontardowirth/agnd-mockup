@@ -4,7 +4,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "accent": "rose",
   "density": "compact",
   "typeScale": "sm",
-  "dark": true,
+  "dark": false,
   "showFeatures": true,
   "showBooking": true,
   "showCrm": true,
