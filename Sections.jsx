@@ -17,7 +17,7 @@ function Features({ visible }) {
 
         <div className="features-grid">
           <div className="tile span-2" style={{ background: 'var(--agnd-plum-500)', color: 'var(--agnd-mint-100)', borderColor: 'var(--agnd-plum-500)' }}>
-            <div className="tile-num" style={{ color: 'var(--agnd-aqua-300)' }}>01 · pieza central</div>
+            <div className="tile-num" style={{ color: 'var(--agnd-aqua-300)' }}>01 · agenda inteligente</div>
             <h4 style={{ color: 'var(--agnd-mint-100)' }}>Página de reserva con tu marca, en tu dominio.</h4>
             <p style={{ color: 'rgba(221,255,247,0.72)' }}>
               Cada cliente recibe una página propia — agendamiento.tumarca.cl — con tus colores, tu logo y tu lenguaje. Tus usuarios reservan en menos de 30 segundos, desde el celular, sin descargar nada.
