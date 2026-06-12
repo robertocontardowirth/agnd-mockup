@@ -53,7 +53,7 @@ function App() {
             <div style={{ position: 'relative', zIndex: 2 }}>
               <h1 className="hero-title">
                 Tu agenda,<br />
-                <span className="accent" style={{ fontSize: "104px" }}>sin vueltas.</span><br />
+                <span className="accent" style={{ fontSize: "clamp(48px, 9vw, 104px)" }}>sin vueltas.</span><br />
                 <span style={{ fontWeight: 400, color: 'var(--fg-2)', lineHeight: "1.25", letterSpacing: "-0.005em", display: "inline-block", marginTop: "12px", fontSize: "28px" }}>
                   La plataforma de reservas con la que tus clientes <span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>realmente quieren agendar.</span>
                 </span>
