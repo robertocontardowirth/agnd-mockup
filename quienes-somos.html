@@ -18,10 +18,12 @@
 <script type="text/babel" src="Components.jsx"></script>
 <script type="text/babel" src="SiteChrome.jsx"></script>
 <script type="text/babel" src="QuienesSomosApp.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
 <script type="text/babel">
   const root = ReactDOM.createRoot(document.getElementById('root'));
   root.render(<QuienesSomosApp />);
   setTimeout(() => window.lucide && typeof window.lucide.createIcons === 'function' && window.lucide.createIcons(), 200);
+  mountGlobalTweaks();
 </script>
 </body>
 </html>

@@ -421,3 +421,43 @@ Object.assign(window, {
   TweakSlider, TweakToggle, TweakRadio, TweakSelect,
   TweakText, TweakNumber, TweakColor, TweakButton,
 });
+
+// ── GlobalTweaks ─────────────────────────────────────────────────────────────
+// Minimal panel for pages that don't have a custom tweaks setup.
+// Call mountGlobalTweaks() in any page's inline script to activate.
+function GlobalTweaks() {
+  const [t, setTweak] = useTweaks({
+    dark:   document.body.dataset.theme === 'dark',
+    accent: document.body.dataset.accent || 'rose',
+  });
+
+  React.useEffect(() => {
+    document.body.dataset.theme  = t.dark ? 'dark' : 'light';
+    document.body.dataset.accent = t.accent;
+  }, [t.dark, t.accent]);
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Tema">
+        <TweakToggle label="Modo oscuro" value={t.dark} onChange={(v) => setTweak('dark', v)} />
+        <TweakRadio
+          label="Color de acento"
+          value={t.accent}
+          options={[
+            { value: 'rose',  label: 'Rosa'  },
+            { value: 'aqua',  label: 'Aqua'  },
+            { value: 'plum',  label: 'Plum'  },
+            { value: 'coral', label: 'Coral' },
+          ]}
+          onChange={(v) => setTweak('accent', v)}
+        />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+window.mountGlobalTweaks = () => {
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  ReactDOM.createRoot(div).render(<GlobalTweaks />);
+};
