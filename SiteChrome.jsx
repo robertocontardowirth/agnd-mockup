@@ -14,7 +14,6 @@ function SiteNav({ active }) {
           <Logo size={28} />
         </a>
         <div className="site-nav-links">
-          {link('product', 'Producto', h('#features'))}
           {link('pricing', 'Precios', 'precios.html')}
           {link('about', 'Nosotros', 'quienes-somos.html')}
           {link('contact', 'Contacto', 'contacto.html')}
