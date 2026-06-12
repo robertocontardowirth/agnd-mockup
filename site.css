@@ -22,11 +22,17 @@ body { background: var(--bg); color: var(--fg-1); overflow-x: hidden; }
   display: flex; gap: 28px; align-items: center;
 }
 .site-nav-links a {
+  position: relative;
   font-family: var(--font-display);
   font-size: 15px; font-weight: 400; color: var(--fg-2);
   text-decoration: none; transition: color 120ms var(--ease-out);
 }
-.site-nav-links a:hover, .site-nav-links a.active { color: var(--fg-1); }
+.site-nav-links a:hover { color: var(--fg-1); }
+.site-nav-links a.active { color: var(--fg-1); font-weight: 600; }
+.site-nav-links a.active::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -6px;
+  height: 2px; border-radius: 2px; background: var(--accent);
+}
 .site-nav-cta { display: flex; gap: 10px; align-items: center; }
 .btn-nav {
   font-family: var(--font-body); font-weight: 600; font-size: 15px;
