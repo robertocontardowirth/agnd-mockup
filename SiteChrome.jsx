@@ -4,9 +4,14 @@ const onLanding = window.location.pathname.endsWith('/') || window.location.path
 const h = (hash) => onLanding ? hash : `index.html${hash}`;
 
 function SiteNav({ active }) {
-  const link = (id, label, href) => (
-    <a href={href} className={active === id ? 'active' : ''}>{label}</a>
-  );
+  const [open, setOpen] = React.useState(false);
+
+  const items = [
+    { id: 'pricing', label: 'Precios',  href: 'precios.html' },
+    { id: 'about',   label: 'Nosotros', href: 'quienes-somos.html' },
+    { id: 'contact', label: 'Contacto', href: 'contacto.html' },
+  ];
+
   return (
     <nav className="site-nav">
       <div className="site-nav-inner">
@@ -14,11 +19,31 @@ function SiteNav({ active }) {
           <Logo size={28} />
         </a>
         <div className="site-nav-links">
-          {link('pricing', 'Precios', 'precios.html')}
-          {link('about', 'Nosotros', 'quienes-somos.html')}
-          {link('contact', 'Contacto', 'contacto.html')}
+          {items.map(it => (
+            <a key={it.id} href={it.href} className={active === it.id ? 'active' : ''}>{it.label}</a>
+          ))}
         </div>
         <div className="site-nav-cta">
+          <a href="login.html" className="btn-nav ghost">Iniciar sesión</a>
+          <a href="register.html" className="btn-nav primary">Empezar gratis</a>
+        </div>
+        <button
+          className={`site-nav-burger ${open ? 'open' : ''}`}
+          aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
+        >
+          <span /><span /><span />
+        </button>
+      </div>
+
+      <div className={`site-nav-mobile ${open ? 'open' : ''}`}>
+        <div className="site-nav-mobile-links">
+          {items.map(it => (
+            <a key={it.id} href={it.href} className={active === it.id ? 'active' : ''} onClick={() => setOpen(false)}>{it.label}</a>
+          ))}
+        </div>
+        <div className="site-nav-mobile-cta">
           <a href="login.html" className="btn-nav ghost">Iniciar sesión</a>
           <a href="register.html" className="btn-nav primary">Empezar gratis</a>
         </div>

@@ -45,7 +45,50 @@ body { background: var(--bg); color: var(--fg-1); overflow-x: hidden; }
 .btn-nav.ghost:hover { border-color: var(--fg-1); }
 .btn-nav.primary { background: var(--agnd-plum-500); color: var(--agnd-mint-100); border: 1.5px solid var(--agnd-plum-500); }
 .btn-nav.primary:hover { background: var(--agnd-plum-700); border-color: var(--agnd-plum-700); }
-@media (max-width: 880px) { .site-nav-links { display: none; } }
+
+/* Botón hamburguesa + menú mobile (oculto en desktop) */
+.site-nav-burger { display: none; }
+.site-nav-mobile { display: none; }
+
+@media (max-width: 880px) {
+  .site-nav-links { display: none; }
+  .site-nav-cta { display: none; }
+
+  .site-nav-burger {
+    display: inline-flex; flex-direction: column; justify-content: center; gap: 5px;
+    width: 40px; height: 40px; padding: 8px; margin: -8px -8px -8px 0;
+    background: transparent; border: none; cursor: pointer;
+  }
+  .site-nav-burger span {
+    display: block; width: 24px; height: 2px; border-radius: 2px;
+    background: var(--fg-1);
+    transition: transform 220ms var(--ease-out), opacity 140ms var(--ease-out);
+  }
+  .site-nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .site-nav-burger.open span:nth-child(2) { opacity: 0; }
+  .site-nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .site-nav-mobile {
+    display: block; overflow: hidden;
+    max-height: 0;
+    background: var(--bg);
+    border-top: 1px solid transparent;
+    transition: max-height 280ms var(--ease-out);
+  }
+  .site-nav-mobile.open {
+    max-height: 80vh;
+    border-top-color: color-mix(in oklab, var(--border) 80%, transparent);
+  }
+  .site-nav-mobile-links { display: flex; flex-direction: column; padding: 8px 32px 0; }
+  .site-nav-mobile-links a {
+    font-family: var(--font-display); font-size: 18px; font-weight: 500;
+    color: var(--fg-1); text-decoration: none; padding: 15px 0;
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
+  }
+  .site-nav-mobile-links a.active { color: var(--accent); }
+  .site-nav-mobile-cta { display: flex; flex-direction: column; gap: 10px; padding: 18px 32px 26px; }
+  .site-nav-mobile-cta .btn-nav { justify-content: center; padding: 13px 14px; font-size: 16px; }
+}
 
 .container-1280 { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
 .container-880  { max-width: 880px;  margin: 0 auto; padding: 0 32px; }
