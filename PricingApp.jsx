@@ -41,7 +41,7 @@ function PricingApp() {
               <span className="plan-tag">Recomendado</span>
               <h4>Pro</h4>
               <div className="plan-tagline">Cuando tu agenda es tu negocio.</div>
-              <div className="plan-price">$19.900 <span className="plan-price-unit">CLP / mes</span></div>
+              <div className="plan-price">$8.990 <span className="plan-price-unit">CLP / mes</span></div>
               <ul>
                 <li>Reservas ilimitadas</li>
                 <li>Dominio propio (tumarca.cl)</li>
