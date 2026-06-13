@@ -124,7 +124,7 @@ function AgendaSummaryRow({ citas }) {
   );
 }
 
-function CitaDetail({ cita, onClose }) {
+function CitaDetail({ cita, onClose, onEdit }) {
   return (
     <div className="cita-detail-panel">
       <div className="cita-detail-header">
@@ -158,7 +158,7 @@ function CitaDetail({ cita, onClose }) {
         )}
       </div>
       <div className="cita-detail-actions">
-        <button className="btn-sm-ghost">Editar</button>
+        <button className="btn-sm-ghost" onClick={() => onEdit && onEdit(cita)}>Editar</button>
         <button className="btn-sm-ghost">Reagendar</button>
         <button className="btn-sm-ghost" style={{ color: 'var(--agnd-rose-500)', borderColor: 'var(--agnd-rose-500)' }}>
           Cancelar
@@ -168,7 +168,7 @@ function CitaDetail({ cita, onClose }) {
   );
 }
 
-function CitaBlock({ cita, selected, onSelect }) {
+function CitaBlock({ cita, selected, onSelect, onEdit }) {
   return (
     <div>
       <div
@@ -182,12 +182,12 @@ function CitaBlock({ cita, selected, onSelect }) {
         <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>
         <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>
       </div>
-      {selected && <CitaDetail cita={cita} onClose={onSelect} />}
+      {selected && <CitaDetail cita={cita} onClose={onSelect} onEdit={onEdit} />}
     </div>
   );
 }
 
-function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd }) {
+function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd, onEdit }) {
   const slotCitas = citas.filter(c => parseInt(c.hora.split(':')[0]) === hour);
   const label = `${hour.toString().padStart(2, '0')}:00`;
   const isEmpty = slotCitas.length === 0;
@@ -206,6 +206,7 @@ function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd }) {
               cita={c}
               selected={selectedId === c.id}
               onSelect={() => onSelect(selectedId === c.id ? null : c.id)}
+              onEdit={onEdit}
             />
           ))
         )}
@@ -214,33 +215,45 @@ function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd }) {
   );
 }
 
-// ── NUEVA RESERVA · Drawer lateral derecho ─────────────────────────────────────
+// ── PANEL DE RESERVA · convive con el contenido (no overlay). Sirve para crear y editar ──
 
-function NuevaReservaDrawer({ open, initialHora, onClose, onSave }) {
-  const blank = {
+function buildInitialForm({ cita, initialHora }) {
+  if (cita) {
+    return {
+      cliente: cita.cliente || '',
+      servicio: cita.servicio || '',
+      colaborador: cita.colaborador || RESERVA_COLABORADORES[0],
+      hora: cita.hora || '',
+      duracion: cita.duracion || 60,
+      estado: cita.estado || 'confirmed',
+      notas: cita.notas || '',
+    };
+  }
+  return {
     cliente: '', servicio: '', colaborador: RESERVA_COLABORADORES[0],
-    hora: '', duracion: 60, estado: 'confirmed', notas: '',
+    hora: initialHora || '', duracion: 60, estado: 'confirmed', notas: '',
   };
-  const [form, setForm] = React.useState(blank);
+}
 
-  // Reinicia el formulario cada vez que se abre (con la hora prellenada si viene de un slot)
+function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
+  const isEdit = mode === 'edit';
+  const [form, setForm] = React.useState(() => buildInitialForm({ cita, initialHora }));
+
+  // Re-sincroniza el formulario al cambiar el objetivo (otra cita, o de crear↔editar)
   React.useEffect(() => {
-    if (open) setForm({ ...blank, hora: initialHora || '' });
-  }, [open, initialHora]);
+    setForm(buildInitialForm({ cita, initialHora }));
+  }, [mode, cita, initialHora]);
 
   // Cerrar con Escape
   React.useEffect(() => {
-    if (!open) return;
     const onKey = e => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  }, [onClose]);
 
   React.useEffect(() => {
     if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
   });
-
-  if (!open) return null;
 
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const onServicio = e => {
@@ -253,7 +266,7 @@ function NuevaReservaDrawer({ open, initialHora, onClose, onSave }) {
   const save = () => {
     if (!ok) return;
     onSave({
-      id: Date.now(),
+      id: isEdit ? cita.id : Date.now(),
       hora: form.hora,
       duracion: parseInt(form.duracion, 10) || 60,
       cliente: form.cliente.trim(),
@@ -262,29 +275,21 @@ function NuevaReservaDrawer({ open, initialHora, onClose, onSave }) {
       estado: form.estado,
       notas: form.notas.trim(),
     });
-    onClose();
   };
 
   return (
-    <div className="reserva-drawer-overlay" onClick={onClose}>
-      <aside
-        className="reserva-drawer"
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Nueva reserva"
-      >
-        <div className="reserva-drawer-header">
+      <aside className="reserva-panel" role="dialog" aria-label={isEdit ? 'Editar reserva' : 'Nueva reserva'}>
+        <div className="reserva-panel-header">
           <div>
-            <div className="reserva-drawer-eyebrow">Agenda</div>
-            <div className="reserva-drawer-title">Nueva reserva</div>
+            <div className="reserva-panel-eyebrow">Agenda</div>
+            <div className="reserva-panel-title">{isEdit ? 'Editar reserva' : 'Nueva reserva'}</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
             <i data-lucide="x" />
           </button>
         </div>
 
-        <div className="reserva-drawer-body">
+        <div className="reserva-panel-body">
           <div className="reserva-field">
             <label className="reserva-field-label">Cliente</label>
             <input
@@ -353,14 +358,13 @@ function NuevaReservaDrawer({ open, initialHora, onClose, onSave }) {
           </div>
         </div>
 
-        <div className="reserva-drawer-footer">
+        <div className="reserva-panel-footer">
           <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
-            <i data-lucide="check" />Crear reserva
+            <i data-lucide="check" />{isEdit ? 'Guardar cambios' : 'Crear reserva'}
           </button>
         </div>
       </aside>
-    </div>
   );
 }
 
@@ -368,7 +372,20 @@ function HoyView() {
   const [dayOffset, setDayOffset] = React.useState(0);
   const [selectedId, setSelectedId] = React.useState(null);
   const [citas, setCitas] = React.useState(MOCK_CITAS_HOY);
-  const [drawer, setDrawer] = React.useState(null); // null = cerrado; { hora } = abierto
+  // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
+  const [panel, setPanel] = React.useState(null);
+
+  const openNew  = (hora) => { setSelectedId(null); setPanel({ mode: 'new', hora: hora || '' }); };
+  const openEdit = (cita) => { setSelectedId(null); setPanel({ mode: 'edit', cita }); };
+
+  const handleSave = (cita) => {
+    setCitas(prev =>
+      prev.some(c => c.id === cita.id)
+        ? prev.map(c => (c.id === cita.id ? cita : c))
+        : [...prev, cita]
+    );
+    setPanel(null);
+  };
 
   const today = new Date();
   const date = new Date(today);
@@ -393,7 +410,7 @@ function HoyView() {
         onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
         resetLabel="Hoy"
       >
-        <button className="btn-primary-sm" onClick={() => setDrawer({ hora: '' })}>
+        <button className="btn-primary-sm" onClick={() => openNew('')}>
           <i data-lucide="calendar-plus" />
           Nueva cita
         </button>
@@ -401,25 +418,31 @@ function HoyView() {
 
       <AgendaSummaryRow citas={citas} />
 
-      <div className="timeline-wrap">
-        {hours.map(h => (
-          <TimelineSlot
-            key={h}
-            hour={h}
-            citas={citas}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            onAdd={(hora) => setDrawer({ hora })}
-          />
-        ))}
-      </div>
+      <div className={`hoy-layout${panel ? ' has-panel' : ''}`}>
+        <div className="timeline-wrap">
+          {hours.map(h => (
+            <TimelineSlot
+              key={h}
+              hour={h}
+              citas={citas}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              onAdd={openNew}
+              onEdit={openEdit}
+            />
+          ))}
+        </div>
 
-      <NuevaReservaDrawer
-        open={!!drawer}
-        initialHora={drawer ? drawer.hora : ''}
-        onClose={() => setDrawer(null)}
-        onSave={(cita) => setCitas(prev => [...prev, cita])}
-      />
+        {panel && (
+          <ReservaPanel
+            mode={panel.mode}
+            cita={panel.cita}
+            initialHora={panel.hora}
+            onClose={() => setPanel(null)}
+            onSave={handleSave}
+          />
+        )}
+      </div>
     </div>
   );
 }
