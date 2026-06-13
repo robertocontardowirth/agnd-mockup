@@ -58,6 +58,16 @@ const MOCK_BLOQUEOS = [
 
 const COLABORADORES = ['Andrea M.', 'Paula R.', 'Todos'];
 
+// Servicios con su duración por defecto (min) — usados por el flujo de nueva reserva
+const SERVICIOS = [
+  { nombre: 'Corte',            duracion: 45 },
+  { nombre: 'Corte + Brushing', duracion: 60 },
+  { nombre: 'Coloración',       duracion: 90 },
+  { nombre: 'Manicure',         duracion: 45 },
+  { nombre: 'Pedicure',         duracion: 60 },
+];
+const RESERVA_COLABORADORES = ['Andrea M.', 'Paula R.'];
+
 // ── SHARED PRIMITIVES ────────────────────────────────────────────────────────
 
 function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, children }) {
@@ -177,7 +187,7 @@ function CitaBlock({ cita, selected, onSelect }) {
   );
 }
 
-function TimelineSlot({ hour, citas, selectedId, onSelect }) {
+function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd }) {
   const slotCitas = citas.filter(c => parseInt(c.hora.split(':')[0]) === hour);
   const label = `${hour.toString().padStart(2, '0')}:00`;
   const isEmpty = slotCitas.length === 0;
@@ -186,7 +196,7 @@ function TimelineSlot({ hour, citas, selectedId, onSelect }) {
       <div className="timeline-slot-hour">{label}</div>
       <div className="timeline-slot-track">
         {isEmpty ? (
-          <button className="timeline-slot-add" aria-label="Nueva cita a las {label}">
+          <button className="timeline-slot-add" aria-label={`Nueva cita a las ${label}`} onClick={() => onAdd(label)}>
             <i data-lucide="plus" />
           </button>
         ) : (
@@ -204,9 +214,161 @@ function TimelineSlot({ hour, citas, selectedId, onSelect }) {
   );
 }
 
+// ── NUEVA RESERVA · Drawer lateral derecho ─────────────────────────────────────
+
+function NuevaReservaDrawer({ open, initialHora, onClose, onSave }) {
+  const blank = {
+    cliente: '', servicio: '', colaborador: RESERVA_COLABORADORES[0],
+    hora: '', duracion: 60, estado: 'confirmed', notas: '',
+  };
+  const [form, setForm] = React.useState(blank);
+
+  // Reinicia el formulario cada vez que se abre (con la hora prellenada si viene de un slot)
+  React.useEffect(() => {
+    if (open) setForm({ ...blank, hora: initialHora || '' });
+  }, [open, initialHora]);
+
+  // Cerrar con Escape
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  React.useEffect(() => {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+  });
+
+  if (!open) return null;
+
+  const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const onServicio = e => {
+    const nombre = e.target.value;
+    const s = SERVICIOS.find(x => x.nombre === nombre);
+    setForm(f => ({ ...f, servicio: nombre, duracion: s ? s.duracion : f.duracion }));
+  };
+  const ok = form.cliente.trim() && form.servicio && form.hora;
+
+  const save = () => {
+    if (!ok) return;
+    onSave({
+      id: Date.now(),
+      hora: form.hora,
+      duracion: parseInt(form.duracion, 10) || 60,
+      cliente: form.cliente.trim(),
+      servicio: form.servicio,
+      colaborador: form.colaborador,
+      estado: form.estado,
+      notas: form.notas.trim(),
+    });
+    onClose();
+  };
+
+  return (
+    <div className="reserva-drawer-overlay" onClick={onClose}>
+      <aside
+        className="reserva-drawer"
+        onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Nueva reserva"
+      >
+        <div className="reserva-drawer-header">
+          <div>
+            <div className="reserva-drawer-eyebrow">Agenda</div>
+            <div className="reserva-drawer-title">Nueva reserva</div>
+          </div>
+          <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
+            <i data-lucide="x" />
+          </button>
+        </div>
+
+        <div className="reserva-drawer-body">
+          <div className="reserva-field">
+            <label className="reserva-field-label">Cliente</label>
+            <input
+              type="text"
+              className="reserva-input"
+              placeholder="Nombre del cliente"
+              value={form.cliente}
+              onChange={up('cliente')}
+              autoFocus
+            />
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Servicio</label>
+            <select className="reserva-input" value={form.servicio} onChange={onServicio}>
+              <option value="" disabled>Seleccionar servicio…</option>
+              {SERVICIOS.map(s => <option key={s.nombre} value={s.nombre}>{s.nombre}</option>)}
+            </select>
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Colaborador</label>
+            <select className="reserva-input" value={form.colaborador} onChange={up('colaborador')}>
+              {RESERVA_COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div className="reserva-field-grid">
+            <div className="reserva-field">
+              <label className="reserva-field-label">Hora</label>
+              <input type="time" className="reserva-input" value={form.hora} onChange={up('hora')} />
+            </div>
+            <div className="reserva-field">
+              <label className="reserva-field-label">Duración</label>
+              <select className="reserva-input" value={form.duracion} onChange={up('duracion')}>
+                {[30, 45, 60, 90, 120].map(m => <option key={m} value={m}>{m} min</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Estado</label>
+            <div className="reserva-segment">
+              {[{ v: 'confirmed', l: 'Confirmada' }, { v: 'pending', l: 'Pendiente' }].map(o => (
+                <button
+                  key={o.v}
+                  type="button"
+                  className={`reserva-segment-btn${form.estado === o.v ? ' active' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, estado: o.v }))}
+                >
+                  {o.l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Notas <span className="reserva-field-opt">(opcional)</span></label>
+            <textarea
+              className="reserva-input reserva-textarea"
+              rows="3"
+              placeholder="Detalles, preferencias…"
+              value={form.notas}
+              onChange={up('notas')}
+            />
+          </div>
+        </div>
+
+        <div className="reserva-drawer-footer">
+          <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
+            <i data-lucide="check" />Crear reserva
+          </button>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 function HoyView() {
   const [dayOffset, setDayOffset] = React.useState(0);
   const [selectedId, setSelectedId] = React.useState(null);
+  const [citas, setCitas] = React.useState(MOCK_CITAS_HOY);
+  const [drawer, setDrawer] = React.useState(null); // null = cerrado; { hora } = abierto
 
   const today = new Date();
   const date = new Date(today);
@@ -231,25 +393,33 @@ function HoyView() {
         onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
         resetLabel="Hoy"
       >
-        <button className="btn-primary-sm">
+        <button className="btn-primary-sm" onClick={() => setDrawer({ hora: '' })}>
           <i data-lucide="calendar-plus" />
           Nueva cita
         </button>
       </AgendaViewHeader>
 
-      <AgendaSummaryRow citas={MOCK_CITAS_HOY} />
+      <AgendaSummaryRow citas={citas} />
 
       <div className="timeline-wrap">
         {hours.map(h => (
           <TimelineSlot
             key={h}
             hour={h}
-            citas={MOCK_CITAS_HOY}
+            citas={citas}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            onAdd={(hora) => setDrawer({ hora })}
           />
         ))}
       </div>
+
+      <NuevaReservaDrawer
+        open={!!drawer}
+        initialHora={drawer ? drawer.hora : ''}
+        onClose={() => setDrawer(null)}
+        onSave={(cita) => setCitas(prev => [...prev, cita])}
+      />
     </div>
   );
 }
