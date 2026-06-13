@@ -410,10 +410,12 @@ function HoyView() {
         onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
         resetLabel="Hoy"
       >
-        <button className="btn-primary-sm" onClick={() => openNew('')}>
-          <i data-lucide="calendar-plus" />
-          Nueva cita
-        </button>
+        {!panel && (
+          <button className="btn-primary-sm" onClick={() => openNew('')}>
+            <i data-lucide="calendar-plus" />
+            Nueva cita
+          </button>
+        )}
       </AgendaViewHeader>
 
       <AgendaSummaryRow citas={citas} />
