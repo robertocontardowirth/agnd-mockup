@@ -29,16 +29,20 @@ function LoginApp() {
 
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
-  const canSubmit = form.email && form.password;
-
   const submit = (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
+    // Lee los valores reales del DOM: el click ya es un gesto del usuario,
+    // así que aquí sí están disponibles los datos autocompletados por el navegador.
+    const f = formRef.current;
+    const email = ((f && f.querySelector('#email')?.value) || form.email).trim();
+    const password = (f && f.querySelector('#password')?.value) || form.password;
+    setForm(prev => ({ ...prev, email, password }));
+    if (!email || !password) return;
     setError(false);
     setSubmitting(true);
     setTimeout(() => {
       // demo: muestra error si pw es "demo"
-      if (form.password === 'demo') {
+      if (password === 'demo') {
         setSubmitting(false);
         setError(true);
         return;
@@ -96,7 +100,7 @@ function LoginApp() {
               <span>Mantener sesión iniciada en este equipo</span>
             </label>
 
-            <button type="submit" className={`btn btn-primary auth-submit ${submitting ? 'is-loading' : ''}`} disabled={!canSubmit || submitting}>
+            <button type="submit" className={`btn btn-primary auth-submit ${submitting ? 'is-loading' : ''}`} disabled={submitting}>
               {submitting ? <><span className="spinner" /> Entrando…</> : <>Entrar a mi agenda <i data-lucide="arrow-right" style={{ width: 16, height: 16 }}></i></>}
             </button>
 
