@@ -15,9 +15,14 @@ function LoginApp() {
     setError(false);
     setSubmitting(true);
     setTimeout(() => {
-      setSubmitting(false);
       // demo: muestra error si pw es "demo"
-      if (form.password === 'demo') setError(true);
+      if (form.password === 'demo') {
+        setSubmitting(false);
+        setError(true);
+        return;
+      }
+      // éxito: entra a la plataforma interna
+      window.location.href = 'app.html';
     }, 1100);
   };
 
