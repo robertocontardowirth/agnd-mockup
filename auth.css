@@ -169,6 +169,9 @@ body {
   border-color: rgba(147, 225, 216, 0.28);
 }
 .field-input::placeholder { color: var(--fg-3); }
+/* Hook para detectar autocompletado del navegador (dispara animationstart) */
+@keyframes onAutoFillStart { from { /* noop */ } to { /* noop */ } }
+.field-input:-webkit-autofill { animation-name: onAutoFillStart; animation-duration: 1ms; }
 .field-input:focus {
   border-color: var(--agnd-plum-500);
   box-shadow: 0 0 0 4px rgba(147, 225, 216, 0.45);

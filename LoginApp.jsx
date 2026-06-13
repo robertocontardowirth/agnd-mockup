@@ -4,6 +4,28 @@ function LoginApp() {
   const [form, setForm] = React.useState({ email: '', password: '', remember: true });
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState(false);
+  const formRef = React.useRef(null);
+
+  // Sincroniza el autocompletado del navegador con el estado (no dispara onChange)
+  React.useEffect(() => {
+    const f = formRef.current;
+    if (!f) return;
+    const sync = () => setForm(prev => {
+      const email = f.querySelector('#email');
+      const pwd = f.querySelector('#password');
+      const next = { ...prev };
+      if (email && email.value && email.value !== prev.email) next.email = email.value;
+      if (pwd && pwd.value && pwd.value !== prev.password) next.password = pwd.value;
+      return next;
+    });
+    const onAnim = (e) => { if (e.animationName === 'onAutoFillStart') sync(); };
+    f.addEventListener('animationstart', onAnim, true);
+    const timers = [60, 200, 500, 1000].map(t => setTimeout(sync, t));
+    return () => {
+      f.removeEventListener('animationstart', onAnim, true);
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   const update = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
@@ -38,7 +60,7 @@ function LoginApp() {
           <h1 className="auth-title">Hola otra <span className="accent">vez</span>.</h1>
           <p className="auth-sub">Entra a tu agenda, revisa las reservas del día y dedícale tiempo a lo que importa.</p>
 
-          <form onSubmit={submit} noValidate>
+          <form ref={formRef} onSubmit={submit} noValidate>
             <GoogleButton>Continuar con Google</GoogleButton>
 
             <div className="auth-divider">o con tu email</div>
