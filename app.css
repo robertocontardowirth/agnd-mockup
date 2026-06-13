@@ -689,7 +689,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 
 .timeline-slot-track {
   flex: 1;
-  padding: 8px 14px 8px 4px;
+  padding: 8px 14px 8px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
