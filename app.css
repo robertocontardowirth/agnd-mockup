@@ -82,7 +82,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   white-space: nowrap;
   transition: background var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out);
 }
-.app-topbar-item i { width: 14px; height: 14px; }
+.app-topbar-item i, .app-topbar-item svg { width: 16px; height: 16px; }
 .app-topbar-item:hover { background: rgba(147,225,216,.10); color: var(--fg-1); }
 .app-topbar-item.active {
   background: var(--accent-tint);
