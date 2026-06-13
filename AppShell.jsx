@@ -101,37 +101,39 @@ const SIDEBAR_CONFIG = {
 function AppTopBar({ section, onSection }) {
   return (
     <header className="app-topbar">
-      <div className="app-topbar-left">
-        <a href="index.html" title="Volver al inicio">
-          <Logo size={24} />
-        </a>
-        <span className="app-topbar-sep" />
-        <nav className="app-topbar-nav" role="navigation" aria-label="Secciones principales">
-          {APP_SECTIONS.map(s => (
-            <button
-              key={s.id}
-              className={`app-topbar-item${section === s.id ? ' active' : ''}`}
-              onClick={() => onSection(s.id)}
-              aria-current={section === s.id ? 'page' : undefined}
-            >
-              <i data-lucide={s.icon} />
-              {s.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <div className="app-topbar-inner">
+        <div className="app-topbar-left">
+          <button className="app-topbar-logo" onClick={() => onSection('home')} title="Inicio" aria-label="Ir al inicio">
+            <Logo size={24} />
+          </button>
+          <span className="app-topbar-sep" />
+          <nav className="app-topbar-nav" role="navigation" aria-label="Secciones principales">
+            {APP_SECTIONS.map(s => (
+              <button
+                key={s.id}
+                className={`app-topbar-item${section === s.id ? ' active' : ''}`}
+                onClick={() => onSection(s.id)}
+                aria-current={section === s.id ? 'page' : undefined}
+              >
+                <i data-lucide={s.icon} />
+                {s.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
-      <div className="app-topbar-right">
-        <button className="icon-btn" title="Notificaciones" aria-label="Notificaciones">
-          <i data-lucide="bell" />
-        </button>
-        <button className="icon-btn" title="Ayuda" aria-label="Ayuda">
-          <i data-lucide="circle-help" />
-        </button>
-        <button className="icon-btn" title="Configuración" aria-label="Configuración">
-          <i data-lucide="settings" />
-        </button>
-        <div className="app-avatar" role="button" tabIndex="0" aria-label="Mi cuenta">RC</div>
+        <div className="app-topbar-right">
+          <button className="icon-btn" title="Notificaciones" aria-label="Notificaciones">
+            <i data-lucide="bell" />
+          </button>
+          <button className="icon-btn" title="Ayuda" aria-label="Ayuda">
+            <i data-lucide="circle-help" />
+          </button>
+          <button className="icon-btn" title="Configuración" aria-label="Configuración">
+            <i data-lucide="settings" />
+          </button>
+          <div className="app-avatar" role="button" tabIndex="0" aria-label="Mi cuenta">RC</div>
+        </div>
       </div>
     </header>
   );
