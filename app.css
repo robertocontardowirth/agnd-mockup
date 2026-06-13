@@ -109,7 +109,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   justify-content: center;
   transition: background var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out);
 }
-.icon-btn i { width: 16px; height: 16px; }
+.icon-btn i, .icon-btn svg { width: 16px; height: 16px; }
 .icon-btn:hover { background: rgba(147,225,216,.10); color: var(--fg-1); }
 
 .app-avatar {
@@ -175,7 +175,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   width: 100%;
   transition: background var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out);
 }
-.app-sidebar-item i { width: 14px; height: 14px; flex-shrink: 0; }
+.app-sidebar-item i, .app-sidebar-item svg { width: 14px; height: 14px; flex-shrink: 0; }
 .app-sidebar-item:hover { background: rgba(147,225,216,.10); color: var(--fg-1); }
 .app-sidebar-item.active {
   background: var(--accent-tint);
@@ -259,7 +259,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   flex-shrink: 0;
 }
 .dash-stat-card.accent .dash-stat-icon { background: rgba(255,255,255,.15); }
-.dash-stat-icon i { width: 16px; height: 16px; }
+.dash-stat-icon i, .dash-stat-icon svg { width: 16px; height: 16px; }
 
 .dash-stat-value {
   font-family: var(--font-display);
@@ -323,7 +323,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   font-weight: 600;
   color: var(--fg-1);
 }
-.dash-card-title i { width: 14px; height: 14px; color: var(--fg-3); }
+.dash-card-title i, .dash-card-title svg { width: 14px; height: 14px; color: var(--fg-3); }
 
 /* ── Cita list ──────────────────────────────────────────────────────────── */
 .cita-list { display: flex; flex-direction: column; }
@@ -386,7 +386,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .cita-row:hover .cita-action { opacity: 1; }
 .cita-action:hover { background: rgba(147,225,216,.15); color: var(--fg-1); }
-.cita-action i { width: 13px; height: 13px; }
+.cita-action i, .cita-action svg { width: 13px; height: 13px; }
 
 /* ── Badges ─────────────────────────────────────────────────────────────── */
 .badge {
@@ -433,7 +433,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   width: 100%;
   transition: all var(--d-fast) var(--ease-out);
 }
-.quick-action-btn i { width: 14px; height: 14px; flex-shrink: 0; color: var(--fg-3); }
+.quick-action-btn i, .quick-action-btn svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--fg-3); }
 .quick-action-btn:hover { background: rgba(147,225,216,.07); border-color: rgba(147,225,216,.3); }
 .quick-action-btn.primary {
   background: var(--accent-live);
@@ -441,7 +441,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   color: #fff;
   font-weight: 600;
 }
-.quick-action-btn.primary i { color: rgba(255,255,255,.7); }
+.quick-action-btn.primary i, .quick-action-btn.primary svg { color: rgba(255,255,255,.7); }
 .quick-action-btn.primary:hover { opacity: .9; }
 
 /* ── Activity feed ──────────────────────────────────────────────────────── */
@@ -468,7 +468,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   flex-shrink: 0;
   margin-top: 1px;
 }
-.activity-icon i { width: 13px; height: 13px; }
+.activity-icon i, .activity-icon svg { width: 13px; height: 13px; }
 
 .activity-text {
   font-size: 15px;
@@ -492,7 +492,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   color: var(--fg-3);
   text-align: center;
 }
-.placeholder-view i { width: 44px; height: 44px; opacity: .35; }
+.placeholder-view i, .placeholder-view svg { width: 44px; height: 44px; opacity: .35; }
 .placeholder-view h2 {
   font-family: var(--font-display);
   font-size: 15px;
@@ -531,7 +531,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   flex-shrink: 0;
   transition: opacity var(--d-fast) var(--ease-out);
 }
-.btn-primary-sm i { width: 14px; height: 14px; }
+.btn-primary-sm i, .btn-primary-sm svg { width: 14px; height: 14px; }
 .btn-primary-sm:hover { opacity: .88; }
 .btn-primary-sm:disabled { opacity: .45; cursor: not-allowed; }
 
@@ -576,7 +576,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   flex-shrink: 0;
 }
 .agenda-nav-btn:hover { background: rgba(147,225,216,.10); color: var(--fg-1); border-color: rgba(147,225,216,.3); }
-.agenda-nav-btn i { width: 16px; height: 16px; }
+.agenda-nav-btn i, .agenda-nav-btn svg { width: 16px; height: 16px; }
 
 .agenda-nav-title {
   font-family: var(--font-display);
@@ -655,7 +655,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   font-size: 15px;
   text-align: center;
 }
-.agenda-empty-state i { width: 22px; height: 22px; opacity: .35; }
+.agenda-empty-state i, .agenda-empty-state svg { width: 22px; height: 22px; opacity: .35; }
 
 /* ── Timeline (Hoy) ─────────────────────────────────────────────────────── */
 .timeline-wrap {
@@ -719,7 +719,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   border-color: var(--accent-live);
   background: var(--accent-tint);
 }
-.timeline-slot-add i { width: 14px; height: 14px; }
+.timeline-slot-add i, .timeline-slot-add svg { width: 14px; height: 14px; }
 
 .cita-block {
   background: var(--bg-elevated);
@@ -790,7 +790,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   transition: all var(--d-fast) var(--ease-out);
 }
 .cita-detail-close:hover { background: rgba(147,225,216,.10); color: var(--fg-1); }
-.cita-detail-close i { width: 14px; height: 14px; }
+.cita-detail-close i, .cita-detail-close svg { width: 14px; height: 14px; }
 
 .cita-detail-grid {
   display: grid;
@@ -1176,7 +1176,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   transition: all var(--d-fast) var(--ease-out);
 }
 .agenda-action-btn:hover { background: rgba(170,68,101,.12); }
-.agenda-action-btn i { width: 14px; height: 14px; }
+.agenda-action-btn i, .agenda-action-btn svg { width: 14px; height: 14px; }
 
 /* Inline form */
 .agenda-form-inline {
@@ -1229,7 +1229,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .agenda-save-btn:hover { opacity: .88; }
 .agenda-save-btn.saved { background: var(--success); }
-.agenda-save-btn i { width: 14px; height: 14px; }
+.agenda-save-btn i, .agenda-save-btn svg { width: 14px; height: 14px; }
 
 /* Status badges for exceptions */
 .badge-closed  { background: rgba(170,68,101,.12); color: var(--agnd-rose-500); }

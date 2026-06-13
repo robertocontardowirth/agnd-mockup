@@ -275,7 +275,7 @@ body { background: var(--bg); color: var(--fg-1); overflow-x: hidden; }
   background: var(--agnd-plum-500); color: var(--agnd-mint-100);
   border-color: var(--agnd-plum-500);
 }
-.reason-chip.active i { color: var(--agnd-aqua-300); }
+.reason-chip.active i, .reason-chip.active svg { color: var(--agnd-aqua-300); }
 
 /* ---- Shared button primitives (site pages) ---- */
 .btn {
