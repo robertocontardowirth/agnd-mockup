@@ -387,6 +387,11 @@ function HoyView() {
     setPanel(null);
   };
 
+  // Reconvierte los íconos lucide al abrir/cerrar el panel (el botón se re-monta con un <i> nuevo)
+  React.useEffect(() => {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+  }, [panel, citas]);
+
   const today = new Date();
   const date = new Date(today);
   date.setDate(date.getDate() + dayOffset);
