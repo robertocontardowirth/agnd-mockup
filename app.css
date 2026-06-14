@@ -47,7 +47,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .app-topbar-inner {
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -214,7 +214,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 
 /* ── Dashboard home ─────────────────────────────────────────────────────── */
 .dash-home {
-  max-width: 1400px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -556,7 +556,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 
 /* ── Shared agenda layout ────────────────────────────────────────────────── */
 .agenda-view {
-  max-width: 1100px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1039,7 +1039,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 
 /* ── Config views (Horarios, Excepciones, Bloqueos) ─────────────────────── */
 .agenda-config-view {
-  max-width: 720px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 22px;
