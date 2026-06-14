@@ -42,7 +42,7 @@ function StatCard({ label, value, sub, icon, accent }) {
   );
 }
 
-function AgendaHoy() {
+function AgendaHoy({ citas }) {
   const [selected, setSelected] = React.useState(null);
 
   return (
@@ -55,7 +55,7 @@ function AgendaHoy() {
         <button className="btn-sm-ghost">Ver calendario</button>
       </div>
       <div className="cita-list">
-        {MOCK_CITAS.map(c => (
+        {citas.map(c => (
           <div
             key={c.id}
             className={`cita-row${selected === c.id ? ' selected' : ''}`}
@@ -81,9 +81,9 @@ function AgendaHoy() {
   );
 }
 
-function AccionesRapidas() {
+function AccionesRapidas({ onNuevaReserva }) {
   const actions = [
-    { icon: 'calendar-plus', label: 'Nueva reserva',          primary: true },
+    { icon: 'calendar-plus', label: 'Nueva reserva',          primary: true, onClick: onNuevaReserva },
     { icon: 'user-plus',     label: 'Agregar cliente' },
     { icon: 'clock',         label: 'Bloquear horario' },
     { icon: 'link',          label: 'Copiar link de reserva' },
@@ -99,7 +99,7 @@ function AccionesRapidas() {
       </div>
       <div className="quick-actions">
         {actions.map(a => (
-          <button key={a.label} className={`quick-action-btn${a.primary ? ' primary' : ''}`}>
+          <button key={a.label} className={`quick-action-btn${a.primary ? ' primary' : ''}`} onClick={a.onClick}>
             <i data-lucide={a.icon} />
             {a.label}
           </button>
@@ -143,6 +143,22 @@ function DashboardHome() {
   });
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
 
+  const [citas, setCitas] = React.useState(MOCK_CITAS);
+  // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
+  const [panel, setPanel] = React.useState(null);
+
+  const openNew = () => setPanel({ mode: 'new', hora: '' });
+
+  const handleSave = (cita) => {
+    setCitas(prev =>
+      (prev.some(c => c.id === cita.id)
+        ? prev.map(c => (c.id === cita.id ? cita : c))
+        : [...prev, cita]
+      ).sort((a, b) => a.hora.localeCompare(b.hora))
+    );
+    setPanel(null);
+  };
+
   return (
     <div className="dash-home">
       <div className="dash-header">
@@ -150,26 +166,40 @@ function DashboardHome() {
           <div className="dash-greeting">Buenos días, Roberto.</div>
           <div className="dash-date">{todayCap}</div>
         </div>
-        <button className="btn-primary-sm">
-          <i data-lucide="calendar-plus" />
-          Nueva reserva
-        </button>
+        {!panel && (
+          <button className="btn-primary-sm" onClick={openNew}>
+            <i data-lucide="calendar-plus" />
+            Nueva reserva
+          </button>
+        )}
       </div>
 
       <div className="dash-stats-row">
-        <StatCard label="Citas hoy"       value="8" sub="+2 vs ayer"  icon="calendar"    accent />
-        <StatCard label="Confirmadas"     value="6"                   icon="check-circle" />
-        <StatCard label="Pendientes"      value="2"                   icon="clock" />
+        <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent />
+        <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" />
+        <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" />
         <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" />
       </div>
 
-      <div className="dash-grid">
+      <div className={`dash-grid${panel ? ' has-panel' : ''}`}>
         <div className="dash-col-main">
-          <AgendaHoy />
+          <AgendaHoy citas={citas} />
         </div>
         <div className="dash-col-side">
-          <AccionesRapidas />
-          <ActividadReciente />
+          {panel ? (
+            <ReservaPanel
+              mode={panel.mode}
+              cita={panel.cita}
+              initialHora={panel.hora}
+              onClose={() => setPanel(null)}
+              onSave={handleSave}
+            />
+          ) : (
+            <>
+              <AccionesRapidas onNuevaReserva={openNew} />
+              <ActividadReciente />
+            </>
+          )}
         </div>
       </div>
     </div>

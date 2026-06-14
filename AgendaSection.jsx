@@ -948,4 +948,4 @@ function AgendaSection({ sub }) {
   return <HoyView />;
 }
 
-Object.assign(window, { AgendaSection });
+Object.assign(window, { AgendaSection, ReservaPanel });

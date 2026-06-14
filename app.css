@@ -306,6 +306,10 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   gap: 18px;
   align-items: start;
 }
+.dash-grid.has-panel { grid-template-columns: 1fr 360px; }
+@media (max-width: 880px) {
+  .dash-grid.has-panel { grid-template-columns: 1fr; }
+}
 
 .dash-col-main,
 .dash-col-side {
