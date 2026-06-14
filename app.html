@@ -54,6 +54,17 @@ function AppRoot() {
   const [sub, setSub] = React.useState(null);
   const [t, setTweak] = useTweaks(APP_TWEAK_DEFAULTS);
 
+  // Store de citas compartido entre el Inicio y la Agenda
+  const [citas, setCitas] = React.useState(() => (window.MOCK_CITAS_HOY || []));
+  const saveCita = (cita) => {
+    setCitas(prev =>
+      (prev.some(c => c.id === cita.id)
+        ? prev.map(c => (c.id === cita.id ? cita : c))
+        : [...prev, cita]
+      ).sort((a, b) => a.hora.localeCompare(b.hora))
+    );
+  };
+
   React.useEffect(() => {
     document.body.dataset.theme = t.dark ? 'dark' : 'light';
     document.body.dataset.accent = t.accent;
@@ -70,9 +81,9 @@ function AppRoot() {
   };
 
   const content = section === 'home'
-    ? <DashboardHome />
+    ? <DashboardHome citas={citas} onSaveCita={saveCita} />
     : section === 'agenda'
-      ? <AgendaSection sub={sub || 'hoy'} />
+      ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} />
       : <PlaceholderView section={section} />;
 
   return (

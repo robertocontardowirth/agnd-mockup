@@ -368,10 +368,9 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
   );
 }
 
-function HoyView() {
+function HoyView({ citas, onSaveCita }) {
   const [dayOffset, setDayOffset] = React.useState(0);
   const [selectedId, setSelectedId] = React.useState(null);
-  const [citas, setCitas] = React.useState(MOCK_CITAS_HOY);
   // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
   const [panel, setPanel] = React.useState(null);
 
@@ -379,11 +378,7 @@ function HoyView() {
   const openEdit = (cita) => { setSelectedId(null); setPanel({ mode: 'edit', cita }); };
 
   const handleSave = (cita) => {
-    setCitas(prev =>
-      prev.some(c => c.id === cita.id)
-        ? prev.map(c => (c.id === cita.id ? cita : c))
-        : [...prev, cita]
-    );
+    onSaveCita(cita);
     setPanel(null);
   };
 
@@ -942,15 +937,15 @@ function BloqueosView() {
 
 // ── ROOT ──────────────────────────────────────────────────────────────────────
 
-function AgendaSection({ sub }) {
+function AgendaSection({ sub, citas, onSaveCita }) {
   const view = sub || 'hoy';
-  if (view === 'hoy')         return <HoyView />;
+  if (view === 'hoy')         return <HoyView citas={citas} onSaveCita={onSaveCita} />;
   if (view === 'semana')      return <SemanaView />;
   if (view === 'mes')         return <MesView />;
   if (view === 'horarios')    return <HorariosView />;
   if (view === 'excepciones') return <ExcepcionesView />;
   if (view === 'bloqueos')    return <BloqueosView />;
-  return <HoyView />;
+  return <HoyView citas={citas} onSaveCita={onSaveCita} />;
 }
 
-Object.assign(window, { AgendaSection, ReservaPanel });
+Object.assign(window, { AgendaSection, ReservaPanel, MOCK_CITAS_HOY });

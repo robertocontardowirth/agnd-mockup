@@ -1,13 +1,5 @@
 // DashboardHome.jsx — vista de inicio del dashboard AGND
-
-const MOCK_CITAS = [
-  { id: 1, hora: '09:00', cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', duracion: 60, colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 2, hora: '10:00', cliente: 'Carolina Pérez',   servicio: 'Coloración',        duracion: 90, colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 3, hora: '11:30', cliente: 'Sofía Herrera',    servicio: 'Manicure',          duracion: 45, colaborador: 'Paula R.',  estado: 'pending' },
-  { id: 4, hora: '13:00', cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing',  duracion: 60, colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 5, hora: '14:30', cliente: 'Daniela Torres',   servicio: 'Pedicure',          duracion: 60, colaborador: 'Paula R.',  estado: 'pending' },
-  { id: 6, hora: '16:00', cliente: 'Isabel Castro',    servicio: 'Coloración',        duracion: 90, colaborador: 'Andrea M.', estado: 'confirmed' },
-];
+// Las citas son un store compartido con la Agenda; llegan por props desde AppRoot.
 
 const MOCK_ACTIVITY = [
   { id: 1, text: 'Valentina Rojas agendó para mañana 10:00',   time: 'hace 5 min',  icon: 'calendar-plus' },
@@ -135,7 +127,7 @@ function ActividadReciente() {
   );
 }
 
-function DashboardHome() {
+function DashboardHome({ citas, onSaveCita }) {
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
     day: 'numeric',
@@ -143,19 +135,13 @@ function DashboardHome() {
   });
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
 
-  const [citas, setCitas] = React.useState(MOCK_CITAS);
   // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
   const [panel, setPanel] = React.useState(null);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
 
   const handleSave = (cita) => {
-    setCitas(prev =>
-      (prev.some(c => c.id === cita.id)
-        ? prev.map(c => (c.id === cita.id ? cita : c))
-        : [...prev, cita]
-      ).sort((a, b) => a.hora.localeCompare(b.hora))
-    );
+    onSaveCita(cita);
     setPanel(null);
   };
 
