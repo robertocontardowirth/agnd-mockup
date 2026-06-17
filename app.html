@@ -21,6 +21,7 @@
 <script type="text/babel" src="AppShell.jsx"></script>
 <script type="text/babel" src="DashboardHome.jsx"></script>
 <script type="text/babel" src="AgendaSection.jsx"></script>
+<script type="text/babel" src="ClientesSection.jsx"></script>
 
 <script type="text/babel">
 
@@ -65,6 +66,16 @@ function AppRoot() {
     );
   };
 
+  // Store de clientes (CRM)
+  const [clientes, setClientes] = React.useState(() => (window.MOCK_CLIENTES || []));
+  const saveCliente = (cliente) => {
+    setClientes(prev =>
+      prev.some(c => c.id === cliente.id)
+        ? prev.map(c => (c.id === cliente.id ? cliente : c))
+        : [cliente, ...prev]
+    );
+  };
+
   React.useEffect(() => {
     document.body.dataset.theme = t.dark ? 'dark' : 'light';
     document.body.dataset.accent = t.accent;
@@ -84,7 +95,9 @@ function AppRoot() {
     ? <DashboardHome citas={citas} onSaveCita={saveCita} />
     : section === 'agenda'
       ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} />
-      : <PlaceholderView section={section} />;
+      : section === 'clientes'
+        ? <ClientesSection sub={sub || 'todos'} clientes={clientes} onSaveCliente={saveCliente} />
+        : <PlaceholderView section={section} />;
 
   return (
     <>
