@@ -402,25 +402,25 @@ function HoyView({ citas, onSaveCita }) {
   const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
   return (
-    <div className="agenda-view">
-      <AgendaViewHeader
-        title={title}
-        onPrev={() => { setDayOffset(d => d - 1); setSelectedId(null); }}
-        onNext={() => { setDayOffset(d => d + 1); setSelectedId(null); }}
-        onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
-        resetLabel="Hoy"
-      >
-        {!panel && (
-          <button className="btn-primary-sm" onClick={() => openNew('')}>
-            <i data-lucide="calendar-plus" />
-            Nueva cita
-          </button>
-        )}
-      </AgendaViewHeader>
+    <div className={`agenda-view${panel ? ' has-panel' : ''}`}>
+      <div className="agenda-view-main">
+        <AgendaViewHeader
+          title={title}
+          onPrev={() => { setDayOffset(d => d - 1); setSelectedId(null); }}
+          onNext={() => { setDayOffset(d => d + 1); setSelectedId(null); }}
+          onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
+          resetLabel="Hoy"
+        >
+          {!panel && (
+            <button className="btn-primary-sm" onClick={() => openNew('')}>
+              <i data-lucide="calendar-plus" />
+              Nueva cita
+            </button>
+          )}
+        </AgendaViewHeader>
 
-      <AgendaSummaryRow citas={citas} />
+        <AgendaSummaryRow citas={citas} />
 
-      <div className={`hoy-layout${panel ? ' has-panel' : ''}`}>
         <div className="timeline-wrap">
           {hours.map(h => (
             <TimelineSlot
@@ -434,17 +434,17 @@ function HoyView({ citas, onSaveCita }) {
             />
           ))}
         </div>
-
-        {panel && (
-          <ReservaPanel
-            mode={panel.mode}
-            cita={panel.cita}
-            initialHora={panel.hora}
-            onClose={() => setPanel(null)}
-            onSave={handleSave}
-          />
-        )}
       </div>
+
+      {panel && (
+        <ReservaPanel
+          mode={panel.mode}
+          cita={panel.cita}
+          initialHora={panel.hora}
+          onClose={() => setPanel(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

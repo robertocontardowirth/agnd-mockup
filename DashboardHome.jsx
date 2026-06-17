@@ -151,48 +151,50 @@ function DashboardHome({ citas, onSaveCita }) {
   }, [panel, citas]);
 
   return (
-    <div className="dash-home">
-      <div className="dash-header">
-        <div>
-          <div className="dash-greeting">Buenos días, Roberto.</div>
-          <div className="dash-date">{todayCap}</div>
+    <div className={`dash-home${panel ? ' has-panel' : ''}`}>
+      <div className="dash-home-main">
+        <div className="dash-header">
+          <div>
+            <div className="dash-greeting">Buenos días, Roberto.</div>
+            <div className="dash-date">{todayCap}</div>
+          </div>
+          {!panel && (
+            <button className="btn-primary-sm" onClick={openNew}>
+              <i data-lucide="calendar-plus" />
+              Nueva reserva
+            </button>
+          )}
         </div>
-        {!panel && (
-          <button className="btn-primary-sm" onClick={openNew}>
-            <i data-lucide="calendar-plus" />
-            Nueva reserva
-          </button>
-        )}
-      </div>
 
-      <div className="dash-stats-row">
-        <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent />
-        <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" />
-        <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" />
-        <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" />
-      </div>
-
-      <div className={`dash-grid${panel ? ' has-panel' : ''}`}>
-        <div className="dash-col-main">
-          <AgendaHoy citas={citas} />
+        <div className="dash-stats-row">
+          <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent />
+          <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" />
+          <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" />
+          <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" />
         </div>
-        <div className="dash-col-side">
-          {panel ? (
-            <ReservaPanel
-              mode={panel.mode}
-              cita={panel.cita}
-              initialHora={panel.hora}
-              onClose={() => setPanel(null)}
-              onSave={handleSave}
-            />
-          ) : (
-            <>
+
+        <div className={`dash-grid${panel ? ' single' : ''}`}>
+          <div className="dash-col-main">
+            <AgendaHoy citas={citas} />
+          </div>
+          {!panel && (
+            <div className="dash-col-side">
               <AccionesRapidas onNuevaReserva={openNew} />
               <ActividadReciente />
-            </>
+            </div>
           )}
         </div>
       </div>
+
+      {panel && (
+        <ReservaPanel
+          mode={panel.mode}
+          cita={panel.cita}
+          initialHora={panel.hora}
+          onClose={() => setPanel(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

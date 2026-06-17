@@ -220,6 +220,21 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   gap: 22px;
 }
 
+/* Con el panel de reserva abierto, el inicio pasa a 2 columnas: el contenido
+   a la izquierda y el panel como riel derecho que arranca arriba de todo. */
+.dash-home.has-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
+  align-items: start;
+}
+.dash-home-main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
 .dash-header {
   display: flex;
   align-items: flex-start;
@@ -306,9 +321,9 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   gap: 18px;
   align-items: start;
 }
-.dash-grid.has-panel { grid-template-columns: 1fr 360px; }
+.dash-grid.single { grid-template-columns: 1fr; }
 @media (max-width: 880px) {
-  .dash-grid.has-panel { grid-template-columns: 1fr; }
+  .dash-home.has-panel { grid-template-columns: 1fr; }
 }
 
 .dash-col-main,
@@ -1260,16 +1275,25 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 /* ==========================================================================
    RESERVA · Panel lateral en el flujo (convive con el contenido, no overlay)
    ========================================================================== */
-.hoy-layout.has-panel {
+/* Con el panel de reserva abierto, la agenda pasa a 2 columnas: el contenido
+   (header + resumen + timeline) a la izquierda y el panel como riel derecho
+   que arranca a la altura del header, no del calendario. */
+.agenda-view.has-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 20px;
   align-items: start;
 }
+.agenda-view-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
 
 .reserva-panel {
   position: sticky;
-  top: 16px;
+  top: 0;
   max-height: calc(100vh - 132px);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -1379,8 +1403,8 @@ select.reserva-input { cursor: pointer; }
   padding-bottom: 10px;
 }
 
-/* En pantallas angostas el panel se apila debajo del timeline (a ancho completo) */
+/* En pantallas angostas el panel se apila debajo del contenido (a ancho completo) */
 @media (max-width: 880px) {
-  .hoy-layout.has-panel { grid-template-columns: 1fr; }
+  .agenda-view.has-panel { grid-template-columns: 1fr; }
   .reserva-panel { position: static; max-height: none; }
 }
