@@ -70,7 +70,7 @@ const RESERVA_COLABORADORES = ['Andrea M.', 'Paula R.'];
 
 // ── SHARED PRIMITIVES ────────────────────────────────────────────────────────
 
-function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, children }) {
+function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, summary, children }) {
   return (
     <div className="agenda-view-header">
       <div className="agenda-nav-group">
@@ -87,6 +87,7 @@ function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, children
           </button>
         )}
       </div>
+      {summary}
       <div className="agenda-header-actions">{children}</div>
     </div>
   );
@@ -410,6 +411,7 @@ function HoyView({ citas, onSaveCita }) {
           onNext={() => { setDayOffset(d => d + 1); setSelectedId(null); }}
           onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
           resetLabel="Hoy"
+          summary={<AgendaSummaryRow citas={citas} />}
         >
           {!panel && (
             <button className="btn-primary-sm" onClick={() => openNew('')}>
@@ -418,8 +420,6 @@ function HoyView({ citas, onSaveCita }) {
             </button>
           )}
         </AgendaViewHeader>
-
-        <AgendaSummaryRow citas={citas} />
 
         <div className="timeline-wrap">
           {hours.map(h => (

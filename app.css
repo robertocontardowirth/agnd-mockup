@@ -650,7 +650,6 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  align-self: flex-start;
   overflow: hidden;
 }
 
