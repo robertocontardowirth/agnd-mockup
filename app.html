@@ -92,7 +92,7 @@ function AppRoot() {
   };
 
   const content = section === 'home'
-    ? <DashboardHome citas={citas} onSaveCita={saveCita} />
+    ? <DashboardHome citas={citas} onSaveCita={saveCita} onSaveCliente={saveCliente} />
     : section === 'agenda'
       ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} />
       : section === 'clientes'

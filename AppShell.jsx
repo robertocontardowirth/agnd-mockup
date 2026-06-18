@@ -143,6 +143,9 @@ function AppSidebar({ section, sub, onSub }) {
   const config = SIDEBAR_CONFIG[section];
   if (!config) return null;
 
+  // Sin sub explícito, el contenido muestra el primer item; reflejarlo como activo
+  const activeSub = sub || config.groups[0].items[0].id;
+
   return (
     <aside className="app-sidebar" aria-label="Navegación secundaria">
       {config.groups.map((group, gi) => (
@@ -154,9 +157,9 @@ function AppSidebar({ section, sub, onSub }) {
           {group.items.map(item => (
             <button
               key={item.id}
-              className={`app-sidebar-item${sub === item.id ? ' active' : ''}`}
+              className={`app-sidebar-item${activeSub === item.id ? ' active' : ''}`}
               onClick={() => onSub(item.id)}
-              aria-current={sub === item.id ? 'page' : undefined}
+              aria-current={activeSub === item.id ? 'page' : undefined}
             >
               <i data-lucide={item.icon} />
               {item.label}

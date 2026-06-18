@@ -73,10 +73,10 @@ function AgendaHoy({ citas }) {
   );
 }
 
-function AccionesRapidas({ onNuevaReserva }) {
+function AccionesRapidas({ onNuevaReserva, onAgregarCliente }) {
   const actions = [
     { icon: 'calendar-plus', label: 'Nueva reserva',          primary: true, onClick: onNuevaReserva },
-    { icon: 'user-plus',     label: 'Agregar cliente' },
+    { icon: 'user-plus',     label: 'Agregar cliente',        onClick: onAgregarCliente },
     { icon: 'clock',         label: 'Bloquear horario' },
     { icon: 'link',          label: 'Copiar link de reserva' },
   ];
@@ -127,7 +127,7 @@ function ActividadReciente() {
   );
 }
 
-function DashboardHome({ citas, onSaveCita }) {
+function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
     day: 'numeric',
@@ -137,18 +137,26 @@ function DashboardHome({ citas, onSaveCita }) {
 
   // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
   const [panel, setPanel] = React.useState(null);
+  // null = cerrado | { mode: 'new' } — modal de alta rápida de cliente
+  const [clienteModal, setClienteModal] = React.useState(null);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
+  const openNuevoCliente = () => setClienteModal({ mode: 'new' });
 
   const handleSave = (cita) => {
     onSaveCita(cita);
     setPanel(null);
   };
 
-  // Reconvierte los íconos lucide al abrir/cerrar el panel (el botón se re-monta con un <i> nuevo)
+  const handleSaveCliente = (cliente) => {
+    if (onSaveCliente) onSaveCliente(cliente);
+    setClienteModal(null);
+  };
+
+  // Reconvierte los íconos lucide al abrir/cerrar el panel o el modal (los <i> se re-montan)
   React.useEffect(() => {
     if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  }, [panel, citas]);
+  }, [panel, clienteModal, citas]);
 
   return (
     <div className={`dash-home${panel ? ' has-panel' : ''}`}>
@@ -179,7 +187,7 @@ function DashboardHome({ citas, onSaveCita }) {
           </div>
           {!panel && (
             <div className="dash-col-side">
-              <AccionesRapidas onNuevaReserva={openNew} />
+              <AccionesRapidas onNuevaReserva={openNew} onAgregarCliente={openNuevoCliente} />
               <ActividadReciente />
             </div>
           )}
@@ -193,6 +201,15 @@ function DashboardHome({ citas, onSaveCita }) {
           initialHora={panel.hora}
           onClose={() => setPanel(null)}
           onSave={handleSave}
+        />
+      )}
+
+      {clienteModal && (
+        <ClienteModal
+          mode={clienteModal.mode}
+          cliente={clienteModal.cliente}
+          onClose={() => setClienteModal(null)}
+          onSave={handleSaveCliente}
         />
       )}
     </div>
