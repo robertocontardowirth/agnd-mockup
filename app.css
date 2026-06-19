@@ -1293,7 +1293,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .reserva-panel {
   position: sticky;
   top: 0;
-  max-height: calc(100vh - 132px);
+  max-height: calc(100vh - 100px);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
