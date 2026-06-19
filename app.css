@@ -751,12 +751,13 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .timeline-hour-add i, .timeline-hour-add svg { width: 14px; height: 14px; }
 
-/* Capa de eventos superpuesta sobre la grilla; sólo los bloques capturan clicks */
+/* Capa de eventos superpuesta sobre la grilla; sólo los bloques capturan clicks.
+   El margen derecho deja una canaleta libre para alcanzar el botón "+". */
 .timeline-events {
   position: absolute;
   top: 0;
   left: 64px;
-  right: 12px;
+  right: 37px;
   bottom: 0;
   pointer-events: none;
 }
