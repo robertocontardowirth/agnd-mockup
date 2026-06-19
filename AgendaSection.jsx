@@ -4,6 +4,7 @@
 
 const MOCK_CITAS_HOY = [
   { id: 1,  hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed', notas: 'Primera visita del mes' },
+  { id: 7,  hora: '09:30', duracion: 60, cliente: 'Martina Soto',     servicio: 'Manicure',          colaborador: 'Paula R.',  estado: 'confirmed', notas: '' },
   { id: 2,  hora: '10:30', duracion: 90, cliente: 'Carolina Pérez',   servicio: 'Coloración',        colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
   { id: 3,  hora: '12:00', duracion: 45, cliente: 'Sofía Herrera',    servicio: 'Manicure',          colaborador: 'Paula R.',  estado: 'pending',   notas: 'Confirmar por WhatsApp' },
   { id: 4,  hora: '14:00', duracion: 60, cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing',  colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
