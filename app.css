@@ -375,6 +375,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .cita-row:last-child { border-bottom: none; }
 .cita-row:hover,
 .cita-row.selected { background: rgba(147,225,216,.07); }
+.cita-row .badge { font-size: 11px; padding: 1px 7px; }
 
 .cita-hora {
   font-family: var(--font-mono);
