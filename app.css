@@ -732,6 +732,32 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   pointer-events: none;
 }
 
+/* Botón "+" que aparece al pasar el mouse sobre una franja libre */
+.timeline-hour-add {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  border: 1.5px dashed var(--border);
+  background: var(--bg-elevated);
+  color: var(--fg-3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--d-fast) var(--ease-out);
+}
+.timeline-hour-row:hover .timeline-hour-add {
+  opacity: 1;
+  color: var(--accent-live);
+  border-color: var(--accent-live);
+}
+.timeline-hour-add i, .timeline-hour-add svg { width: 14px; height: 14px; }
+
 /* Capa de eventos superpuesta sobre la grilla; sólo los bloques capturan clicks */
 .timeline-events {
   position: absolute;

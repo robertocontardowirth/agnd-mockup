@@ -238,6 +238,7 @@ function Timeline({ citas, selectedId, onOpen, onAdd }) {
             aria-label={`Nueva cita a las ${fmtMin(h * 60)}`}
           >
             <span className="timeline-hour-label">{fmtMin(h * 60)}</span>
+            <span className="timeline-hour-add"><Icon name="plus" /></span>
           </button>
         ))}
       </div>
