@@ -1,5 +1,46 @@
 // Components.jsx — UI kit primitives for the AGND agenda
 
+// Icon — renderiza un ícono Lucide como <svg> que React controla por completo.
+// Evita lucide.createIcons(), que reemplaza el <i> por fuera de React y provoca
+// crashes de removeChild/appendChild al desmontar (panel, modal, listas).
+function lucideNode(name) {
+  const pascal = String(name).split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+  const L = window.lucide;
+  return (L && L.icons && L.icons[pascal]) || (L && L[pascal]) || null;
+}
+
+function lucideInnerHtml(node) {
+  return node.map(([tag, attrs]) => {
+    const a = Object.entries(attrs || {})
+      .map(([k, v]) => `${k}="${String(v).replace(/"/g, '&quot;')}"`)
+      .join(' ');
+    return `<${tag} ${a}></${tag}>`;
+  }).join('');
+}
+
+function Icon({ name, size, className, style, strokeWidth }) {
+  const node = lucideNode(name);
+  if (!node) return null;
+  const s = size || 24;
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={`icon${className ? ' ' + className : ''}`}
+      width={s}
+      height={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth || 2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={style}
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{ __html: lucideInnerHtml(node) }}
+    />
+  );
+}
+
 const Logo = ({ size = 28 }) => (
   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
     <MosaicTile pattern="010101111" size={size} on="#4CD5D2" off="#DEDAD2" />
@@ -27,7 +68,7 @@ const Button = ({ variant = 'primary', size = 'md', children, onClick, icon, dis
   };
   return (
     <button onClick={onClick} disabled={disabled} style={{ ...base, ...sizes[size], ...variants[variant] }}>
-      {icon && <i data-lucide={icon} style={{ width: 16, height: 16 }}></i>}
+      {icon && <Icon name={icon} size={16} />}
       {children}
     </button>
   );
@@ -110,4 +151,4 @@ const Divider = () => (
   </div>
 );
 
-Object.assign(window, { Logo, Button, Input, Card, Badge, Avatar, Divider });
+Object.assign(window, { Icon, Logo, Button, Input, Card, Badge, Avatar, Divider });

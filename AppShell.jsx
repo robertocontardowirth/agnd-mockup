@@ -115,7 +115,7 @@ function AppTopBar({ section, onSection }) {
                 onClick={() => onSection(s.id)}
                 aria-current={section === s.id ? 'page' : undefined}
               >
-                <i data-lucide={s.icon} />
+                <Icon name={s.icon} />
                 {s.label}
               </button>
             ))}
@@ -124,13 +124,13 @@ function AppTopBar({ section, onSection }) {
 
         <div className="app-topbar-right">
           <button className="icon-btn" title="Notificaciones" aria-label="Notificaciones">
-            <i data-lucide="bell" />
+            <Icon name="bell" />
           </button>
           <button className="icon-btn" title="Ayuda" aria-label="Ayuda">
-            <i data-lucide="circle-help" />
+            <Icon name="circle-help" />
           </button>
           <button className="icon-btn" title="Configuración" aria-label="Configuración">
-            <i data-lucide="settings" />
+            <Icon name="settings" />
           </button>
           <div className="app-avatar" role="button" tabIndex="0" aria-label="Mi cuenta">RC</div>
         </div>
@@ -161,7 +161,7 @@ function AppSidebar({ section, sub, onSub }) {
               onClick={() => onSub(item.id)}
               aria-current={activeSub === item.id ? 'page' : undefined}
             >
-              <i data-lucide={item.icon} />
+              <Icon name={item.icon} />
               {item.label}
             </button>
           ))}

@@ -79,10 +79,6 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
     };
   }, [onClose]);
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  });
-
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const ok = form.nombre.trim() && form.telefono.trim();
 
@@ -115,7 +111,7 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
             <div className="modal-title">{isEdit ? 'Editar cliente' : 'Nuevo cliente'}</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
-            <i data-lucide="x" />
+            <Icon name="x" />
           </button>
         </div>
 
@@ -186,7 +182,7 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
         <div className="modal-footer">
           <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
-            <i data-lucide="check" />{isEdit ? 'Guardar cambios' : 'Crear cliente'}
+            <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Crear cliente'}
           </button>
         </div>
       </div>
@@ -214,7 +210,7 @@ function ClienteRow({ cliente, onEdit }) {
         onClick={e => { e.stopPropagation(); onEdit(cliente); }}
         aria-label="Editar cliente"
       >
-        <i data-lucide="pencil" />
+        <Icon name="pencil" />
       </button>
     </div>
   );
@@ -241,10 +237,6 @@ function ClientesSection({ sub, clientes, onSaveCliente }) {
     setModal(null);
   };
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  }, [modal, clientes, query, view]);
-
   // Sub-vistas que aún no forman parte de este flujo (tras los hooks, para no romper su orden)
   if (view === 'grupos' || view === 'importar') {
     const ph = view === 'grupos'
@@ -252,7 +244,7 @@ function ClientesSection({ sub, clientes, onSaveCliente }) {
       : { icon: 'upload', label: 'Importar', desc: 'Importa tus clientes desde un archivo o contactos.' };
     return (
       <div className="placeholder-view">
-        <i data-lucide={ph.icon} />
+        <Icon name={ph.icon} />
         <h2>{ph.label}</h2>
         <p>{ph.desc}</p>
         <p style={{ marginTop: 4, fontSize: 12, opacity: .6 }}>Esta sección está en construcción.</p>
@@ -280,14 +272,14 @@ function ClientesSection({ sub, clientes, onSaveCliente }) {
           <div className="agenda-config-desc">{meta.desc}</div>
         </div>
         <button className="btn-primary-sm" onClick={openNew}>
-          <i data-lucide="user-plus" />
+          <Icon name="user-plus" />
           Nuevo cliente
         </button>
       </div>
 
       <div className="clientes-toolbar">
         <div className="clientes-search">
-          <i data-lucide="search" />
+          <Icon name="search" />
           <input
             type="text"
             placeholder="Buscar por nombre, teléfono o email…"
@@ -301,7 +293,7 @@ function ClientesSection({ sub, clientes, onSaveCliente }) {
       <div className="cliente-list">
         {filtered.length === 0 ? (
           <div className="clientes-empty">
-            <i data-lucide="users" />
+            <Icon name="users" />
             <span>{query.trim() ? 'Sin resultados para tu búsqueda' : 'Sin clientes en esta vista'}</span>
           </div>
         ) : (

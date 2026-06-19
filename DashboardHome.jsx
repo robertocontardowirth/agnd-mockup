@@ -23,7 +23,7 @@ function StatCard({ label, value, sub, icon, accent }) {
   return (
     <div className={`dash-stat-card${accent ? ' accent' : ''}`}>
       <div className="dash-stat-icon">
-        <i data-lucide={icon} />
+        <Icon name={icon} />
       </div>
       <div>
         <div className="dash-stat-value">{value}</div>
@@ -41,7 +41,7 @@ function AgendaHoy({ citas }) {
     <div className="dash-card">
       <div className="dash-card-header">
         <div className="dash-card-title">
-          <i data-lucide="calendar" />
+          <Icon name="calendar" />
           Agenda de hoy
         </div>
         <button className="btn-sm-ghost">Ver calendario</button>
@@ -64,7 +64,7 @@ function AgendaHoy({ citas }) {
               onClick={e => e.stopPropagation()}
               aria-label="Opciones"
             >
-              <i data-lucide="more-horizontal" />
+              <Icon name="more-horizontal" />
             </button>
           </div>
         ))}
@@ -85,14 +85,14 @@ function AccionesRapidas({ onNuevaReserva, onAgregarCliente }) {
     <div className="dash-card">
       <div className="dash-card-header">
         <div className="dash-card-title">
-          <i data-lucide="zap" />
+          <Icon name="zap" />
           Acciones rápidas
         </div>
       </div>
       <div className="quick-actions">
         {actions.map(a => (
           <button key={a.label} className={`quick-action-btn${a.primary ? ' primary' : ''}`} onClick={a.onClick}>
-            <i data-lucide={a.icon} />
+            <Icon name={a.icon} />
             {a.label}
           </button>
         ))}
@@ -106,7 +106,7 @@ function ActividadReciente() {
     <div className="dash-card">
       <div className="dash-card-header">
         <div className="dash-card-title">
-          <i data-lucide="activity" />
+          <Icon name="activity" />
           Actividad reciente
         </div>
       </div>
@@ -114,7 +114,7 @@ function ActividadReciente() {
         {MOCK_ACTIVITY.map(a => (
           <div key={a.id} className="activity-row">
             <div className="activity-icon">
-              <i data-lucide={a.icon} />
+              <Icon name={a.icon} />
             </div>
             <div>
               <div className="activity-text">{a.text}</div>
@@ -153,11 +153,6 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
     setClienteModal(null);
   };
 
-  // Reconvierte los íconos lucide al abrir/cerrar el panel o el modal (los <i> se re-montan)
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  }, [panel, clienteModal, citas]);
-
   return (
     <div className={`dash-home${panel ? ' has-panel' : ''}`}>
       <div className="dash-home-main">
@@ -168,7 +163,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
           </div>
           {!panel && (
             <button className="btn-primary-sm" onClick={openNew}>
-              <i data-lucide="calendar-plus" />
+              <Icon name="calendar-plus" />
               Nueva reserva
             </button>
           )}

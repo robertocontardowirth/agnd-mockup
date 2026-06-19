@@ -75,11 +75,11 @@ function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, summary,
     <div className="agenda-view-header">
       <div className="agenda-nav-group">
         <button className="agenda-nav-btn" onClick={onPrev} aria-label="Anterior">
-          <i data-lucide="chevron-left" />
+          <Icon name="chevron-left" />
         </button>
         <span className="agenda-nav-title">{title}</span>
         <button className="agenda-nav-btn" onClick={onNext} aria-label="Siguiente">
-          <i data-lucide="chevron-right" />
+          <Icon name="chevron-right" />
         </button>
         {onReset && (
           <button className="agenda-reset-btn" onClick={onReset}>
@@ -96,7 +96,7 @@ function AgendaViewHeader({ title, onPrev, onNext, onReset, resetLabel, summary,
 function AgendaEmptyState({ icon, message }) {
   return (
     <div className="agenda-empty-state">
-      <i data-lucide={icon || 'calendar'} />
+      <Icon name={icon || 'calendar'} />
       <span>{message || 'Sin datos'}</span>
     </div>
   );
@@ -130,7 +130,7 @@ function ReservaDetalle({ cita }) {
   return (
     <div className="reserva-detail">
       <div className="reserva-detail-time">
-        <i data-lucide="clock" />
+        <Icon name="clock" />
         <span>{cita.hora} · {cita.duracion} min</span>
       </div>
       <div className="cita-detail-grid">
@@ -185,7 +185,7 @@ function TimelineSlot({ hour, citas, selectedId, onOpen, onAdd }) {
       <div className="timeline-slot-track">
         {isEmpty ? (
           <button className="timeline-slot-add" aria-label={`Nueva cita a las ${label}`} onClick={() => onAdd(label)}>
-            <i data-lucide="plus" />
+            <Icon name="plus" />
           </button>
         ) : (
           slotCitas.map(c => (
@@ -239,10 +239,6 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  });
-
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const onServicio = e => {
     const nombre = e.target.value;
@@ -275,7 +271,7 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
             <div className="reserva-panel-title">{panelTitle}</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
-            <i data-lucide="x" />
+            <Icon name="x" />
           </button>
         </div>
 
@@ -286,13 +282,13 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
             </div>
             <div className="reserva-panel-footer reserva-panel-footer--view">
               <button className="btn-primary-sm reserva-footer-btn" onClick={() => onEdit(cita)}>
-                <i data-lucide="pencil" />Editar
+                <Icon name="pencil" />Editar
               </button>
               <button className="btn-sm-ghost reserva-footer-btn" onClick={() => onReagendar(cita)}>
-                <i data-lucide="calendar-clock" />Reagendar
+                <Icon name="calendar-clock" />Reagendar
               </button>
               <button className="btn-sm-ghost reserva-footer-btn reserva-btn-danger" onClick={() => onAnular(cita)}>
-                <i data-lucide="x-circle" />Anular
+                <Icon name="x-circle" />Anular
               </button>
             </div>
           </React.Fragment>
@@ -370,7 +366,7 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
         <div className="reserva-panel-footer">
           <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
-            <i data-lucide="check" />{isEdit ? 'Guardar cambios' : 'Crear reserva'}
+            <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Crear reserva'}
           </button>
         </div>
           </React.Fragment>
@@ -400,11 +396,6 @@ function HoyView({ citas, onSaveCita }) {
     closePanel();
   };
 
-  // Reconvierte los íconos lucide al abrir/cerrar el panel (el botón se re-monta con un <i> nuevo)
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-  }, [panel, citas]);
-
   const today = new Date();
   const date = new Date(today);
   date.setDate(date.getDate() + dayOffset);
@@ -432,7 +423,7 @@ function HoyView({ citas, onSaveCita }) {
         >
           {!panel && (
             <button className="btn-primary-sm" onClick={() => openNew('')}>
-              <i data-lucide="calendar-plus" />
+              <Icon name="calendar-plus" />
               Nueva cita
             </button>
           )}
@@ -576,7 +567,7 @@ function MesSidePanel({ date, citas, onClose }) {
       <div className="mes-side-panel-header">
         <div className="mes-side-panel-title">{title}</div>
         <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
-          <i data-lucide="x" />
+          <Icon name="x" />
         </button>
       </div>
       <div className="mes-side-panel-body">
@@ -757,7 +748,7 @@ function HorariosView() {
           <div className="agenda-config-desc">Configura los días y horarios en que tu negocio atiende reservas.</div>
         </div>
         <button className={`agenda-save-btn${saved ? ' saved' : ''}`} onClick={save}>
-          {saved ? <React.Fragment><i data-lucide="check" />Guardado</React.Fragment> : 'Guardar cambios'}
+          {saved ? <React.Fragment><Icon name="check" />Guardado</React.Fragment> : 'Guardar cambios'}
         </button>
       </div>
       <div className="agenda-table">
@@ -800,7 +791,7 @@ function ExcepcionForm({ onConfirm, onCancel }) {
       </div>
       <div className="agenda-form-actions">
         <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
-          <i data-lucide="plus" />Agregar
+          <Icon name="plus" />Agregar
         </button>
         <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
       </div>
@@ -830,7 +821,7 @@ function ExcepcionesView() {
         </div>
         {!showForm && (
           <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
-            <i data-lucide="plus" />Nueva excepción
+            <Icon name="plus" />Nueva excepción
           </button>
         )}
       </div>
@@ -852,7 +843,7 @@ function ExcepcionesView() {
               }
             </div>
             <button className="agenda-action-btn" onClick={() => remove(exc.id)} aria-label="Eliminar">
-              <i data-lucide="trash-2" />
+              <Icon name="trash-2" />
             </button>
           </div>
         ))}
@@ -897,7 +888,7 @@ function BloqueoForm({ onConfirm, onCancel }) {
       </div>
       <div className="agenda-form-actions">
         <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
-          <i data-lucide="plus" />Agregar
+          <Icon name="plus" />Agregar
         </button>
         <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
       </div>
@@ -927,7 +918,7 @@ function BloqueosView() {
         </div>
         {!showForm && (
           <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
-            <i data-lucide="plus" />Nuevo bloqueo
+            <Icon name="plus" />Nuevo bloqueo
           </button>
         )}
       </div>
@@ -945,7 +936,7 @@ function BloqueosView() {
             <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{b.colaborador}</div>
             <div className="agenda-table-motivo">{b.motivo}</div>
             <button className="agenda-action-btn" onClick={() => remove(b.id)} aria-label="Eliminar">
-              <i data-lucide="trash-2" />
+              <Icon name="trash-2" />
             </button>
           </div>
         ))}

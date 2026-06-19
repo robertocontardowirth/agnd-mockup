@@ -42,7 +42,7 @@ function PlaceholderView({ section }) {
   const meta = SECTION_META[section] || { icon: 'layout', label: section, desc: '' };
   return (
     <div className="placeholder-view">
-      <i data-lucide={meta.icon} />
+      <Icon name={meta.icon} />
       <h2>{meta.label}</h2>
       <p>{meta.desc}</p>
       <p style={{ marginTop: 4, fontSize: 12, opacity: .6 }}>Esta sección está en construcción.</p>
@@ -80,11 +80,6 @@ function AppRoot() {
     document.body.dataset.theme = t.dark ? 'dark' : 'light';
     document.body.dataset.accent = t.accent;
   }, [t.dark, t.accent]);
-
-  React.useEffect(() => {
-    const id = setTimeout(() => window.lucide && window.lucide.createIcons(), 50);
-    return () => clearTimeout(id);
-  });
 
   const handleSection = (s) => {
     setSection(s);
