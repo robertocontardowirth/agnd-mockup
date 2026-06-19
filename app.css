@@ -935,6 +935,12 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   background: var(--accent-tint);
   box-shadow: inset 3px 0 0 var(--accent-live);
 }
+.semana-cita-card .badge {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 1px 7px;
+  margin-top: 2px;
+}
 
 .semana-cita-time {
   font-family: var(--font-mono);
