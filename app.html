@@ -23,6 +23,8 @@
 <script type="text/babel" src="AgendaSection.jsx"></script>
 <script type="text/babel" src="ClientesSection.jsx"></script>
 <script type="text/babel" src="EquipoSection.jsx"></script>
+<script type="text/babel" src="EspaciosSection.jsx"></script>
+<script type="text/babel" src="RecursosSection.jsx"></script>
 
 <script type="text/babel">
 
@@ -87,6 +89,26 @@ function AppRoot() {
     );
   };
 
+  // Store de espacios
+  const [espacios, setEspacios] = React.useState(() => (window.MOCK_ESPACIOS || []));
+  const saveEspacio = (esp) => {
+    setEspacios(prev =>
+      prev.some(e => e.id === esp.id)
+        ? prev.map(e => (e.id === esp.id ? esp : e))
+        : [...prev, esp]
+    );
+  };
+
+  // Store de recursos
+  const [recursos, setRecursos] = React.useState(() => (window.MOCK_RECURSOS || []));
+  const saveRecurso = (rec) => {
+    setRecursos(prev =>
+      prev.some(r => r.id === rec.id)
+        ? prev.map(r => (r.id === rec.id ? rec : r))
+        : [...prev, rec]
+    );
+  };
+
   React.useEffect(() => {
     document.body.dataset.theme = t.dark ? 'dark' : 'light';
     document.body.dataset.accent = t.accent;
@@ -105,6 +127,10 @@ function AppRoot() {
         ? <ClientesSection sub={sub || 'todos'} clientes={clientes} onSaveCliente={saveCliente} />
       : section === 'equipo'
         ? <EquipoSection sub={sub} colaboradores={colaboradores} onSaveColaborador={saveColaborador} />
+      : section === 'espacios'
+        ? <EspaciosSection sub={sub} espacios={espacios} onSaveEspacio={saveEspacio} />
+      : section === 'recursos'
+        ? <RecursosSection sub={sub} recursos={recursos} onSaveRecurso={saveRecurso} />
         : <PlaceholderView section={section} />;
 
   return (
