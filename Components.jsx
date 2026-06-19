@@ -41,6 +41,33 @@ function Icon({ name, size, className, style, strokeWidth }) {
   );
 }
 
+// Modal — shell centrado reutilizable: overlay, Escape, bloqueo de scroll.
+function Modal({ title, eyebrow, onClose, children, footer }) {
+  React.useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+
+  return (
+    <div className="modal-overlay" onMouseDown={onClose}>
+      <div className="modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <div>
+            {eyebrow && <div className="modal-eyebrow">{eyebrow}</div>}
+            <div className="modal-title">{title}</div>
+          </div>
+          <button className="icon-btn" onClick={onClose} aria-label="Cerrar"><Icon name="x" /></button>
+        </div>
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-footer">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
 const Logo = ({ size = 28 }) => (
   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
     <MosaicTile pattern="010101111" size={size} on="#4CD5D2" off="#DEDAD2" />
@@ -151,4 +178,4 @@ const Divider = () => (
   </div>
 );
 
-Object.assign(window, { Icon, Logo, Button, Input, Card, Badge, Avatar, Divider });
+Object.assign(window, { Icon, Modal, Logo, Button, Input, Card, Badge, Avatar, Divider });
