@@ -707,19 +707,9 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 
 .timeline-hour-row {
   position: relative;
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
   border-top: 1px solid var(--border);
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--d-fast) var(--ease-out);
 }
 .timeline-hour-row:first-child { border-top: none; }
-.timeline-hour-row:hover { background: var(--accent-tint); }
 
 .timeline-hour-label {
   position: absolute;
@@ -732,7 +722,8 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   pointer-events: none;
 }
 
-/* Botón "+" que aparece al pasar el mouse sobre una franja libre */
+/* Botón "+" que aparece al pasar el mouse sobre una franja libre.
+   Sólo este botón crea cita; la franja en sí no es clickable. */
 .timeline-hour-add {
   position: absolute;
   top: 50%;
@@ -748,13 +739,15 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   background: var(--bg-elevated);
   color: var(--fg-3);
   opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--d-fast) var(--ease-out);
+  cursor: pointer;
+  transition: opacity var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out),
+              border-color var(--d-fast) var(--ease-out), background var(--d-fast) var(--ease-out);
 }
-.timeline-hour-row:hover .timeline-hour-add {
-  opacity: 1;
+.timeline-hour-row:hover .timeline-hour-add { opacity: 1; }
+.timeline-hour-add:hover {
   color: var(--accent-live);
   border-color: var(--accent-live);
+  background: var(--accent-tint);
 }
 .timeline-hour-add i, .timeline-hour-add svg { width: 14px; height: 14px; }
 

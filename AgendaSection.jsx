@@ -229,17 +229,17 @@ function Timeline({ citas, selectedId, onOpen, onAdd }) {
     <div className="timeline">
       <div className="timeline-grid">
         {hours.map(h => (
-          <button
-            key={h}
-            type="button"
-            className="timeline-hour-row"
-            style={{ height: HOUR_PX }}
-            onClick={() => onAdd(fmtMin(h * 60))}
-            aria-label={`Nueva cita a las ${fmtMin(h * 60)}`}
-          >
+          <div key={h} className="timeline-hour-row" style={{ height: HOUR_PX }}>
             <span className="timeline-hour-label">{fmtMin(h * 60)}</span>
-            <span className="timeline-hour-add"><Icon name="plus" /></span>
-          </button>
+            <button
+              type="button"
+              className="timeline-hour-add"
+              onClick={() => onAdd(fmtMin(h * 60))}
+              aria-label={`Nueva cita a las ${fmtMin(h * 60)}`}
+            >
+              <Icon name="plus" />
+            </button>
+          </div>
         ))}
       </div>
       <div className="timeline-events">
