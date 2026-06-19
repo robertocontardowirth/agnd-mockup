@@ -1398,9 +1398,31 @@ select.reserva-input { cursor: pointer; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
+/* Panel en modo consulta: detalle de la reserva + acciones apiladas */
+.reserva-detail { display: flex; flex-direction: column; gap: 16px; }
+.reserva-detail-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg-1);
+}
+.reserva-detail-time i, .reserva-detail-time svg { width: 16px; height: 16px; color: var(--accent-live); }
+
+.reserva-panel-footer--view { flex-direction: column; gap: 8px; }
+.reserva-panel-footer--view .reserva-footer-btn { width: 100%; }
+.reserva-panel-footer--view .reserva-footer-btn i,
+.reserva-panel-footer--view .reserva-footer-btn svg { width: 15px; height: 15px; }
+
+.reserva-btn-danger { color: var(--agnd-rose-500); border-color: var(--agnd-rose-500); }
+.reserva-btn-danger:hover { background: rgba(170,68,101,.10); color: var(--agnd-rose-500); }
 
 /* En pantallas angostas el panel se apila debajo del contenido (a ancho completo) */
 @media (max-width: 880px) {

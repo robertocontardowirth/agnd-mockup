@@ -125,23 +125,22 @@ function AgendaSummaryRow({ citas }) {
   );
 }
 
-function CitaDetail({ cita, onClose, onEdit }) {
+// Detalle de la reserva en modo consulta, mostrado dentro del panel lateral
+function ReservaDetalle({ cita }) {
   return (
-    <div className="cita-detail-panel">
-      <div className="cita-detail-header">
-        <div className="cita-detail-client">{cita.cliente}</div>
-        <button className="cita-detail-close" onClick={onClose} aria-label="Cerrar">
-          <i data-lucide="x" />
-        </button>
+    <div className="reserva-detail">
+      <div className="reserva-detail-time">
+        <i data-lucide="clock" />
+        <span>{cita.hora} · {cita.duracion} min</span>
       </div>
       <div className="cita-detail-grid">
+        <div className="cita-detail-row cita-detail-row--full">
+          <div className="cita-detail-label">Cliente</div>
+          <div className="cita-detail-value">{cita.cliente}</div>
+        </div>
         <div className="cita-detail-row">
           <div className="cita-detail-label">Servicio</div>
           <div className="cita-detail-value">{cita.servicio}</div>
-        </div>
-        <div className="cita-detail-row">
-          <div className="cita-detail-label">Duración</div>
-          <div className="cita-detail-value">{cita.duracion} min</div>
         </div>
         <div className="cita-detail-row">
           <div className="cita-detail-label">Colaborador</div>
@@ -151,44 +150,32 @@ function CitaDetail({ cita, onClose, onEdit }) {
           <div className="cita-detail-label">Estado</div>
           <div className="cita-detail-value"><EstadoBadge estado={cita.estado} /></div>
         </div>
-        {cita.notas && (
-          <div className="cita-detail-row cita-detail-row--full">
-            <div className="cita-detail-label">Notas</div>
-            <div className="cita-detail-value">{cita.notas}</div>
-          </div>
-        )}
-      </div>
-      <div className="cita-detail-actions">
-        <button className="btn-sm-ghost" onClick={() => onEdit && onEdit(cita)}>Editar</button>
-        <button className="btn-sm-ghost">Reagendar</button>
-        <button className="btn-sm-ghost" style={{ color: 'var(--agnd-rose-500)', borderColor: 'var(--agnd-rose-500)' }}>
-          Cancelar
-        </button>
+        <div className="cita-detail-row cita-detail-row--full">
+          <div className="cita-detail-label">Notas</div>
+          <div className="cita-detail-value">{cita.notas || '—'}</div>
+        </div>
       </div>
     </div>
   );
 }
 
-function CitaBlock({ cita, selected, onSelect, onEdit }) {
+function CitaBlock({ cita, selected, onOpen }) {
   return (
-    <div>
-      <div
-        className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}`}
-        onClick={onSelect}
-        role="button"
-        tabIndex="0"
-      >
-        <div className="cita-block-time">{cita.hora} · {cita.duracion} min</div>
-        <div className="cita-block-client">{cita.cliente}</div>
-        <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>
-        <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>
-      </div>
-      {selected && <CitaDetail cita={cita} onClose={onSelect} onEdit={onEdit} />}
+    <div
+      className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}`}
+      onClick={() => onOpen(cita)}
+      role="button"
+      tabIndex="0"
+    >
+      <div className="cita-block-time">{cita.hora} · {cita.duracion} min</div>
+      <div className="cita-block-client">{cita.cliente}</div>
+      <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>
+      <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>
     </div>
   );
 }
 
-function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd, onEdit }) {
+function TimelineSlot({ hour, citas, selectedId, onOpen, onAdd }) {
   const slotCitas = citas.filter(c => parseInt(c.hora.split(':')[0]) === hour);
   const label = `${hour.toString().padStart(2, '0')}:00`;
   const isEmpty = slotCitas.length === 0;
@@ -206,8 +193,7 @@ function TimelineSlot({ hour, citas, selectedId, onSelect, onAdd, onEdit }) {
               key={c.id}
               cita={c}
               selected={selectedId === c.id}
-              onSelect={() => onSelect(selectedId === c.id ? null : c.id)}
-              onEdit={onEdit}
+              onOpen={onOpen}
             />
           ))
         )}
@@ -236,8 +222,9 @@ function buildInitialForm({ cita, initialHora }) {
   };
 }
 
-function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
+function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReagendar, onAnular }) {
   const isEdit = mode === 'edit';
+  const isView = mode === 'view';
   const [form, setForm] = React.useState(() => buildInitialForm({ cita, initialHora }));
 
   // Re-sincroniza el formulario al cambiar el objetivo (otra cita, o de crear↔editar)
@@ -278,18 +265,39 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
     });
   };
 
+  const panelTitle = isView ? 'Detalle de reserva' : isEdit ? 'Editar reserva' : 'Nueva reserva';
+
   return (
-      <aside className="reserva-panel" role="dialog" aria-label={isEdit ? 'Editar reserva' : 'Nueva reserva'}>
+      <aside className="reserva-panel" role="dialog" aria-label={panelTitle}>
         <div className="reserva-panel-header">
           <div>
             <div className="reserva-panel-eyebrow">Agenda</div>
-            <div className="reserva-panel-title">{isEdit ? 'Editar reserva' : 'Nueva reserva'}</div>
+            <div className="reserva-panel-title">{panelTitle}</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Cerrar">
             <i data-lucide="x" />
           </button>
         </div>
 
+        {isView ? (
+          <React.Fragment>
+            <div className="reserva-panel-body">
+              <ReservaDetalle cita={cita} />
+            </div>
+            <div className="reserva-panel-footer reserva-panel-footer--view">
+              <button className="btn-primary-sm reserva-footer-btn" onClick={() => onEdit(cita)}>
+                <i data-lucide="pencil" />Editar
+              </button>
+              <button className="btn-sm-ghost reserva-footer-btn" onClick={() => onReagendar(cita)}>
+                <i data-lucide="calendar-clock" />Reagendar
+              </button>
+              <button className="btn-sm-ghost reserva-footer-btn reserva-btn-danger" onClick={() => onAnular(cita)}>
+                <i data-lucide="x-circle" />Anular
+              </button>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
         <div className="reserva-panel-body">
           <div className="reserva-field">
             <label className="reserva-field-label">Cliente</label>
@@ -365,6 +373,8 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
             <i data-lucide="check" />{isEdit ? 'Guardar cambios' : 'Crear reserva'}
           </button>
         </div>
+          </React.Fragment>
+        )}
       </aside>
   );
 }
@@ -372,15 +382,22 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave }) {
 function HoyView({ citas, onSaveCita }) {
   const [dayOffset, setDayOffset] = React.useState(0);
   const [selectedId, setSelectedId] = React.useState(null);
-  // null = cerrado | { mode: 'new', hora } | { mode: 'edit', cita }
+  // null = cerrado | { mode: 'view'|'edit', cita } | { mode: 'new', hora }
   const [panel, setPanel] = React.useState(null);
 
+  const closePanel = () => { setPanel(null); setSelectedId(null); };
   const openNew  = (hora) => { setSelectedId(null); setPanel({ mode: 'new', hora: hora || '' }); };
-  const openEdit = (cita) => { setSelectedId(null); setPanel({ mode: 'edit', cita }); };
+  const openView = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'view', cita }); };
+  const openEdit = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'edit', cita }); };
 
   const handleSave = (cita) => {
     onSaveCita(cita);
-    setPanel(null);
+    closePanel();
+  };
+
+  const handleAnular = (cita) => {
+    onSaveCita({ ...cita, estado: 'cancelled' });
+    closePanel();
   };
 
   // Reconvierte los íconos lucide al abrir/cerrar el panel (el botón se re-monta con un <i> nuevo)
@@ -407,9 +424,9 @@ function HoyView({ citas, onSaveCita }) {
       <div className="agenda-view-main">
         <AgendaViewHeader
           title={title}
-          onPrev={() => { setDayOffset(d => d - 1); setSelectedId(null); }}
-          onNext={() => { setDayOffset(d => d + 1); setSelectedId(null); }}
-          onReset={!isToday ? () => { setDayOffset(0); setSelectedId(null); } : null}
+          onPrev={() => { setDayOffset(d => d - 1); closePanel(); }}
+          onNext={() => { setDayOffset(d => d + 1); closePanel(); }}
+          onReset={!isToday ? () => { setDayOffset(0); closePanel(); } : null}
           resetLabel="Hoy"
           summary={<AgendaSummaryRow citas={citas} />}
         >
@@ -428,9 +445,8 @@ function HoyView({ citas, onSaveCita }) {
               hour={h}
               citas={citas}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onOpen={openView}
               onAdd={openNew}
-              onEdit={openEdit}
             />
           ))}
         </div>
@@ -441,8 +457,11 @@ function HoyView({ citas, onSaveCita }) {
           mode={panel.mode}
           cita={panel.cita}
           initialHora={panel.hora}
-          onClose={() => setPanel(null)}
+          onClose={closePanel}
           onSave={handleSave}
+          onEdit={openEdit}
+          onReagendar={openEdit}
+          onAnular={handleAnular}
         />
       )}
     </div>
