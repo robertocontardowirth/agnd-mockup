@@ -931,6 +931,10 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .semana-cita-card:last-child { border-bottom: none; }
 .semana-cita-card:hover { background: rgba(147,225,216,.07); }
+.semana-cita-card.selected {
+  background: var(--accent-tint);
+  box-shadow: inset 3px 0 0 var(--accent-live);
+}
 
 .semana-cita-time {
   font-family: var(--font-mono);

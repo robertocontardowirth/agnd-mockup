@@ -518,9 +518,14 @@ function HoyView({ citas, onSaveCita }) {
 
 // ── SEMANA VIEW ───────────────────────────────────────────────────────────────
 
-function CitaCardCompact({ cita }) {
+function CitaCardCompact({ cita, selected, onOpen }) {
   return (
-    <div className="semana-cita-card">
+    <div
+      className={`semana-cita-card${selected ? ' selected' : ''}`}
+      onClick={() => onOpen(cita)}
+      role="button"
+      tabIndex="0"
+    >
       <div className="semana-cita-time">{cita.hora}</div>
       <div className="semana-cita-client">{cita.cliente}</div>
       <EstadoBadge estado={cita.estado} />
@@ -528,7 +533,7 @@ function CitaCardCompact({ cita }) {
   );
 }
 
-function SemanaDayColumn({ dayName, dayNumber, citas, isToday }) {
+function SemanaDayColumn({ dayName, dayNumber, citas, isToday, selectedId, onOpen }) {
   return (
     <div className={`semana-col${isToday ? ' is-today' : ''}`}>
       <div className="semana-col-header">
@@ -538,7 +543,9 @@ function SemanaDayColumn({ dayName, dayNumber, citas, isToday }) {
       <div className="semana-col-body">
         {citas.length === 0
           ? <div className="semana-empty">—</div>
-          : citas.map(c => <CitaCardCompact key={c.id} cita={c} />)
+          : citas.map(c => (
+            <CitaCardCompact key={c.id} cita={c} selected={selectedId === c.id} onOpen={onOpen} />
+          ))
         }
       </div>
     </div>
@@ -547,6 +554,24 @@ function SemanaDayColumn({ dayName, dayNumber, citas, isToday }) {
 
 function SemanaView() {
   const [weekOffset, setWeekOffset] = React.useState(0);
+  const [citasSemana, setCitasSemana] = React.useState(MOCK_CITAS_SEMANA);
+  const [selectedId, setSelectedId] = React.useState(null);
+  // null = cerrado | { mode: 'view'|'edit', cita }
+  const [panel, setPanel] = React.useState(null);
+
+  const closePanel = () => { setPanel(null); setSelectedId(null); };
+  const openView   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'view', cita }); };
+  const openEdit   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'edit', cita }); };
+
+  // Conserva dayIndex (y demás campos no editados) al guardar la cita de la semana
+  const handleSave = (updated) => {
+    setCitasSemana(prev => prev.map(c => (c.id === updated.id ? { ...c, ...updated } : c)));
+    closePanel();
+  };
+  const handleAnular = (cita) => {
+    setCitasSemana(prev => prev.map(c => (c.id === cita.id ? { ...c, estado: 'cancelled' } : c)));
+    closePanel();
+  };
 
   const today = new Date();
   const dow = today.getDay();
@@ -569,25 +594,41 @@ function SemanaView() {
   const todayStr = today.toDateString();
 
   return (
-    <div className="agenda-view">
-      <AgendaViewHeader
-        title={title}
-        onPrev={() => setWeekOffset(w => w - 1)}
-        onNext={() => setWeekOffset(w => w + 1)}
-        onReset={weekOffset !== 0 ? () => setWeekOffset(0) : null}
-        resetLabel="Esta semana"
-      />
-      <div className="semana-grid">
-        {days.map((d, i) => (
-          <SemanaDayColumn
-            key={i}
-            dayName={dayNames[i]}
-            dayNumber={d.getDate()}
-            citas={MOCK_CITAS_SEMANA.filter(c => c.dayIndex === i)}
-            isToday={d.toDateString() === todayStr}
-          />
-        ))}
+    <div className={`agenda-view${panel ? ' has-panel' : ''}`}>
+      <div className="agenda-view-main">
+        <AgendaViewHeader
+          title={title}
+          onPrev={() => { setWeekOffset(w => w - 1); closePanel(); }}
+          onNext={() => { setWeekOffset(w => w + 1); closePanel(); }}
+          onReset={weekOffset !== 0 ? () => { setWeekOffset(0); closePanel(); } : null}
+          resetLabel="Esta semana"
+        />
+        <div className="semana-grid">
+          {days.map((d, i) => (
+            <SemanaDayColumn
+              key={i}
+              dayName={dayNames[i]}
+              dayNumber={d.getDate()}
+              citas={citasSemana.filter(c => c.dayIndex === i)}
+              isToday={d.toDateString() === todayStr}
+              selectedId={selectedId}
+              onOpen={openView}
+            />
+          ))}
+        </div>
       </div>
+
+      {panel && (
+        <ReservaPanel
+          mode={panel.mode}
+          cita={panel.cita}
+          onClose={closePanel}
+          onSave={handleSave}
+          onEdit={openEdit}
+          onReagendar={openEdit}
+          onAnular={handleAnular}
+        />
+      )}
     </div>
   );
 }
