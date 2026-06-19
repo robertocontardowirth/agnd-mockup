@@ -160,44 +160,106 @@ function ReservaDetalle({ cita }) {
   );
 }
 
-function CitaBlock({ cita, selected, onOpen }) {
+// ── TIMELINE · bloques posicionados por hora de inicio y altos según duración ──
+
+const TIMELINE_START = 8;   // primera hora visible
+const TIMELINE_END   = 21;  // límite inferior (exclusivo)
+const HOUR_PX = 84;         // alto de cada franja horaria
+const PX_PER_MIN = HOUR_PX / 60;
+
+const toMin  = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+const fmtMin = (min)  => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+
+// Asigna a cada cita una columna y el total de columnas de su grupo de solapamiento,
+// para repartir el ancho cuando varias citas coinciden en el tiempo.
+function layoutCitas(citas) {
+  const evs = citas
+    .map(c => ({ ...c, start: toMin(c.hora), end: toMin(c.hora) + c.duracion }))
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+
+  const colEnds = [];
+  evs.forEach(ev => {
+    let col = colEnds.findIndex(end => ev.start >= end);
+    if (col === -1) { col = colEnds.length; colEnds.push(ev.end); }
+    else colEnds[col] = ev.end;
+    ev.col = col;
+  });
+
+  // Reparte en clusters de solapamiento encadenado para fijar el total de columnas
+  let from = 0, maxEnd = -Infinity;
+  const seal = (a, b) => {
+    const cols = Math.max(...evs.slice(a, b).map(e => e.col)) + 1;
+    for (let i = a; i < b; i++) evs[i].cols = cols;
+  };
+  evs.forEach((ev, idx) => {
+    if (idx > 0 && ev.start >= maxEnd) { seal(from, idx); from = idx; maxEnd = ev.end; }
+    else maxEnd = Math.max(maxEnd, ev.end);
+  });
+  if (evs.length) seal(from, evs.length);
+  return evs;
+}
+
+function CitaBlock({ cita, style, selected, onOpen }) {
+  const short = cita.duracion <= 30;
   return (
     <div
-      className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}`}
+      className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}${short ? ' is-short' : ''}`}
+      style={style}
       onClick={() => onOpen(cita)}
       role="button"
       tabIndex="0"
     >
-      <div className="cita-block-time">{cita.hora} · {cita.duracion} min</div>
+      <div className="cita-block-time">{cita.hora}–{fmtMin(toMin(cita.hora) + cita.duracion)}</div>
       <div className="cita-block-client">{cita.cliente}</div>
-      <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>
-      <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>
+      {!short && <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>}
+      {!short && <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>}
     </div>
   );
 }
 
-function TimelineSlot({ hour, citas, selectedId, onOpen, onAdd }) {
-  const slotCitas = citas.filter(c => parseInt(c.hora.split(':')[0]) === hour);
-  const label = `${hour.toString().padStart(2, '0')}:00`;
-  const isEmpty = slotCitas.length === 0;
+function Timeline({ citas, selectedId, onOpen, onAdd }) {
+  const startMin = TIMELINE_START * 60;
+  const hours = [];
+  for (let h = TIMELINE_START; h < TIMELINE_END; h++) hours.push(h);
+
+  const laidOut = layoutCitas(
+    citas.filter(c => { const s = toMin(c.hora); return s >= startMin && s < TIMELINE_END * 60; })
+  );
+
   return (
-    <div className={`timeline-slot${isEmpty ? ' is-empty' : ''}`}>
-      <div className="timeline-slot-hour">{label}</div>
-      <div className="timeline-slot-track">
-        {isEmpty ? (
-          <button className="timeline-slot-add" aria-label={`Nueva cita a las ${label}`} onClick={() => onAdd(label)}>
-            <Icon name="plus" />
+    <div className="timeline">
+      <div className="timeline-grid">
+        {hours.map(h => (
+          <button
+            key={h}
+            type="button"
+            className="timeline-hour-row"
+            style={{ height: HOUR_PX }}
+            onClick={() => onAdd(fmtMin(h * 60))}
+            aria-label={`Nueva cita a las ${fmtMin(h * 60)}`}
+          >
+            <span className="timeline-hour-label">{fmtMin(h * 60)}</span>
           </button>
-        ) : (
-          slotCitas.map(c => (
+        ))}
+      </div>
+      <div className="timeline-events">
+        {laidOut.map(ev => {
+          const width = 100 / ev.cols;
+          return (
             <CitaBlock
-              key={c.id}
-              cita={c}
-              selected={selectedId === c.id}
+              key={ev.id}
+              cita={ev}
+              selected={selectedId === ev.id}
               onOpen={onOpen}
+              style={{
+                top: (ev.start - startMin) * PX_PER_MIN,
+                height: ev.duracion * PX_PER_MIN,
+                left: `${ev.col * width}%`,
+                width: `calc(${width}% - 6px)`,
+              }}
             />
-          ))
-        )}
+          );
+        })}
       </div>
     </div>
   );
@@ -409,8 +471,6 @@ function HoyView({ citas, onSaveCita }) {
     ? `Hoy — ${titleDay}`
     : titleDay.charAt(0).toUpperCase() + titleDay.slice(1);
 
-  const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-
   return (
     <div className={`agenda-view${panel ? ' has-panel' : ''}`}>
       <div className="agenda-view-main">
@@ -431,16 +491,12 @@ function HoyView({ citas, onSaveCita }) {
         </AgendaViewHeader>
 
         <div className="timeline-wrap">
-          {hours.map(h => (
-            <TimelineSlot
-              key={h}
-              hour={h}
-              citas={citas}
-              selectedId={selectedId}
-              onOpen={openView}
-              onAdd={openNew}
-            />
-          ))}
+          <Timeline
+            citas={citas}
+            selectedId={selectedId}
+            onOpen={openView}
+            onAdd={openNew}
+          />
         </div>
       </div>
 
