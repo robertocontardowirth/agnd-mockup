@@ -772,10 +772,9 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 [data-theme="dark"] .cita-block.status-confirmed { background: rgba(76,213,210,.10); }
 [data-theme="dark"] .cita-block.status-pending   { background: rgba(255,166,158,.10); }
 
-.cita-block-time   { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); white-space: nowrap; }
-.cita-block-client { font-size: 13.5px; font-weight: 600; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cita-block-meta   { font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cita-block-badge  { margin-top: 4px; }
+.cita-block-time   { font-family: var(--font-mono); font-size: 12px; line-height: 1.25; color: var(--fg-3); white-space: nowrap; flex-shrink: 0; }
+.cita-block-client { font-size: 13.5px; font-weight: 600; line-height: 1.25; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.cita-block-meta   { font-size: 12px; line-height: 1.25; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
 
 .cita-detail-panel {
   background: var(--bg-elevated);

@@ -211,8 +211,7 @@ function CitaBlock({ cita, style, selected, onOpen }) {
     >
       <div className="cita-block-time">{cita.hora}–{fmtMin(toMin(cita.hora) + cita.duracion)}</div>
       <div className="cita-block-client">{cita.cliente}</div>
-      {!short && <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>}
-      {!short && <div className="cita-block-badge"><EstadoBadge estado={cita.estado} /></div>}
+      {cita.duracion >= 60 && <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>}
     </div>
   );
 }
