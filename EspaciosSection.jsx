@@ -189,7 +189,7 @@ function MisEspaciosView({ espacios, onSave }) {
 // ── DISPONIBILIDAD ────────────────────────────────────────────────────────────
 
 function DisponibilidadEspView({ espacios }) {
-  const [dias, setDias] = React.useState(() => {
+  const [dias, setDias] = usePersistedState('espacios.disp', () => {
     const map = {};
     espacios.forEach(e => { map[e.id] = e.activo ? ['lun', 'mar', 'mie', 'jue', 'vie', 'sab'] : []; });
     return map;
@@ -245,7 +245,7 @@ const ESPACIO_AJUSTES = [
 ];
 
 function ConfigEspaciosView() {
-  const [vals, setVals] = React.useState({ requerir: true, simultaneas: false, inactivos: true });
+  const [vals, setVals] = usePersistedState('espacios.config', { requerir: true, simultaneas: false, inactivos: true });
 
   return (
     <div className="mgmt-view">

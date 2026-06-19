@@ -41,6 +41,27 @@ function Icon({ name, size, className, style, strokeWidth }) {
   );
 }
 
+// usePersistedState — como useState pero el valor vive en un store a nivel de
+// módulo, así sobrevive al desmontaje del componente (p. ej. al navegar entre
+// secciones) y se recupera al volver. Pensado para vistas mock de config.
+const _persistStore = {};
+function usePersistedState(key, init) {
+  const [state, setState] = React.useState(() => {
+    if (key in _persistStore) return _persistStore[key];
+    const v = typeof init === 'function' ? init() : init;
+    _persistStore[key] = v;
+    return v;
+  });
+  const set = React.useCallback((updater) => {
+    setState(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      _persistStore[key] = next;
+      return next;
+    });
+  }, [key]);
+  return [state, set];
+}
+
 // Modal — shell centrado reutilizable: overlay, Escape, bloqueo de scroll.
 function Modal({ title, eyebrow, onClose, children, footer }) {
   React.useEffect(() => {
@@ -178,4 +199,4 @@ const Divider = () => (
   </div>
 );
 
-Object.assign(window, { Icon, Modal, Logo, Button, Input, Card, Badge, Avatar, Divider });
+Object.assign(window, { Icon, Modal, usePersistedState, Logo, Button, Input, Card, Badge, Avatar, Divider });

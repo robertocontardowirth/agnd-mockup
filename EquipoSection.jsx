@@ -235,7 +235,7 @@ function ColaboradoresView({ colaboradores, onSave }) {
 // ── ROLES Y PERMISOS ────────────────────────────────────────────────────────
 
 function RolesView() {
-  const [roles, setRoles] = React.useState(MOCK_ROLES);
+  const [roles, setRoles] = usePersistedState('equipo.roles', MOCK_ROLES);
 
   const togglePerm = (roleId, permK) => setRoles(rs =>
     rs.map(r => r.id === roleId ? { ...r, permisos: { ...r.permisos, [permK]: !r.permisos[permK] } } : r));
@@ -278,7 +278,7 @@ function RolesView() {
 // ── HORARIOS DE EQUIPO ────────────────────────────────────────────────────────
 
 function HorariosEquipoView({ colaboradores }) {
-  const [dias, setDias] = React.useState(() => {
+  const [dias, setDias] = usePersistedState('equipo.horarios', () => {
     const map = {};
     colaboradores.forEach(c => { map[c.id] = c.activo ? ['lun', 'mar', 'mie', 'jue', 'vie'] : []; });
     return map;

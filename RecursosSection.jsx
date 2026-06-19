@@ -203,7 +203,7 @@ function AsignacionForm({ recursos, colaboradores, onConfirm, onCancel }) {
 }
 
 function AsignacionesView({ recursos }) {
-  const [items, setItems] = React.useState(MOCK_ASIGNACIONES);
+  const [items, setItems] = usePersistedState('recursos.asig', MOCK_ASIGNACIONES);
   const [showForm, setShowForm] = React.useState(false);
 
   const colaboradores = window.MOCK_COLABORADORES || [];
@@ -268,7 +268,7 @@ const RECURSO_AJUSTES = [
 ];
 
 function ConfigRecursosView() {
-  const [vals, setVals] = React.useState({ sinStock: true, bloquear: false, solapadas: false });
+  const [vals, setVals] = usePersistedState('recursos.config', { sinStock: true, bloquear: false, solapadas: false });
 
   return (
     <div className="mgmt-view">
