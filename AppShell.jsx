@@ -234,7 +234,88 @@ function HelpMenu() {
   );
 }
 
-function AppTopBar({ section, onSection }) {
+const ACENTOS = [
+  { v: 'aqua',  l: 'Aqua',  c: '#4CD5D2' },
+  { v: 'rose',  l: 'Rosa',  c: '#AA4465' },
+  { v: 'plum',  l: 'Plum',  c: '#222A55' },
+  { v: 'coral', l: 'Coral', c: '#FFA69E' },
+];
+
+function SettingsModal({ theme, onTweak, onClose }) {
+  const [prefs, setPrefs] = usePersistedState('app.settings', {
+    email: true, push: false, resumen: true, duracion: 60, primerDia: 'lun',
+  });
+  const setPref = (k, v) => setPrefs(p => ({ ...p, [k]: v }));
+
+  const footer = (
+    <button className="btn-primary-sm reserva-footer-btn" onClick={onClose}>
+      <Icon name="check" />Listo
+    </button>
+  );
+
+  return (
+    <Modal eyebrow="Preferencias" title="Configuración" onClose={onClose} footer={footer}>
+      <div className="settings-section">
+        <div className="settings-section-title">Apariencia</div>
+        <div className="settings-row">
+          <div className="settings-row-label">Modo oscuro<span>Cambia el tema de la interfaz</span></div>
+          <AgendaToggle value={theme.dark} onChange={v => onTweak('dark', v)} />
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-label">Color de acento<span>Personaliza el color principal</span></div>
+          <div className="color-swatches">
+            {ACENTOS.map(a => (
+              <button
+                key={a.v}
+                type="button"
+                className={`color-swatch${theme.accent === a.v ? ' active' : ''}`}
+                style={{ background: a.c }}
+                onClick={() => onTweak('accent', a.v)}
+                aria-label={a.l}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-section-title">Notificaciones</div>
+        <div className="settings-row">
+          <div className="settings-row-label">Recordatorios por email<span>Avisos automáticos a tus clientes</span></div>
+          <AgendaToggle value={prefs.email} onChange={v => setPref('email', v)} />
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-label">Notificaciones push<span>Alertas en este dispositivo</span></div>
+          <AgendaToggle value={prefs.push} onChange={v => setPref('push', v)} />
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-label">Resumen diario<span>Un correo con tu agenda del día</span></div>
+          <AgendaToggle value={prefs.resumen} onChange={v => setPref('resumen', v)} />
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-section-title">Agenda</div>
+        <div className="settings-row">
+          <div className="settings-row-label">Duración por defecto</div>
+          <select className="reserva-input settings-select" value={prefs.duracion} onChange={e => setPref('duracion', parseInt(e.target.value, 10))}>
+            {[30, 45, 60, 90].map(m => <option key={m} value={m}>{m} min</option>)}
+          </select>
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-label">Primer día de la semana</div>
+          <select className="reserva-input settings-select" value={prefs.primerDia} onChange={e => setPref('primerDia', e.target.value)}>
+            <option value="lun">Lunes</option>
+            <option value="dom">Domingo</option>
+          </select>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function AppTopBar({ section, onSection, theme, onTweak }) {
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
   return (
     <header className="app-topbar">
       <div className="app-topbar-inner">
@@ -261,12 +342,16 @@ function AppTopBar({ section, onSection }) {
         <div className="app-topbar-right">
           <NotificationsMenu />
           <HelpMenu />
-          <button className="icon-btn" title="Configuración" aria-label="Configuración">
+          <button className="icon-btn" title="Configuración" aria-label="Configuración" onClick={() => setSettingsOpen(true)}>
             <Icon name="settings" />
           </button>
           <div className="app-avatar" role="button" tabIndex="0" aria-label="Mi cuenta">RC</div>
         </div>
       </div>
+
+      {settingsOpen && (
+        <SettingsModal theme={theme} onTweak={onTweak} onClose={() => setSettingsOpen(false)} />
+      )}
     </header>
   );
 }
@@ -303,11 +388,11 @@ function AppSidebar({ section, sub, onSub }) {
   );
 }
 
-function AppShell({ section, onSection, sub, onSub, children }) {
+function AppShell({ section, onSection, sub, onSub, children, theme, onTweak }) {
   const hasSidebar = !!SIDEBAR_CONFIG[section];
   return (
     <div className="app-layout">
-      <AppTopBar section={section} onSection={onSection} />
+      <AppTopBar section={section} onSection={onSection} theme={theme} onTweak={onTweak} />
       <div className="app-body">
         {hasSidebar && (
           <AppSidebar section={section} sub={sub} onSub={onSub} />
