@@ -73,12 +73,42 @@ function AgendaHoy({ citas }) {
   );
 }
 
+const RESERVA_LINK = 'https://agnd.cl/reservar/estudio-roberto';
+
 function AccionesRapidas({ onNuevaReserva, onAgregarCliente, onBloquearHorario }) {
+  const [copied, setCopied] = React.useState(false);
+
+  const copiarLink = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(RESERVA_LINK);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = RESERVA_LINK;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    } catch (e) { /* sin portapapeles: igual damos feedback */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const actions = [
-    { icon: 'calendar-plus', label: 'Nueva reserva',          primary: true, onClick: onNuevaReserva },
-    { icon: 'user-plus',     label: 'Agregar cliente',        onClick: onAgregarCliente },
-    { icon: 'clock',         label: 'Bloquear horario',       onClick: onBloquearHorario },
-    { icon: 'link',          label: 'Copiar link de reserva' },
+    { id: 'nueva',   icon: 'calendar-plus', label: 'Nueva reserva',    primary: true, onClick: onNuevaReserva },
+    { id: 'cliente', icon: 'user-plus',     label: 'Agregar cliente',  onClick: onAgregarCliente },
+    { id: 'bloqueo', icon: 'clock',         label: 'Bloquear horario', onClick: onBloquearHorario },
+    {
+      id: 'link',
+      icon: copied ? 'check' : 'link',
+      label: copied ? '¡Link copiado!' : 'Copiar link de reserva',
+      onClick: copiarLink,
+      success: copied,
+    },
   ];
 
   return (
@@ -91,7 +121,11 @@ function AccionesRapidas({ onNuevaReserva, onAgregarCliente, onBloquearHorario }
       </div>
       <div className="quick-actions">
         {actions.map(a => (
-          <button key={a.label} className={`quick-action-btn${a.primary ? ' primary' : ''}`} onClick={a.onClick}>
+          <button
+            key={a.id}
+            className={`quick-action-btn${a.primary ? ' primary' : ''}${a.success ? ' success' : ''}`}
+            onClick={a.onClick}
+          >
             <Icon name={a.icon} />
             {a.label}
           </button>

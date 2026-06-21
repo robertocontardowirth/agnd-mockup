@@ -478,6 +478,13 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .quick-action-btn.primary i, .quick-action-btn.primary svg { color: rgba(255,255,255,.7); }
 .quick-action-btn.primary:hover { opacity: .9; }
+.quick-action-btn.success {
+  border-color: transparent;
+  background: var(--accent-tint);
+  color: var(--accent-live);
+  font-weight: 600;
+}
+.quick-action-btn.success i, .quick-action-btn.success svg { color: var(--accent-live); }
 
 /* ── Activity feed ──────────────────────────────────────────────────────── */
 .activity-list { display: flex; flex-direction: column; }
