@@ -314,6 +314,69 @@ function SettingsModal({ theme, onTweak, onClose }) {
   );
 }
 
+const ACCOUNT_ITEMS = [
+  { id: 'perfil',  icon: 'user',        label: 'Mi perfil' },
+  { id: 'negocio', icon: 'store',       label: 'Mi negocio' },
+  { id: 'plan',    icon: 'credit-card', label: 'Suscripción y plan' },
+  { id: 'config',  icon: 'settings',    label: 'Configuración' },
+];
+
+function AccountMenu() {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDoc = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  return (
+    <div className="notif-wrap" ref={ref}>
+      <div
+        className="app-avatar"
+        role="button"
+        tabIndex="0"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label="Mi cuenta"
+        onClick={() => setOpen(o => !o)}
+      >
+        RC
+      </div>
+
+      {open && (
+        <div className="notif-menu account-menu" role="menu">
+          <div className="account-head">
+            <span className="account-avatar-lg">RC</span>
+            <div className="account-head-text">
+              <div className="account-name">Roberto Contardo</div>
+              <div className="account-email">roberto@agnd.cl</div>
+            </div>
+          </div>
+
+          <div className="account-list">
+            {ACCOUNT_ITEMS.map(it => (
+              <button key={it.id} className="account-item" role="menuitem" onClick={() => setOpen(false)}>
+                <Icon name={it.icon} /><span>{it.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="account-foot">
+            <button className="account-item account-logout" role="menuitem" onClick={() => setOpen(false)}>
+              <Icon name="log-out" /><span>Cerrar sesión</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AppTopBar({ section, onSection, theme, onTweak }) {
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   return (
@@ -345,7 +408,7 @@ function AppTopBar({ section, onSection, theme, onTweak }) {
           <button className="icon-btn" title="Configuración" aria-label="Configuración" onClick={() => setSettingsOpen(true)}>
             <Icon name="settings" />
           </button>
-          <div className="app-avatar" role="button" tabIndex="0" aria-label="Mi cuenta">RC</div>
+          <AccountMenu />
         </div>
       </div>
 
