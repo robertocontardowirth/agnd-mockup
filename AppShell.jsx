@@ -174,6 +174,66 @@ function NotificationsMenu() {
   );
 }
 
+const HELP_ITEMS = [
+  { id: 'centro',     icon: 'life-buoy',      label: 'Centro de ayuda',    desc: 'Guías y preguntas frecuentes' },
+  { id: 'tutoriales', icon: 'graduation-cap', label: 'Tutoriales',         desc: 'Aprende a usar AGND' },
+  { id: 'atajos',     icon: 'keyboard',       label: 'Atajos de teclado',  desc: 'Trabaja más rápido' },
+  { id: 'novedades',  icon: 'sparkles',       label: 'Novedades',          desc: 'Lo último de la app' },
+  { id: 'soporte',    icon: 'message-circle', label: 'Contactar soporte',  desc: 'Habla con el equipo' },
+];
+
+function HelpMenu() {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDoc = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  return (
+    <div className="notif-wrap" ref={ref}>
+      <button
+        className="icon-btn"
+        title="Ayuda"
+        aria-label="Ayuda"
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen(o => !o)}
+      >
+        <Icon name="circle-help" />
+      </button>
+
+      {open && (
+        <div className="notif-menu help-menu" role="menu">
+          <div className="notif-menu-header">
+            <span className="notif-menu-title">Ayuda</span>
+          </div>
+
+          <div className="help-list">
+            {HELP_ITEMS.map(it => (
+              <button key={it.id} className="help-item" role="menuitem" onClick={() => setOpen(false)}>
+                <span className="help-item-icon"><Icon name={it.icon} /></span>
+                <span className="help-item-body">
+                  <span className="help-item-label">{it.label}</span>
+                  {it.desc && <span className="help-item-desc">{it.desc}</span>}
+                </span>
+                <span className="help-item-chevron"><Icon name="chevron-right" /></span>
+              </button>
+            ))}
+          </div>
+
+          <div className="help-menu-foot">AGND · versión 1.0.0</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AppTopBar({ section, onSection }) {
   return (
     <header className="app-topbar">
@@ -200,9 +260,7 @@ function AppTopBar({ section, onSection }) {
 
         <div className="app-topbar-right">
           <NotificationsMenu />
-          <button className="icon-btn" title="Ayuda" aria-label="Ayuda">
-            <Icon name="circle-help" />
-          </button>
+          <HelpMenu />
           <button className="icon-btn" title="Configuración" aria-label="Configuración">
             <Icon name="settings" />
           </button>
