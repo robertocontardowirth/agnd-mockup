@@ -34,7 +34,82 @@ function StatCard({ label, value, sub, icon, accent }) {
   );
 }
 
-function AgendaHoy({ citas }) {
+// Menú de opciones por cita (botón "..."). Se renderiza en position:fixed vía
+// portal para no quedar recortado por el overflow:hidden de la tarjeta.
+function CitaRowMenu({ cita, onEdit, onUpdate }) {
+  const [open, setOpen] = React.useState(false);
+  const [pos, setPos] = React.useState({ top: 0, left: 0 });
+  const btnRef = React.useRef(null);
+  const MENU_W = 200;
+
+  const toggle = (e) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 4, left: Math.max(8, r.right - MENU_W) });
+    }
+    setOpen(o => !o);
+  };
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = e => { if (!e.target.closest('.row-menu') && !e.target.closest('.cita-action')) setOpen(false); };
+    const onKey = e => { if (e.key === 'Escape') setOpen(false); };
+    const close = () => setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
+
+  const act = fn => e => { e.stopPropagation(); setOpen(false); fn(); };
+
+  const menu = (
+    <div className="row-menu" style={{ top: pos.top, left: pos.left, width: MENU_W }} role="menu">
+      <button className="row-menu-item" role="menuitem" onClick={act(() => onEdit(cita))}>
+        <Icon name="pencil" />Editar
+      </button>
+      {cita.estado !== 'confirmed' && cita.estado !== 'cancelled' && (
+        <button className="row-menu-item" role="menuitem" onClick={act(() => onUpdate({ ...cita, estado: 'confirmed' }))}>
+          <Icon name="check-circle" />Confirmar
+        </button>
+      )}
+      {cita.estado !== 'done' && (
+        <button className="row-menu-item" role="menuitem" onClick={act(() => onUpdate({ ...cita, estado: 'done' }))}>
+          <Icon name="check-check" />Marcar realizada
+        </button>
+      )}
+      <div className="row-menu-sep" />
+      <button className="row-menu-item danger" role="menuitem" onClick={act(() => onUpdate({ ...cita, estado: 'cancelled' }))}>
+        <Icon name="x-circle" />Anular
+      </button>
+    </div>
+  );
+
+  return (
+    <React.Fragment>
+      <button
+        ref={btnRef}
+        className="cita-action"
+        onClick={toggle}
+        aria-label="Opciones"
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        <Icon name="more-horizontal" />
+      </button>
+      {open && ReactDOM.createPortal(menu, document.body)}
+    </React.Fragment>
+  );
+}
+
+function AgendaHoy({ citas, onEdit, onUpdate }) {
   const [selected, setSelected] = React.useState(null);
 
   return (
@@ -59,13 +134,7 @@ function AgendaHoy({ citas }) {
               <div className="cita-meta">{c.servicio} · {c.duracion} min · {c.colaborador}</div>
             </div>
             <EstadoBadge estado={c.estado} />
-            <button
-              className="cita-action"
-              onClick={e => e.stopPropagation()}
-              aria-label="Opciones"
-            >
-              <Icon name="more-horizontal" />
-            </button>
+            <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} />
           </div>
         ))}
       </div>
@@ -177,6 +246,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
   const [bloqueoModal, setBloqueoModal] = React.useState(false);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
+  const openEdit = (cita) => setPanel({ mode: 'edit', cita });
   const openNuevoCliente = () => setClienteModal({ mode: 'new' });
   const openBloqueo = () => setBloqueoModal(true);
 
@@ -220,7 +290,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
 
         <div className={`dash-grid${panel ? ' single' : ''}`}>
           <div className="dash-col-main">
-            <AgendaHoy citas={citas} />
+            <AgendaHoy citas={citas} onEdit={openEdit} onUpdate={onSaveCita} />
           </div>
           {!panel && (
             <div className="dash-col-side">

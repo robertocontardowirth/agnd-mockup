@@ -419,7 +419,8 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   flex-shrink: 0;
   transition: all var(--d-fast) var(--ease-out);
 }
-.cita-row:hover .cita-action { opacity: 1; }
+.cita-row:hover .cita-action,
+.cita-action[aria-expanded="true"] { opacity: 1; }
 .cita-action:hover { background: rgba(147,225,216,.15); color: var(--fg-1); }
 .cita-action i, .cita-action svg { width: 13px; height: 13px; }
 
@@ -485,6 +486,32 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   font-weight: 600;
 }
 .quick-action-btn.success i, .quick-action-btn.success svg { color: var(--accent-live); }
+
+/* ── Menú de opciones por fila de cita (botón "...") ─────────────────────── */
+.row-menu {
+  position: fixed;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  z-index: 300;
+  padding: 6px;
+  animation: notifIn var(--d-fast) var(--ease-out);
+}
+.row-menu-item {
+  width: 100%;
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 9px;
+  border: none; background: transparent; cursor: pointer; text-align: left;
+  border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 500; color: var(--fg-1);
+  transition: background var(--d-fast) var(--ease-out);
+}
+.row-menu-item:hover { background: rgba(147,225,216,.08); }
+.row-menu-item i, .row-menu-item svg { width: 15px; height: 15px; color: var(--fg-3); flex-shrink: 0; }
+.row-menu-item.danger { color: var(--agnd-rose-500); }
+.row-menu-item.danger i, .row-menu-item.danger svg { color: var(--agnd-rose-500); }
+.row-menu-sep { height: 1px; background: var(--border); margin: 5px 0; }
 
 /* ── Activity feed ──────────────────────────────────────────────────────── */
 .activity-list { display: flex; flex-direction: column; }
