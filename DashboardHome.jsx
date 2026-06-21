@@ -73,11 +73,11 @@ function AgendaHoy({ citas }) {
   );
 }
 
-function AccionesRapidas({ onNuevaReserva, onAgregarCliente }) {
+function AccionesRapidas({ onNuevaReserva, onAgregarCliente, onBloquearHorario }) {
   const actions = [
     { icon: 'calendar-plus', label: 'Nueva reserva',          primary: true, onClick: onNuevaReserva },
     { icon: 'user-plus',     label: 'Agregar cliente',        onClick: onAgregarCliente },
-    { icon: 'clock',         label: 'Bloquear horario' },
+    { icon: 'clock',         label: 'Bloquear horario',       onClick: onBloquearHorario },
     { icon: 'link',          label: 'Copiar link de reserva' },
   ];
 
@@ -127,7 +127,7 @@ function ActividadReciente() {
   );
 }
 
-function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
+function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
     day: 'numeric',
@@ -139,9 +139,12 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
   const [panel, setPanel] = React.useState(null);
   // null = cerrado | { mode: 'new' } — modal de alta rápida de cliente
   const [clienteModal, setClienteModal] = React.useState(null);
+  // bloqueo de horario (acción rápida)
+  const [bloqueoModal, setBloqueoModal] = React.useState(false);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
   const openNuevoCliente = () => setClienteModal({ mode: 'new' });
+  const openBloqueo = () => setBloqueoModal(true);
 
   const handleSave = (cita) => {
     onSaveCita(cita);
@@ -151,6 +154,11 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
   const handleSaveCliente = (cliente) => {
     if (onSaveCliente) onSaveCliente(cliente);
     setClienteModal(null);
+  };
+
+  const handleSaveBloqueo = (bloqueo) => {
+    if (onSaveBloqueo) onSaveBloqueo(bloqueo);
+    setBloqueoModal(false);
   };
 
   return (
@@ -182,7 +190,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
           </div>
           {!panel && (
             <div className="dash-col-side">
-              <AccionesRapidas onNuevaReserva={openNew} onAgregarCliente={openNuevoCliente} />
+              <AccionesRapidas onNuevaReserva={openNew} onAgregarCliente={openNuevoCliente} onBloquearHorario={openBloqueo} />
               <ActividadReciente />
             </div>
           )}
@@ -205,6 +213,13 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente }) {
           cliente={clienteModal.cliente}
           onClose={() => setClienteModal(null)}
           onSave={handleSaveCliente}
+        />
+      )}
+
+      {bloqueoModal && (
+        <BloqueoModal
+          onClose={() => setBloqueoModal(false)}
+          onSave={handleSaveBloqueo}
         />
       )}
     </div>

@@ -69,6 +69,15 @@ function AppRoot() {
     );
   };
 
+  // Store de bloqueos de horario (compartido entre Inicio y Agenda)
+  const [bloqueos, setBloqueos] = React.useState(() => (window.MOCK_BLOQUEOS || []));
+  const saveBloqueo = (b) => {
+    setBloqueos(prev =>
+      prev.some(x => x.id === b.id) ? prev.map(x => (x.id === b.id ? b : x)) : [...prev, b]
+    );
+  };
+  const removeBloqueo = (id) => setBloqueos(prev => prev.filter(x => x.id !== id));
+
   // Store de clientes (CRM)
   const [clientes, setClientes] = React.useState(() => (window.MOCK_CLIENTES || []));
   const saveCliente = (cliente) => {
@@ -120,9 +129,9 @@ function AppRoot() {
   };
 
   const content = section === 'home'
-    ? <DashboardHome citas={citas} onSaveCita={saveCita} onSaveCliente={saveCliente} />
+    ? <DashboardHome citas={citas} onSaveCita={saveCita} onSaveCliente={saveCliente} onSaveBloqueo={saveBloqueo} />
     : section === 'agenda'
-      ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} />
+      ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} bloqueos={bloqueos} onSaveBloqueo={saveBloqueo} onRemoveBloqueo={removeBloqueo} />
       : section === 'clientes'
         ? <ClientesSection sub={sub || 'todos'} clientes={clientes} onSaveCliente={saveCliente} />
       : section === 'equipo'

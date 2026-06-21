@@ -994,12 +994,67 @@ function BloqueoForm({ onConfirm, onCancel }) {
   );
 }
 
-function BloqueosView() {
-  const [items, setItems] = React.useState(MOCK_BLOQUEOS);
+// Modal de bloqueo · acceso rápido para bloquear una franja desde cualquier lado
+function BloqueoModal({ onClose, onSave }) {
+  const [form, setForm] = React.useState({ fecha: '', desde: '', hasta: '', colaborador: COLABORADORES[0], motivo: '' });
+  const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
+  const ok = form.fecha && form.desde && form.hasta && form.motivo.trim();
+
+  const save = () => {
+    if (!ok) return;
+    onSave({
+      id: Date.now(),
+      fecha: form.fecha,
+      desde: form.desde,
+      hasta: form.hasta,
+      colaborador: form.colaborador,
+      motivo: form.motivo.trim(),
+    });
+  };
+
+  const footer = (
+    <React.Fragment>
+      <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
+      <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
+        <Icon name="check" />Bloquear
+      </button>
+    </React.Fragment>
+  );
+
+  return (
+    <Modal eyebrow="Agenda" title="Bloquear horario" onClose={onClose} footer={footer}>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Fecha</label>
+        <input type="date" className="reserva-input" value={form.fecha} onChange={up('fecha')} autoFocus />
+      </div>
+      <div className="reserva-field-grid">
+        <div className="reserva-field">
+          <label className="reserva-field-label">Desde</label>
+          <input type="time" className="reserva-input" value={form.desde} onChange={up('desde')} />
+        </div>
+        <div className="reserva-field">
+          <label className="reserva-field-label">Hasta</label>
+          <input type="time" className="reserva-input" value={form.hasta} onChange={up('hasta')} />
+        </div>
+      </div>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Colaborador</label>
+        <select className="reserva-input" value={form.colaborador} onChange={up('colaborador')}>
+          {COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Motivo</label>
+        <input type="text" className="reserva-input" placeholder="Ej: Colación, reunión, capacitación…" value={form.motivo} onChange={up('motivo')} />
+      </div>
+    </Modal>
+  );
+}
+
+function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
   const [showForm, setShowForm] = React.useState(false);
 
-  const add = form => { setItems(p => [...p, { id: Date.now(), ...form }]); setShowForm(false); };
-  const remove = id => setItems(p => p.filter(b => b.id !== id));
+  const add = form => { onSaveBloqueo({ id: Date.now(), ...form }); setShowForm(false); };
 
   const fmtFecha = iso => {
     const [y, m, d] = iso.split('-');
@@ -1025,15 +1080,15 @@ function BloqueosView() {
         <div className="agenda-table-head bloqueos-head">
           <div>Fecha</div><div>Horario</div><div>Colaborador</div><div>Motivo</div><div />
         </div>
-        {items.length === 0 ? (
+        {bloqueos.length === 0 ? (
           <AgendaEmptyState icon="ban" message="Sin bloqueos registrados" />
-        ) : items.map(b => (
+        ) : bloqueos.map(b => (
           <div key={b.id} className="agenda-table-row">
             <div className="agenda-table-fecha">{fmtFecha(b.fecha)}</div>
             <div className="agenda-table-rango">{b.desde} — {b.hasta}</div>
             <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{b.colaborador}</div>
             <div className="agenda-table-motivo">{b.motivo}</div>
-            <button className="agenda-action-btn" onClick={() => remove(b.id)} aria-label="Eliminar">
+            <button className="agenda-action-btn" onClick={() => onRemoveBloqueo(b.id)} aria-label="Eliminar">
               <Icon name="trash-2" />
             </button>
           </div>
@@ -1045,15 +1100,15 @@ function BloqueosView() {
 
 // ── ROOT ──────────────────────────────────────────────────────────────────────
 
-function AgendaSection({ sub, citas, onSaveCita }) {
+function AgendaSection({ sub, citas, onSaveCita, bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
   const view = sub || 'hoy';
   if (view === 'hoy')         return <HoyView citas={citas} onSaveCita={onSaveCita} />;
   if (view === 'semana')      return <SemanaView />;
   if (view === 'mes')         return <MesView />;
   if (view === 'horarios')    return <HorariosView />;
   if (view === 'excepciones') return <ExcepcionesView />;
-  if (view === 'bloqueos')    return <BloqueosView />;
+  if (view === 'bloqueos')    return <BloqueosView bloqueos={bloqueos} onSaveBloqueo={onSaveBloqueo} onRemoveBloqueo={onRemoveBloqueo} />;
   return <HoyView citas={citas} onSaveCita={onSaveCita} />;
 }
 
-Object.assign(window, { AgendaSection, ReservaPanel, MOCK_CITAS_HOY });
+Object.assign(window, { AgendaSection, ReservaPanel, BloqueoModal, MOCK_CITAS_HOY, MOCK_BLOQUEOS });
