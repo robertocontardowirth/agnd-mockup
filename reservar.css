@@ -146,6 +146,7 @@
   font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: #fff;
 }
 .bk-pro-avatar.is-any { background: var(--bk-soft); color: var(--bk-deep); }
+.bk-pro-photo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
 .bk-pro-text { min-width: 0; display: flex; flex-direction: column; }
 .bk-pro-name { font-size: 14px; font-weight: 600; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bk-pro-rol { font-size: 12px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

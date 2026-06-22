@@ -30,9 +30,9 @@ const SERVICIOS = [
 ];
 
 const PROS = [
-  { id: 1, nombre: 'Andrea Morales', rol: 'Estilista senior', color: '#4CD5D2', servicios: ['corte', 'corte-brushing', 'coloracion', 'brushing'] },
-  { id: 2, nombre: 'Paula Reyes',    rol: 'Manicurista',       color: '#FFA69E', servicios: ['manicure', 'pedicure'] },
-  { id: 3, nombre: 'Diego Fuentes',  rol: 'Barbero',           color: '#AA4465', servicios: ['corte', 'barberia'] },
+  { id: 1, nombre: 'Andrea Morales', rol: 'Estilista senior', color: '#4CD5D2', foto: 'https://randomuser.me/api/portraits/women/68.jpg', servicios: ['corte', 'corte-brushing', 'coloracion', 'brushing'] },
+  { id: 2, nombre: 'Paula Reyes',    rol: 'Manicurista',       color: '#FFA69E', foto: 'https://randomuser.me/api/portraits/women/44.jpg', servicios: ['manicure', 'pedicure'] },
+  { id: 3, nombre: 'Diego Fuentes',  rol: 'Barbero',           color: '#AA4465', foto: 'https://randomuser.me/api/portraits/men/32.jpg',   servicios: ['corte', 'barberia'] },
 ];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -174,6 +174,24 @@ function ServicioStep({ value, onPick }) {
 
 // ── PASO 2 · PROFESIONAL ──────────────────────────────────────────────────────
 
+// Avatar del profesional: foto si existe (con fallback a iniciales si falla la
+// carga), ícono para "Sin preferencia", o iniciales sobre su color.
+function ProAvatar({ pro, size }) {
+  const [err, setErr] = React.useState(false);
+  const dim = size ? { width: size, height: size } : undefined;
+  if (pro.any) {
+    return <span className="bk-pro-avatar is-any" style={dim}><Icon name="users" size={size ? size * 0.46 : 20} /></span>;
+  }
+  if (pro.foto && !err) {
+    return (
+      <span className="bk-pro-avatar" style={dim}>
+        <img className="bk-pro-photo" src={pro.foto} alt={pro.nombre} loading="lazy" onError={() => setErr(true)} />
+      </span>
+    );
+  }
+  return <span className="bk-pro-avatar" style={{ ...dim, background: pro.color }}>{iniciales(pro.nombre)}</span>;
+}
+
 function ProfesionalStep({ servicioId, value, onPick }) {
   const elegibles = PROS.filter(p => p.servicios.includes(servicioId));
   const opciones = [{ id: 'any', nombre: 'Sin preferencia', rol: 'Te asignamos al mejor disponible', any: true }, ...elegibles];
@@ -190,12 +208,7 @@ function ProfesionalStep({ servicioId, value, onPick }) {
             className={`bk-pro${value === p.id ? ' is-selected' : ''}`}
             onClick={() => onPick(p.id)}
           >
-            <span
-              className={`bk-pro-avatar${p.any ? ' is-any' : ''}`}
-              style={p.any ? undefined : { background: p.color }}
-            >
-              {p.any ? <Icon name="users" size={20} /> : iniciales(p.nombre)}
-            </span>
+            <ProAvatar pro={p} />
             <span className="bk-pro-text">
               <span className="bk-pro-name">{p.nombre}</span>
               <span className="bk-pro-rol">{p.rol}</span>
@@ -310,15 +323,16 @@ function DatosStep({ datos, acepta, onChange, onAcepta }) {
 // ── RESUMEN LATERAL ───────────────────────────────────────────────────────────
 
 function ResumenCard({ servicio, pro, fecha, hora }) {
-  const Row = ({ icon, label, value }) => (
+  const Row = ({ icon, label, value, node }) => (
     <div className="bk-sum-row">
-      <span className="bk-sum-icon"><Icon name={icon} size={16} /></span>
+      <span className="bk-sum-icon">{node || <Icon name={icon} size={16} />}</span>
       <span className="bk-sum-label">{label}</span>
       <span className={`bk-sum-value${value ? '' : ' is-empty'}`}>{value || '—'}</span>
     </div>
   );
   const fechaTxt = fecha ? `${fecha.hoy ? 'Hoy' : fecha.dia} ${fecha.num} ${fecha.mes}` : null;
   const proTxt = pro ? (pro.any ? 'Sin preferencia' : pro.nombre) : null;
+  const proNode = pro && !pro.any ? <ProAvatar pro={pro} size={22} /> : null;
 
   return (
     <aside className="bk-summary">
@@ -332,7 +346,7 @@ function ResumenCard({ servicio, pro, fecha, hora }) {
 
       <div className="bk-sum-rows">
         <Row icon="sparkles" label="Servicio" value={servicio ? servicio.nombre : null} />
-        <Row icon="user" label="Profesional" value={proTxt} />
+        <Row icon="user" label="Profesional" value={proTxt} node={proNode} />
         <Row icon="calendar" label="Fecha" value={fechaTxt} />
         <Row icon="clock" label="Hora" value={hora} />
       </div>
