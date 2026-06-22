@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- Resuelve scripts/estilos desde la raíz del sitio aunque la página se sirva
+     en una ruta tipo /reservar/ (clean URL), evitando 404 que rompen Babel. -->
+<base href="/" />
 <title>Reservar · Estudio Roberto</title>
 <link rel="icon" href="assets/mark-A.png" />
 <link rel="stylesheet" href="colors_and_type.css" />

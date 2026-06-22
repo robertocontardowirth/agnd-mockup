@@ -1,0 +1,3 @@
+# Cloudflare Pages: sirve la página de reservas en cualquier ruta /reservar/...
+# (p. ej. /reservar/estudio-roberto). 200 = rewrite, conserva la URL bonita.
+/reservar/*  /reservar.html  200
