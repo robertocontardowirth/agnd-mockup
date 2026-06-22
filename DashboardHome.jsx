@@ -40,6 +40,7 @@ function CitaRowMenu({ cita, onEdit, onUpdate }) {
   const [open, setOpen] = React.useState(false);
   const [pos, setPos] = React.useState({ top: 0, left: 0 });
   const btnRef = React.useRef(null);
+  const menuRef = React.useRef(null);
   const MENU_W = 200;
 
   const toggle = (e) => {
@@ -50,6 +51,18 @@ function CitaRowMenu({ cita, onEdit, onUpdate }) {
     }
     setOpen(o => !o);
   };
+
+  // Si no cabe abajo (p. ej. última fila cerca del borde inferior), abre hacia arriba.
+  React.useLayoutEffect(() => {
+    if (!open || !btnRef.current || !menuRef.current) return;
+    const b = btnRef.current.getBoundingClientRect();
+    const h = menuRef.current.offsetHeight;
+    const gap = 4;
+    const top = (b.bottom + gap + h > window.innerHeight - 8)
+      ? Math.max(8, b.top - h - gap)
+      : b.bottom + gap;
+    setPos(p => ({ ...p, top }));
+  }, [open]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -71,7 +84,7 @@ function CitaRowMenu({ cita, onEdit, onUpdate }) {
   const act = fn => e => { e.stopPropagation(); setOpen(false); fn(); };
 
   const menu = (
-    <div className="row-menu" style={{ top: pos.top, left: pos.left, width: MENU_W }} role="menu">
+    <div ref={menuRef} className="row-menu" style={{ top: pos.top, left: pos.left, width: MENU_W }} role="menu">
       <button className="row-menu-item" role="menuitem" onClick={act(() => onEdit(cita))}>
         <Icon name="pencil" />Editar
       </button>
