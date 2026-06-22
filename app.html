@@ -25,6 +25,7 @@
 <script type="text/babel" src="EquipoSection.jsx"></script>
 <script type="text/babel" src="EspaciosSection.jsx"></script>
 <script type="text/babel" src="RecursosSection.jsx"></script>
+<script type="text/babel" src="CuentaSection.jsx"></script>
 
 <script type="text/babel">
 
@@ -140,6 +141,14 @@ function AppRoot() {
         ? <EspaciosSection sub={sub} espacios={espacios} onSaveEspacio={saveEspacio} />
       : section === 'recursos'
         ? <RecursosSection sub={sub} recursos={recursos} onSaveRecurso={saveRecurso} />
+      : section === 'perfil'
+        ? <PerfilSection />
+      : section === 'negocio'
+        ? <NegocioSection />
+      : section === 'plan'
+        ? <PlanSection />
+      : section === 'config'
+        ? <ConfigSection theme={t} onTweak={setTweak} />
         : <PlaceholderView section={section} />;
 
   return (

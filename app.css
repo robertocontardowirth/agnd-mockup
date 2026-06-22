@@ -1589,6 +1589,26 @@ select.reserva-input { cursor: pointer; }
   flex-shrink: 0;
 }
 
+/* Paleta determinista por cliente (modo claro): fondo suave + texto saturado. */
+.cliente-avatar-0 { background: #e7f3f1; color: #0f766e; } /* teal */
+.cliente-avatar-1 { background: #fde9ef; color: #be1850; } /* rosa */
+.cliente-avatar-2 { background: #eee9fb; color: #6d28d9; } /* plum */
+.cliente-avatar-3 { background: #fdece4; color: #c2410c; } /* coral */
+.cliente-avatar-4 { background: #e6f0fd; color: #1d4ed8; } /* azul */
+.cliente-avatar-5 { background: #eaf4e1; color: #3f7016; } /* verde */
+.cliente-avatar-6 { background: #fcf3da; color: #a16207; } /* ámbar */
+.cliente-avatar-7 { background: #fde7e7; color: #b91c1c; } /* rojo */
+
+/* Modo oscuro: tinte translúcido + texto claro, como los badges. */
+[data-theme="dark"] .cliente-avatar-0 { background: rgba(45,212,191,.18); color: #5eead4; }
+[data-theme="dark"] .cliente-avatar-1 { background: rgba(244,114,182,.18); color: #f9a8d4; }
+[data-theme="dark"] .cliente-avatar-2 { background: rgba(167,139,250,.20); color: #c4b5fd; }
+[data-theme="dark"] .cliente-avatar-3 { background: rgba(251,146,60,.18);  color: #fdba74; }
+[data-theme="dark"] .cliente-avatar-4 { background: rgba(96,165,250,.18);  color: #93c5fd; }
+[data-theme="dark"] .cliente-avatar-5 { background: rgba(132,204,22,.18);  color: #bef264; }
+[data-theme="dark"] .cliente-avatar-6 { background: rgba(251,191,36,.18);  color: #fcd34d; }
+[data-theme="dark"] .cliente-avatar-7 { background: rgba(248,113,113,.18); color: #fca5a5; }
+
 .cliente-info { flex: 1; min-width: 0; }
 .cliente-nombre {
   font-size: 15px;
@@ -2054,3 +2074,142 @@ select.reserva-input { cursor: pointer; }
 .account-logout { color: var(--agnd-rose-500); }
 .account-logout:hover { background: rgba(170,68,101,.08); }
 .account-logout i, .account-logout svg { color: var(--agnd-rose-500); }
+.account-item.active { background: var(--accent-tint); color: var(--accent-live); }
+.account-item.active i, .account-item.active svg { color: var(--accent-live); }
+
+/* ── Secciones de cuenta (Mi perfil, Mi negocio, Plan, Configuración) ─────── */
+.cuenta-view {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 760px;
+}
+.cuenta-view-wide { max-width: 960px; }
+
+.cuenta-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cuenta-block-title { margin-bottom: 12px; }
+
+/* Encabezado con avatar / logo grande */
+.cuenta-profile { display: flex; align-items: center; gap: 16px; }
+.cuenta-avatar-lg {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent-tint); color: var(--accent-live);
+  font-family: var(--font-mono); font-weight: 700; font-size: 22px;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cuenta-biz-logo {
+  width: 64px; height: 64px; border-radius: var(--r-lg);
+  background: var(--accent-tint); color: var(--accent-live);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cuenta-biz-logo i, .cuenta-biz-logo svg { width: 28px; height: 28px; }
+.cuenta-profile-info { flex: 1; min-width: 0; }
+.cuenta-profile-name { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--fg-1); }
+.cuenta-profile-email { font-size: 13px; color: var(--fg-3); margin-top: 2px; }
+
+/* Input con botón de acción al lado (copiar link) */
+.input-with-action { display: flex; gap: 8px; align-items: stretch; }
+.input-with-action .reserva-input { flex: 1; }
+.input-with-action .btn-sm-ghost { flex-shrink: 0; white-space: nowrap; }
+
+/* Plan actual destacado */
+.plan-current { flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; }
+.plan-current-main { display: flex; align-items: center; gap: 14px; }
+.plan-current-icon {
+  width: 46px; height: 46px; border-radius: var(--r-md);
+  background: var(--accent-tint); color: var(--accent-live);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.plan-current-icon i, .plan-current-icon svg { width: 22px; height: 22px; }
+.plan-current-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--fg-1); display: flex; align-items: center; gap: 8px; }
+.plan-current-sub { font-size: 13px; color: var(--fg-3); margin-top: 2px; }
+.plan-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: var(--r-pill);
+  background: var(--accent-tint); color: var(--accent-live);
+}
+
+/* Consumo */
+.usage-list { display: flex; flex-direction: column; gap: 16px; }
+.usage-row { display: flex; flex-direction: column; gap: 7px; }
+.usage-row-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.usage-label { font-size: 14px; font-weight: 600; color: var(--fg-1); }
+.usage-value { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); }
+.usage-bar { height: 7px; border-radius: var(--r-pill); background: var(--border); overflow: hidden; }
+.usage-bar-fill { height: 100%; border-radius: var(--r-pill); background: var(--accent-live); }
+.usage-sub { font-size: 12px; color: var(--fg-3); }
+
+/* Comparador de planes */
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.plan-card {
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+}
+.plan-card.featured { border-color: var(--accent-live); box-shadow: 0 0 0 1px var(--accent-live), var(--shadow-sm); }
+.plan-card-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--fg-1); display: flex; align-items: center; gap: 8px; }
+.plan-desc { font-size: 13px; color: var(--fg-3); }
+.plan-price { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--fg-1); }
+.plan-price span { font-size: 13px; font-weight: 500; color: var(--fg-3); }
+.plan-features { display: flex; flex-direction: column; gap: 9px; margin: 2px 0; }
+.plan-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.plan-feature i, .plan-feature svg { width: 15px; height: 15px; color: var(--accent-live); flex-shrink: 0; }
+.plan-cta { margin-top: auto; }
+.plan-cta-btn { width: 100%; justify-content: center; }
+.plan-cta-btn:disabled { opacity: .5; cursor: default; }
+
+/* Método de pago */
+.cuenta-pay { flex-direction: row !important; align-items: center; gap: 12px; }
+.cuenta-pay-icon {
+  width: 36px; height: 36px; border-radius: var(--r-md);
+  background: var(--accent-tint); color: var(--accent-live);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cuenta-pay > span { display: flex; flex-direction: column; }
+.cuenta-pay-exp { font-size: 12px; font-weight: 400; color: var(--fg-3); }
+
+/* Facturación */
+.billing-list { display: flex; flex-direction: column; }
+.billing-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.billing-row:last-child { border-bottom: none; }
+.billing-row:first-child { padding-top: 0; }
+.billing-row-main { display: flex; align-items: center; gap: 12px; }
+.billing-row-icon {
+  width: 36px; height: 36px; border-radius: var(--r-md);
+  background: var(--accent-tint); color: var(--accent-live);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.billing-row-icon i, .billing-row-icon svg { width: 18px; height: 18px; }
+.billing-date { font-size: 14px; font-weight: 600; color: var(--fg-1); }
+.billing-meta { font-size: 12px; color: var(--fg-3); }
+.billing-row-end { display: flex; align-items: center; gap: 12px; }
+.billing-amount { font-family: var(--font-mono); font-size: 14px; color: var(--fg-1); }
+
+/* Zona de peligro + botón destructivo */
+.cuenta-danger { border-color: rgba(170,68,101,.35); }
+.btn-danger-sm {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  padding: 8px 14px; border-radius: var(--r-md);
+  background: transparent; border: 1.5px solid rgba(170,68,101,.5); color: var(--agnd-rose-500);
+  cursor: pointer; transition: all var(--d-fast) var(--ease-out);
+}
+.btn-danger-sm i, .btn-danger-sm svg { width: 15px; height: 15px; }
+.btn-danger-sm:hover { background: rgba(170,68,101,.08); }

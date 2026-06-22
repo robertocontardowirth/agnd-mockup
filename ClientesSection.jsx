@@ -33,25 +33,17 @@ function iniciales(nombre) {
 }
 
 // Color determinista por cliente: misma persona → mismo color en cada render.
-// Tonos suaves de fondo con texto saturado para mantener contraste y armonía.
-const AVATAR_COLORS = [
-  { bg: '#e7f3f1', fg: '#0f766e' }, // teal
-  { bg: '#fde9ef', fg: '#be1850' }, // rosa
-  { bg: '#eee9fb', fg: '#6d28d9' }, // plum
-  { bg: '#fdece4', fg: '#c2410c' }, // coral
-  { bg: '#e6f0fd', fg: '#1d4ed8' }, // azul
-  { bg: '#eaf4e1', fg: '#3f7016' }, // verde
-  { bg: '#fcf3da', fg: '#a16207' }, // ámbar
-  { bg: '#fde7e7', fg: '#b91c1c' }, // rojo
-];
+// El color vive en clases CSS (.cliente-avatar-N) para que el modo oscuro pueda
+// adaptarlo (tinte translúcido + texto claro), igual que los badges.
+const AVATAR_COLOR_COUNT = 8;
 
-function avatarColor(seed) {
+function avatarColorIndex(seed) {
   const str = String(seed);
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash * 31 + str.charCodeAt(i)) | 0;
   }
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  return Math.abs(hash) % AVATAR_COLOR_COUNT;
 }
 
 function fmtFechaCorta(iso) {
@@ -215,10 +207,10 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
 // ── LISTA ─────────────────────────────────────────────────────────────────────
 
 function ClienteRow({ cliente, onEdit }) {
-  const color = avatarColor(cliente.nombre);
+  const ci = avatarColorIndex(cliente.nombre);
   return (
     <div className="cliente-row" onClick={() => onEdit(cliente)} role="button" tabIndex="0">
-      <div className="cliente-avatar" style={{ background: color.bg, color: color.fg }}>{iniciales(cliente.nombre)}</div>
+      <div className={`cliente-avatar cliente-avatar-${ci}`}>{iniciales(cliente.nombre)}</div>
       <div className="cliente-info">
         <div className="cliente-nombre">{cliente.nombre}</div>
         <div className="cliente-contacto">{cliente.telefono}{cliente.email ? ` · ${cliente.email}` : ''}</div>

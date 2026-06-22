@@ -321,7 +321,7 @@ const ACCOUNT_ITEMS = [
   { id: 'config',  icon: 'settings',    label: 'Configuración' },
 ];
 
-function AccountMenu() {
+function AccountMenu({ section, onNavigate }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
 
@@ -360,7 +360,12 @@ function AccountMenu() {
 
           <div className="account-list">
             {ACCOUNT_ITEMS.map(it => (
-              <button key={it.id} className="account-item" role="menuitem" onClick={() => setOpen(false)}>
+              <button
+                key={it.id}
+                className={`account-item${section === it.id ? ' active' : ''}`}
+                role="menuitem"
+                onClick={() => { setOpen(false); onNavigate && onNavigate(it.id); }}
+              >
                 <Icon name={it.icon} /><span>{it.label}</span>
               </button>
             ))}
@@ -405,10 +410,10 @@ function AppTopBar({ section, onSection, theme, onTweak }) {
         <div className="app-topbar-right">
           <NotificationsMenu />
           <HelpMenu />
-          <button className="icon-btn" title="Configuración" aria-label="Configuración" onClick={() => setSettingsOpen(true)}>
-            <Icon name="settings" />
+          <button className="icon-btn" title="Configuración rápida" aria-label="Configuración rápida" onClick={() => setSettingsOpen(true)}>
+            <Icon name="sliders-horizontal" />
           </button>
-          <AccountMenu />
+          <AccountMenu section={section} onNavigate={onSection} />
         </div>
       </div>
 
