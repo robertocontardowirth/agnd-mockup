@@ -580,9 +580,13 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   background: transparent;
   color: var(--fg-2);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   transition: all var(--d-fast) var(--ease-out);
 }
 .btn-sm-ghost:hover { background: rgba(147,225,216,.07); color: var(--fg-1); }
+.btn-sm-ghost i, .btn-sm-ghost svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 .btn-primary-sm {
   display: inline-flex;

@@ -189,6 +189,9 @@ function NegocioSection() {
             <button className="btn-sm-ghost" onClick={copiar}>
               <Icon name={copied ? 'check' : 'copy'} />{copied ? 'Copiado' : 'Copiar'}
             </button>
+            <a className="btn-sm-ghost" href="reservar.html" target="_blank" rel="noopener">
+              <Icon name="external-link" />Abrir
+            </a>
           </div>
         </Field>
       </div>
