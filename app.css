@@ -1164,8 +1164,19 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   gap: 12px;
 }
 
-.excepciones-head { grid-template-columns: 110px 1fr 130px 36px; }
-.bloqueos-head    { grid-template-columns: 110px 120px 100px 1fr 36px; }
+/* Las cabeceras y sus filas comparten plantilla de columnas para que alineen.
+   Las columnas son lo bastante anchas para que las etiquetas ("COLABORADOR")
+   no desborden y se empalmen con la columna vecina. */
+.excepciones-head,
+.excepciones-row { grid-template-columns: 120px 1fr 150px 36px; }
+.bloqueos-head,
+.bloqueos-row    { grid-template-columns: 120px 140px 160px 1fr 36px; }
+
+.agenda-table-row.excepciones-row,
+.agenda-table-row.bloqueos-row {
+  display: grid;
+  align-items: center;
+}
 
 .agenda-table-row {
   display: flex;

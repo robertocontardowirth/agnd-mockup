@@ -931,7 +931,7 @@ function ExcepcionesView() {
         {items.length === 0 ? (
           <AgendaEmptyState icon="calendar-x" message="Sin excepciones registradas" />
         ) : items.map(exc => (
-          <div key={exc.id} className="agenda-table-row">
+          <div key={exc.id} className="agenda-table-row excepciones-row">
             <div className="agenda-table-fecha">{fmtFecha(exc.fecha)}</div>
             <div className="agenda-table-motivo">{exc.motivo}</div>
             <div>
@@ -1083,7 +1083,7 @@ function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
         {bloqueos.length === 0 ? (
           <AgendaEmptyState icon="ban" message="Sin bloqueos registrados" />
         ) : bloqueos.map(b => (
-          <div key={b.id} className="agenda-table-row">
+          <div key={b.id} className="agenda-table-row bloqueos-row">
             <div className="agenda-table-fecha">{fmtFecha(b.fecha)}</div>
             <div className="agenda-table-rango">{b.desde} — {b.hasta}</div>
             <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{b.colaborador}</div>
