@@ -560,12 +560,22 @@ function SemanaView() {
   const [panel, setPanel] = React.useState(null);
 
   const closePanel = () => { setPanel(null); setSelectedId(null); };
+  const openNew    = () => { setSelectedId(null); setPanel({ mode: 'new', hora: '' }); };
   const openView   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'view', cita }); };
   const openEdit   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'edit', cita }); };
 
-  // Conserva dayIndex (y demás campos no editados) al guardar la cita de la semana
+  // Conserva dayIndex (y demás campos no editados) al guardar; las citas nuevas
+  // se asignan al día de hoy si es la semana actual, o al lunes en otra semana.
   const handleSave = (updated) => {
-    setCitasSemana(prev => prev.map(c => (c.id === updated.id ? { ...c, ...updated } : c)));
+    setCitasSemana(prev => {
+      if (prev.some(c => c.id === updated.id)) {
+        return prev.map(c => (c.id === updated.id ? { ...c, ...updated } : c));
+      }
+      const dow = new Date().getDay();
+      const todayIdx = dow === 0 ? 6 : dow - 1;
+      const dayIndex = weekOffset === 0 ? todayIdx : 0;
+      return [...prev, { dayIndex, ...updated }];
+    });
     closePanel();
   };
   const handleAnular = (cita) => {
@@ -602,7 +612,14 @@ function SemanaView() {
           onNext={() => { setWeekOffset(w => w + 1); closePanel(); }}
           onReset={weekOffset !== 0 ? () => { setWeekOffset(0); closePanel(); } : null}
           resetLabel="Esta semana"
-        />
+        >
+          {!panel && (
+            <button className="btn-primary-sm" onClick={openNew}>
+              <Icon name="calendar-plus" />
+              Nueva cita
+            </button>
+          )}
+        </AgendaViewHeader>
         <div className="semana-grid">
           {days.map((d, i) => (
             <SemanaDayColumn
@@ -622,6 +639,7 @@ function SemanaView() {
         <ReservaPanel
           mode={panel.mode}
           cita={panel.cita}
+          initialHora={panel.hora}
           onClose={closePanel}
           onSave={handleSave}
           onEdit={openEdit}
@@ -692,6 +710,9 @@ function MesSidePanel({ date, citas, onClose }) {
 function MesView() {
   const [monthOffset, setMonthOffset] = React.useState(0);
   const [selectedDate, setSelectedDate] = React.useState(null);
+  const [citasMes, setCitasMes] = React.useState(MOCK_CITAS_MES);
+  // null = cerrado | { mode: 'new', hora, fecha }
+  const [panel, setPanel] = React.useState(null);
 
   const today = new Date();
   const baseDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
@@ -720,7 +741,7 @@ function MesView() {
   const todayIso = toIso(today);
 
   const citasByDate = {};
-  MOCK_CITAS_MES.forEach(c => {
+  citasMes.forEach(c => {
     if (!citasByDate[c.fecha]) citasByDate[c.fecha] = [];
     citasByDate[c.fecha].push(c);
   });
@@ -733,45 +754,71 @@ function MesView() {
     setSelectedDate(iso === selectedIso ? null : d);
   };
 
+  // Nueva cita: la asignamos al día seleccionado (o a hoy) y la agregamos al mes.
+  const closePanel = () => setPanel(null);
+  const openNew = () => setPanel({ mode: 'new', hora: '', fecha: selectedIso || todayIso });
+  const handleSave = (cita) => {
+    setCitasMes(prev => [...prev, { ...cita, fecha: panel.fecha }]);
+    closePanel();
+  };
+
   return (
-    <div className="agenda-view">
-      <AgendaViewHeader
-        title={title}
-        onPrev={() => { setMonthOffset(m => m - 1); setSelectedDate(null); }}
-        onNext={() => { setMonthOffset(m => m + 1); setSelectedDate(null); }}
-        onReset={monthOffset !== 0 ? () => { setMonthOffset(0); setSelectedDate(null); } : null}
-        resetLabel="Mes actual"
-      />
-      <div className={`mes-layout${selectedDate ? ' has-panel' : ''}`}>
-        <div className="mes-grid-wrap">
-          <div className="mes-weekday-header">
-            {weekDayNames.map(d => <div key={d} className="mes-weekday-cell">{d}</div>)}
+    <div className={`agenda-view${panel ? ' has-panel' : ''}`}>
+      <div className="agenda-view-main">
+        <AgendaViewHeader
+          title={title}
+          onPrev={() => { setMonthOffset(m => m - 1); setSelectedDate(null); closePanel(); }}
+          onNext={() => { setMonthOffset(m => m + 1); setSelectedDate(null); closePanel(); }}
+          onReset={monthOffset !== 0 ? () => { setMonthOffset(0); setSelectedDate(null); closePanel(); } : null}
+          resetLabel="Mes actual"
+        >
+          {!panel && (
+            <button className="btn-primary-sm" onClick={openNew}>
+              <Icon name="calendar-plus" />
+              Nueva cita
+            </button>
+          )}
+        </AgendaViewHeader>
+        <div className={`mes-layout${selectedDate && !panel ? ' has-panel' : ''}`}>
+          <div className="mes-grid-wrap">
+            <div className="mes-weekday-header">
+              {weekDayNames.map(d => <div key={d} className="mes-weekday-cell">{d}</div>)}
+            </div>
+            <div className="mes-grid">
+              {cells.map((d, i) => {
+                const iso = toIso(d);
+                return (
+                  <MesDayCell
+                    key={i}
+                    date={d}
+                    citas={citasByDate[iso] || []}
+                    isToday={iso === todayIso}
+                    isSelected={iso === selectedIso}
+                    isOut={d.getMonth() !== month}
+                    onClick={() => handleDayClick(d)}
+                  />
+                );
+              })}
+            </div>
           </div>
-          <div className="mes-grid">
-            {cells.map((d, i) => {
-              const iso = toIso(d);
-              return (
-                <MesDayCell
-                  key={i}
-                  date={d}
-                  citas={citasByDate[iso] || []}
-                  isToday={iso === todayIso}
-                  isSelected={iso === selectedIso}
-                  isOut={d.getMonth() !== month}
-                  onClick={() => handleDayClick(d)}
-                />
-              );
-            })}
-          </div>
+          {selectedDate && !panel && (
+            <MesSidePanel
+              date={selectedDate}
+              citas={selectedCitas}
+              onClose={() => setSelectedDate(null)}
+            />
+          )}
         </div>
-        {selectedDate && (
-          <MesSidePanel
-            date={selectedDate}
-            citas={selectedCitas}
-            onClose={() => setSelectedDate(null)}
-          />
-        )}
       </div>
+
+      {panel && (
+        <ReservaPanel
+          mode="new"
+          initialHora={panel.hora}
+          onClose={closePanel}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }
