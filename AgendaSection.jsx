@@ -794,70 +794,63 @@ function AgendaToggle({ value, onChange }) {
 function HorarioRow({ dia, onChange, onApplyColacionAll }) {
   return (
     <div className="agenda-table-row horario-row">
-      <div className="horario-main">
-        <div className="horario-day-name">{dia.label}</div>
-        <AgendaToggle value={dia.activo} onChange={v => onChange({ ...dia, activo: v })} />
-        <div className={`horario-times${!dia.activo ? ' disabled' : ''}`}>
-          <div className="horario-time-group">
-            <span className="horario-time-label">Desde</span>
-            <input
-              type="time"
-              className="agenda-time-input"
-              value={dia.apertura}
-              disabled={!dia.activo}
-              onChange={e => onChange({ ...dia, apertura: e.target.value })}
-            />
-          </div>
-          <span className="horario-time-sep">—</span>
-          <div className="horario-time-group">
-            <span className="horario-time-label">Hasta</span>
-            <input
-              type="time"
-              className="agenda-time-input"
-              value={dia.cierre}
-              disabled={!dia.activo}
-              onChange={e => onChange({ ...dia, cierre: e.target.value })}
-            />
-          </div>
-        </div>
-        {!dia.activo && <span className="badge badge-closed">Cerrado</span>}
+      <div className="horario-day-name">{dia.label}</div>
+      <AgendaToggle value={dia.activo} onChange={v => onChange({ ...dia, activo: v })} />
+
+      <div className={`horario-times${!dia.activo ? ' disabled' : ''}`}>
+        <span className="horario-time-label">Atención</span>
+        <input
+          type="time"
+          className="agenda-time-input"
+          value={dia.apertura}
+          disabled={!dia.activo}
+          onChange={e => onChange({ ...dia, apertura: e.target.value })}
+        />
+        <span className="horario-time-sep">—</span>
+        <input
+          type="time"
+          className="agenda-time-input"
+          value={dia.cierre}
+          disabled={!dia.activo}
+          onChange={e => onChange({ ...dia, cierre: e.target.value })}
+        />
       </div>
 
-      {dia.activo && (
+      {dia.activo ? (
         <div className="horario-colacion">
+          <span className="horario-divider" />
           <span className="horario-colacion-head"><Icon name="coffee" />Colación</span>
           <AgendaToggle value={!!dia.colacion} onChange={v => onChange({ ...dia, colacion: v })} />
           {dia.colacion ? (
             <React.Fragment>
-              <div className="horario-times">
-                <div className="horario-time-group">
-                  <span className="horario-time-label">Desde</span>
-                  <input
-                    type="time"
-                    className="agenda-time-input"
-                    value={dia.colacionDesde || '13:00'}
-                    onChange={e => onChange({ ...dia, colacionDesde: e.target.value })}
-                  />
-                </div>
-                <span className="horario-time-sep">—</span>
-                <div className="horario-time-group">
-                  <span className="horario-time-label">Hasta</span>
-                  <input
-                    type="time"
-                    className="agenda-time-input"
-                    value={dia.colacionHasta || '14:00'}
-                    onChange={e => onChange({ ...dia, colacionHasta: e.target.value })}
-                  />
-                </div>
-              </div>
-              <button type="button" className="horario-apply-all" onClick={() => onApplyColacionAll(dia)}>
+              <input
+                type="time"
+                className="agenda-time-input"
+                value={dia.colacionDesde || '13:00'}
+                onChange={e => onChange({ ...dia, colacionDesde: e.target.value })}
+              />
+              <span className="horario-time-sep">—</span>
+              <input
+                type="time"
+                className="agenda-time-input"
+                value={dia.colacionHasta || '14:00'}
+                onChange={e => onChange({ ...dia, colacionHasta: e.target.value })}
+              />
+              <button
+                type="button"
+                className="horario-apply-all"
+                onClick={() => onApplyColacionAll(dia)}
+                title="Aplicar esta colación a todos los días"
+              >
                 <Icon name="copy" />Aplicar a todos
               </button>
             </React.Fragment>
           ) : (
-            <span className="horario-colacion-off">Sin colación este día</span>
+            <span className="horario-colacion-off">Sin colación</span>
           )}
         </div>
+      ) : (
+        <span className="badge badge-closed">Cerrado</span>
       )}
     </div>
   );

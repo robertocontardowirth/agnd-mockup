@@ -1259,20 +1259,18 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .horario-time-label { font-size: 15px; color: var(--fg-3); white-space: nowrap; }
 .horario-time-sep   { color: var(--fg-3); padding: 0 4px; }
 
-/* Fila de horario con colación: el día arriba, la colación como sub-fila. */
-.horario-row { flex-direction: column; align-items: stretch; }
-.horario-main { display: flex; align-items: center; gap: 12px; }
-.horario-colacion {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px;
-  margin-top: 10px; padding-top: 10px; padding-left: 112px;
-  border-top: 1px dashed var(--border);
-}
+/* Fila de horario: atención y colación en una sola línea (con wrap de respaldo). */
+.horario-row { flex-wrap: wrap; row-gap: 8px; }
+/* Los rangos de hora no crecen: así atención y colación caben en la misma fila. */
+.horario-row .horario-times { flex: 0 0 auto; }
+.horario-colacion { display: flex; align-items: center; gap: 10px; }
+.horario-divider { width: 1px; align-self: stretch; min-height: 22px; background: var(--border); }
 .horario-colacion-head {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 14px; font-weight: 600; color: var(--fg-2); min-width: 88px;
+  font-size: 15px; font-weight: 600; color: var(--fg-2); white-space: nowrap;
 }
 .horario-colacion-head i, .horario-colacion-head svg { width: 15px; height: 15px; color: var(--fg-3); }
-.horario-colacion-off { font-size: 14px; color: var(--fg-3); }
+.horario-colacion-off { font-size: 15px; color: var(--fg-3); }
 .horario-apply-all {
   display: inline-flex; align-items: center; gap: 5px;
   border: none; background: transparent; cursor: pointer;
@@ -1282,9 +1280,6 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .horario-apply-all i, .horario-apply-all svg { width: 14px; height: 14px; }
 .horario-apply-all:hover { background: var(--accent-tint); }
-@media (max-width: 620px) {
-  .horario-colacion { padding-left: 0; }
-}
 
 /* Toggle */
 .agenda-toggle {
