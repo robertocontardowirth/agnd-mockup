@@ -1212,7 +1212,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
    Las columnas son lo bastante anchas para que las etiquetas ("COLABORADOR")
    no desborden y se empalmen con la columna vecina. */
 .excepciones-head,
-.excepciones-row { grid-template-columns: 120px 1fr 150px 36px; }
+.excepciones-row { grid-template-columns: 120px 1fr 180px 72px; }
 .bloqueos-head,
 .bloqueos-row    { grid-template-columns: 120px 140px 160px 1fr 36px; }
 
@@ -1345,6 +1345,13 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 .agenda-action-btn:hover { background: rgba(170,68,101,.12); }
 .agenda-action-btn i, .agenda-action-btn svg { width: 14px; height: 14px; }
+
+/* Grupo de acciones por fila (editar + eliminar) */
+.agenda-row-actions { display: flex; gap: 2px; align-items: center; justify-content: flex-end; }
+.agenda-row-actions .agenda-action-btn { margin-left: 0; }
+/* Variante neutra para "editar" (la base es roja para acciones destructivas) */
+.agenda-action-btn.edit { color: var(--fg-3); }
+.agenda-action-btn.edit:hover { background: var(--accent-tint); color: var(--accent-live); }
 
 /* Inline form */
 .agenda-form-inline {

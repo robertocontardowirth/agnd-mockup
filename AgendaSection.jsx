@@ -908,49 +908,86 @@ function HorariosView() {
 
 // ── EXCEPCIONES VIEW ──────────────────────────────────────────────────────────
 
-function ExcepcionForm({ onConfirm, onCancel }) {
-  const [form, setForm] = React.useState({ fecha: '', tipo: 'closed', motivo: '' });
+// Modal de creación/edición de excepciones (días cerrados u horario especial).
+function ExcepcionModal({ mode, excepcion, onClose, onSave }) {
+  const isEdit = mode === 'edit';
+  const [form, setForm] = React.useState(() => ({
+    fecha: excepcion?.fecha || '',
+    tipo: excepcion?.tipo || 'closed',
+    motivo: excepcion?.motivo || '',
+    apertura: excepcion?.apertura || '09:00',
+    cierre: excepcion?.cierre || '14:00',
+  }));
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
-  const ok = form.fecha && form.motivo;
+  const ok = form.fecha && form.motivo.trim() && (form.tipo !== 'special' || (form.apertura && form.cierre));
+
+  const save = () => {
+    if (!ok) return;
+    const exc = {
+      id: isEdit ? excepcion.id : Date.now(),
+      fecha: form.fecha,
+      tipo: form.tipo,
+      motivo: form.motivo.trim(),
+    };
+    if (form.tipo === 'special') { exc.apertura = form.apertura; exc.cierre = form.cierre; }
+    onSave(exc);
+  };
+
+  const footer = (
+    <React.Fragment>
+      <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
+      <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
+        <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Crear excepción'}
+      </button>
+    </React.Fragment>
+  );
+
   return (
-    <div className="agenda-form-inline">
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Fecha</label>
-        <input type="date" className="agenda-time-input" value={form.fecha} onChange={up('fecha')} />
+    <Modal eyebrow="Agenda" title={isEdit ? 'Editar excepción' : 'Nueva excepción'} onClose={onClose} footer={footer}>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Fecha</label>
+        <input type="date" className="reserva-input" value={form.fecha} onChange={up('fecha')} autoFocus />
       </div>
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Tipo</label>
-        <select className="agenda-time-input" value={form.tipo} onChange={up('tipo')}>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Tipo</label>
+        <select className="reserva-input" value={form.tipo} onChange={up('tipo')}>
           <option value="closed">Cerrado</option>
           <option value="special">Horario especial</option>
         </select>
       </div>
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Motivo</label>
-        <input
-          type="text"
-          className="agenda-time-input agenda-form-input-grow"
-          placeholder="Ej: Feriado nacional"
-          value={form.motivo}
-          onChange={up('motivo')}
-        />
+      {form.tipo === 'special' && (
+        <div className="reserva-field-grid">
+          <div className="reserva-field">
+            <label className="reserva-field-label">Desde</label>
+            <input type="time" className="reserva-input" value={form.apertura} onChange={up('apertura')} />
+          </div>
+          <div className="reserva-field">
+            <label className="reserva-field-label">Hasta</label>
+            <input type="time" className="reserva-input" value={form.cierre} onChange={up('cierre')} />
+          </div>
+        </div>
+      )}
+      <div className="reserva-field">
+        <label className="reserva-field-label">Motivo</label>
+        <input type="text" className="reserva-input" placeholder="Ej: Feriado nacional" value={form.motivo} onChange={up('motivo')} />
       </div>
-      <div className="agenda-form-actions">
-        <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
-          <Icon name="plus" />Agregar
-        </button>
-        <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
 function ExcepcionesView() {
   const [items, setItems] = React.useState(MOCK_EXCEPCIONES);
-  const [showForm, setShowForm] = React.useState(false);
+  const [modal, setModal] = React.useState(null);          // null | { mode, excepcion }
+  const [confirmDel, setConfirmDel] = React.useState(null); // excepción a eliminar
 
-  const add = form => { setItems(p => [...p, { id: Date.now(), ...form }]); setShowForm(false); };
-  const remove = id => setItems(p => p.filter(e => e.id !== id));
+  const handleSave = exc => {
+    setItems(p => (p.some(e => e.id === exc.id) ? p.map(e => (e.id === exc.id ? exc : e)) : [...p, exc]));
+    setModal(null);
+  };
+  const handleDelete = () => {
+    if (confirmDel) setItems(p => p.filter(e => e.id !== confirmDel.id));
+    setConfirmDel(null);
+  };
 
   const fmtFecha = iso => {
     const [y, m, d] = iso.split('-');
@@ -965,13 +1002,10 @@ function ExcepcionesView() {
           <div className="agenda-config-title">Excepciones</div>
           <div className="agenda-config-desc">Días en que el negocio cierra o tiene horario especial.</div>
         </div>
-        {!showForm && (
-          <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
-            <Icon name="plus" />Nueva excepción
-          </button>
-        )}
+        <button className="btn-primary-sm" onClick={() => setModal({ mode: 'new' })}>
+          <Icon name="plus" />Nueva excepción
+        </button>
       </div>
-      {showForm && <ExcepcionForm onConfirm={add} onCancel={() => setShowForm(false)} />}
       <div className="agenda-table">
         <div className="agenda-table-head excepciones-head">
           <div>Fecha</div><div>Motivo</div><div>Tipo</div><div />
@@ -985,15 +1019,40 @@ function ExcepcionesView() {
             <div>
               {exc.tipo === 'closed'
                 ? <span className="badge badge-closed">Cerrado</span>
-                : <span className="badge badge-special">Horario especial</span>
+                : <span className="badge badge-special">Horario especial{exc.apertura ? ` · ${exc.apertura}–${exc.cierre}` : ''}</span>
               }
             </div>
-            <button className="agenda-action-btn" onClick={() => remove(exc.id)} aria-label="Eliminar">
-              <Icon name="trash-2" />
-            </button>
+            <div className="agenda-row-actions">
+              <button className="agenda-action-btn edit" onClick={() => setModal({ mode: 'edit', excepcion: exc })} aria-label="Editar excepción">
+                <Icon name="pencil" />
+              </button>
+              <button className="agenda-action-btn" onClick={() => setConfirmDel(exc)} aria-label="Eliminar excepción">
+                <Icon name="trash-2" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {modal && (
+        <ExcepcionModal
+          mode={modal.mode}
+          excepcion={modal.excepcion}
+          onClose={() => setModal(null)}
+          onSave={handleSave}
+        />
+      )}
+
+      {confirmDel && (
+        <ConfirmDialog
+          title="Eliminar excepción"
+          message={`¿Eliminar la excepción del ${fmtFecha(confirmDel.fecha)} (${confirmDel.motivo})? Esta acción no se puede deshacer.`}
+          confirmLabel="Eliminar"
+          danger
+          onConfirm={handleDelete}
+          onClose={() => setConfirmDel(null)}
+        />
+      )}
     </div>
   );
 }
