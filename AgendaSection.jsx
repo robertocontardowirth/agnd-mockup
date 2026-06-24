@@ -267,12 +267,13 @@ function Timeline({ citas, selectedId, onOpen, onAdd }) {
 
 // ── PANEL DE RESERVA · convive con el contenido (no overlay). Sirve para crear y editar ──
 
-function buildInitialForm({ cita, initialHora }) {
+function buildInitialForm({ cita, initialHora, initialFecha }) {
   if (cita) {
     return {
       cliente: cita.cliente || '',
       servicio: cita.servicio || '',
       colaborador: cita.colaborador || RESERVA_COLABORADORES[0],
+      fecha: cita.fecha || initialFecha || '',
       hora: cita.hora || '',
       duracion: cita.duracion || 60,
       estado: cita.estado || 'confirmed',
@@ -281,19 +282,19 @@ function buildInitialForm({ cita, initialHora }) {
   }
   return {
     cliente: '', servicio: '', colaborador: RESERVA_COLABORADORES[0],
-    hora: initialHora || '', duracion: 60, estado: 'confirmed', notas: '',
+    fecha: initialFecha || '', hora: initialHora || '', duracion: 60, estado: 'confirmed', notas: '',
   };
 }
 
-function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReagendar, onAnular }) {
+function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose, onSave, onEdit, onReagendar, onAnular }) {
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
-  const [form, setForm] = React.useState(() => buildInitialForm({ cita, initialHora }));
+  const [form, setForm] = React.useState(() => buildInitialForm({ cita, initialHora, initialFecha }));
 
   // Re-sincroniza el formulario al cambiar el objetivo (otra cita, o de crear↔editar)
   React.useEffect(() => {
-    setForm(buildInitialForm({ cita, initialHora }));
-  }, [mode, cita, initialHora]);
+    setForm(buildInitialForm({ cita, initialHora, initialFecha }));
+  }, [mode, cita, initialHora, initialFecha]);
 
   // Cerrar con Escape
   React.useEffect(() => {
@@ -308,12 +309,13 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
     const s = SERVICIOS.find(x => x.nombre === nombre);
     setForm(f => ({ ...f, servicio: nombre, duracion: s ? s.duracion : f.duracion }));
   };
-  const ok = form.cliente.trim() && form.servicio && form.hora;
+  const ok = form.cliente.trim() && form.servicio && form.hora && (!withDate || form.fecha);
 
   const save = () => {
     if (!ok) return;
     onSave({
       id: isEdit ? cita.id : Date.now(),
+      ...(withDate ? { fecha: form.fecha } : {}),
       hora: form.hora,
       duracion: parseInt(form.duracion, 10) || 60,
       cliente: form.cliente.trim(),
@@ -384,6 +386,13 @@ function ReservaPanel({ mode, cita, initialHora, onClose, onSave, onEdit, onReag
               {RESERVA_COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+
+          {withDate && (
+            <div className="reserva-field">
+              <label className="reserva-field-label">Fecha</label>
+              <input type="date" className="reserva-input" value={form.fecha} onChange={up('fecha')} />
+            </div>
+          )}
 
           <div className="reserva-field-grid">
             <div className="reserva-field">
@@ -518,6 +527,28 @@ function HoyView({ citas, onSaveCita }) {
 
 // ── SEMANA VIEW ───────────────────────────────────────────────────────────────
 
+// La vista Semana modela las citas por dayIndex (0=Lun … 6=Dom). Estos helpers
+// convierten entre una fecha ISO real y ese índice dentro de la semana mostrada.
+function weekMonday(weekOffset) {
+  const t = new Date();
+  const dow = t.getDay();
+  const mondayDiff = dow === 0 ? -6 : 1 - dow;
+  return new Date(t.getFullYear(), t.getMonth(), t.getDate() + mondayDiff + weekOffset * 7);
+}
+function pad2(n) { return String(n).padStart(2, '0'); }
+function dateToIso(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+function weekDayIndexToIso(weekOffset, idx) {
+  const m = weekMonday(weekOffset);
+  return dateToIso(new Date(m.getFullYear(), m.getMonth(), m.getDate() + idx));
+}
+function isoToWeekDayIndex(iso, weekOffset) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const monday = weekMonday(weekOffset);
+  const diff = Math.round((date - monday) / 86400000);
+  return Math.max(0, Math.min(6, diff));
+}
+
 function CitaCardCompact({ cita, selected, onOpen }) {
   return (
     <div
@@ -564,17 +595,14 @@ function SemanaView() {
   const openView   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'view', cita }); };
   const openEdit   = (cita) => { setSelectedId(cita.id); setPanel({ mode: 'edit', cita }); };
 
-  // Conserva dayIndex (y demás campos no editados) al guardar; las citas nuevas
-  // se asignan al día de hoy si es la semana actual, o al lunes en otra semana.
+  // La fecha elegida en el panel se traduce al dayIndex de la semana mostrada.
   const handleSave = (updated) => {
+    const dayIndex = updated.fecha != null ? isoToWeekDayIndex(updated.fecha, weekOffset) : 0;
     setCitasSemana(prev => {
       if (prev.some(c => c.id === updated.id)) {
-        return prev.map(c => (c.id === updated.id ? { ...c, ...updated } : c));
+        return prev.map(c => (c.id === updated.id ? { ...c, ...updated, dayIndex } : c));
       }
-      const dow = new Date().getDay();
-      const todayIdx = dow === 0 ? 6 : dow - 1;
-      const dayIndex = weekOffset === 0 ? todayIdx : 0;
-      return [...prev, { dayIndex, ...updated }];
+      return [...prev, { ...updated, dayIndex }];
     });
     closePanel();
   };
@@ -640,6 +668,12 @@ function SemanaView() {
           mode={panel.mode}
           cita={panel.cita}
           initialHora={panel.hora}
+          withDate
+          initialFecha={
+            panel.mode === 'edit' && panel.cita
+              ? weekDayIndexToIso(weekOffset, panel.cita.dayIndex)
+              : weekDayIndexToIso(weekOffset, (new Date().getDay() === 0 ? 6 : new Date().getDay() - 1))
+          }
           onClose={closePanel}
           onSave={handleSave}
           onEdit={openEdit}
@@ -758,7 +792,8 @@ function MesView() {
   const closePanel = () => setPanel(null);
   const openNew = () => setPanel({ mode: 'new', hora: '', fecha: selectedIso || todayIso });
   const handleSave = (cita) => {
-    setCitasMes(prev => [...prev, { ...cita, fecha: panel.fecha }]);
+    // La fecha viene del propio panel (campo Fecha); cae al día sugerido si faltara.
+    setCitasMes(prev => [...prev, { ...cita, fecha: cita.fecha || panel.fecha }]);
     closePanel();
   };
 
@@ -815,6 +850,8 @@ function MesView() {
         <ReservaPanel
           mode="new"
           initialHora={panel.hora}
+          withDate
+          initialFecha={panel.fecha}
           onClose={closePanel}
           onSave={handleSave}
         />
