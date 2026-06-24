@@ -36,13 +36,13 @@ const MOCK_CITAS_MES = [
 ];
 
 const MOCK_HORARIOS = [
-  { id: 'lun', label: 'Lunes',     activo: true,  apertura: '09:00', cierre: '19:00' },
-  { id: 'mar', label: 'Martes',    activo: true,  apertura: '09:00', cierre: '19:00' },
-  { id: 'mie', label: 'Miércoles', activo: true,  apertura: '09:00', cierre: '19:00' },
-  { id: 'jue', label: 'Jueves',    activo: true,  apertura: '09:00', cierre: '19:00' },
-  { id: 'vie', label: 'Viernes',   activo: true,  apertura: '09:00', cierre: '18:00' },
-  { id: 'sab', label: 'Sábado',    activo: true,  apertura: '10:00', cierre: '14:00' },
-  { id: 'dom', label: 'Domingo',   activo: false, apertura: '10:00', cierre: '14:00' },
+  { id: 'lun', label: 'Lunes',     activo: true,  apertura: '09:00', cierre: '19:00', colacion: true,  colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'mar', label: 'Martes',    activo: true,  apertura: '09:00', cierre: '19:00', colacion: true,  colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'mie', label: 'Miércoles', activo: true,  apertura: '09:00', cierre: '19:00', colacion: true,  colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'jue', label: 'Jueves',    activo: true,  apertura: '09:00', cierre: '19:00', colacion: true,  colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'vie', label: 'Viernes',   activo: true,  apertura: '09:00', cierre: '18:00', colacion: true,  colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'sab', label: 'Sábado',    activo: true,  apertura: '10:00', cierre: '14:00', colacion: false, colacionDesde: '13:00', colacionHasta: '14:00' },
+  { id: 'dom', label: 'Domingo',   activo: false, apertura: '10:00', cierre: '14:00', colacion: false, colacionDesde: '13:00', colacionHasta: '14:00' },
 ];
 
 const MOCK_EXCEPCIONES = [
@@ -791,35 +791,74 @@ function AgendaToggle({ value, onChange }) {
   );
 }
 
-function HorarioRow({ dia, onChange }) {
+function HorarioRow({ dia, onChange, onApplyColacionAll }) {
   return (
-    <div className="agenda-table-row">
-      <div className="horario-day-name">{dia.label}</div>
-      <AgendaToggle value={dia.activo} onChange={v => onChange({ ...dia, activo: v })} />
-      <div className={`horario-times${!dia.activo ? ' disabled' : ''}`}>
-        <div className="horario-time-group">
-          <span className="horario-time-label">Desde</span>
-          <input
-            type="time"
-            className="agenda-time-input"
-            value={dia.apertura}
-            disabled={!dia.activo}
-            onChange={e => onChange({ ...dia, apertura: e.target.value })}
-          />
+    <div className="agenda-table-row horario-row">
+      <div className="horario-main">
+        <div className="horario-day-name">{dia.label}</div>
+        <AgendaToggle value={dia.activo} onChange={v => onChange({ ...dia, activo: v })} />
+        <div className={`horario-times${!dia.activo ? ' disabled' : ''}`}>
+          <div className="horario-time-group">
+            <span className="horario-time-label">Desde</span>
+            <input
+              type="time"
+              className="agenda-time-input"
+              value={dia.apertura}
+              disabled={!dia.activo}
+              onChange={e => onChange({ ...dia, apertura: e.target.value })}
+            />
+          </div>
+          <span className="horario-time-sep">—</span>
+          <div className="horario-time-group">
+            <span className="horario-time-label">Hasta</span>
+            <input
+              type="time"
+              className="agenda-time-input"
+              value={dia.cierre}
+              disabled={!dia.activo}
+              onChange={e => onChange({ ...dia, cierre: e.target.value })}
+            />
+          </div>
         </div>
-        <span className="horario-time-sep">—</span>
-        <div className="horario-time-group">
-          <span className="horario-time-label">Hasta</span>
-          <input
-            type="time"
-            className="agenda-time-input"
-            value={dia.cierre}
-            disabled={!dia.activo}
-            onChange={e => onChange({ ...dia, cierre: e.target.value })}
-          />
-        </div>
+        {!dia.activo && <span className="badge badge-closed">Cerrado</span>}
       </div>
-      {!dia.activo && <span className="badge badge-closed">Cerrado</span>}
+
+      {dia.activo && (
+        <div className="horario-colacion">
+          <span className="horario-colacion-head"><Icon name="coffee" />Colación</span>
+          <AgendaToggle value={!!dia.colacion} onChange={v => onChange({ ...dia, colacion: v })} />
+          {dia.colacion ? (
+            <React.Fragment>
+              <div className="horario-times">
+                <div className="horario-time-group">
+                  <span className="horario-time-label">Desde</span>
+                  <input
+                    type="time"
+                    className="agenda-time-input"
+                    value={dia.colacionDesde || '13:00'}
+                    onChange={e => onChange({ ...dia, colacionDesde: e.target.value })}
+                  />
+                </div>
+                <span className="horario-time-sep">—</span>
+                <div className="horario-time-group">
+                  <span className="horario-time-label">Hasta</span>
+                  <input
+                    type="time"
+                    className="agenda-time-input"
+                    value={dia.colacionHasta || '14:00'}
+                    onChange={e => onChange({ ...dia, colacionHasta: e.target.value })}
+                  />
+                </div>
+              </div>
+              <button type="button" className="horario-apply-all" onClick={() => onApplyColacionAll(dia)}>
+                <Icon name="copy" />Aplicar a todos
+              </button>
+            </React.Fragment>
+          ) : (
+            <span className="horario-colacion-off">Sin colación este día</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -833,6 +872,17 @@ function HorariosView() {
     setHorarios(h => h.map((d, i) => i === idx ? updated : d));
   };
 
+  // Copia la colación de un día (toggle + horas) a todos los días abiertos.
+  const applyColacionAll = (source) => {
+    setSaved(false);
+    setHorarios(h => h.map(d => d.activo ? {
+      ...d,
+      colacion: source.colacion,
+      colacionDesde: source.colacionDesde,
+      colacionHasta: source.colacionHasta,
+    } : d));
+  };
+
   const save = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -843,7 +893,7 @@ function HorariosView() {
       <div className="agenda-config-header">
         <div>
           <div className="agenda-config-title">Horarios de atención</div>
-          <div className="agenda-config-desc">Configura los días y horarios en que tu negocio atiende reservas.</div>
+          <div className="agenda-config-desc">Configura los días, horarios y la colación en que tu negocio atiende reservas.</div>
         </div>
         <button className={`agenda-save-btn${saved ? ' saved' : ''}`} onClick={save}>
           {saved ? <React.Fragment><Icon name="check" />Guardado</React.Fragment> : 'Guardar cambios'}
@@ -851,7 +901,12 @@ function HorariosView() {
       </div>
       <div className="agenda-table">
         {horarios.map((dia, i) => (
-          <HorarioRow key={dia.id} dia={dia} onChange={updated => updateDia(i, updated)} />
+          <HorarioRow
+            key={dia.id}
+            dia={dia}
+            onChange={updated => updateDia(i, updated)}
+            onApplyColacionAll={applyColacionAll}
+          />
         ))}
       </div>
     </div>

@@ -1259,6 +1259,33 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .horario-time-label { font-size: 15px; color: var(--fg-3); white-space: nowrap; }
 .horario-time-sep   { color: var(--fg-3); padding: 0 4px; }
 
+/* Fila de horario con colación: el día arriba, la colación como sub-fila. */
+.horario-row { flex-direction: column; align-items: stretch; }
+.horario-main { display: flex; align-items: center; gap: 12px; }
+.horario-colacion {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px 12px;
+  margin-top: 10px; padding-top: 10px; padding-left: 112px;
+  border-top: 1px dashed var(--border);
+}
+.horario-colacion-head {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; font-weight: 600; color: var(--fg-2); min-width: 88px;
+}
+.horario-colacion-head i, .horario-colacion-head svg { width: 15px; height: 15px; color: var(--fg-3); }
+.horario-colacion-off { font-size: 14px; color: var(--fg-3); }
+.horario-apply-all {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: none; background: transparent; cursor: pointer;
+  font-size: 13px; font-weight: 600; color: var(--accent-live);
+  padding: 5px 9px; border-radius: var(--r-md);
+  transition: background var(--d-fast) var(--ease-out);
+}
+.horario-apply-all i, .horario-apply-all svg { width: 14px; height: 14px; }
+.horario-apply-all:hover { background: var(--accent-tint); }
+@media (max-width: 620px) {
+  .horario-colacion { padding-left: 0; }
+}
+
 /* Toggle */
 .agenda-toggle {
   position: relative;
