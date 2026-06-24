@@ -49,18 +49,45 @@ function Sparkline({ data, color = 'var(--accent-live)', width = 78, height = 36
   );
 }
 
-function StatCard({ label, value, sub, icon, accent, trend, trendColor }) {
+// Gráfico de barras full-width — se usa cuando la tarjeta está en modo compacto
+// (panel de reserva abierto), apilado bajo el texto en lugar de a la derecha.
+function BarChart({ data, color = 'var(--accent-live)' }) {
+  if (!data || !data.length) return null;
+  const max = Math.max(...data) || 1;
   return (
-    <div className={`dash-stat-card${accent ? ' accent' : ''}`}>
-      <div className="dash-stat-icon">
-        <Icon name={icon} />
+    <div className="dash-bars" aria-hidden="true">
+      {data.map((v, i) => (
+        <span
+          key={i}
+          className="dash-bar"
+          style={{
+            height: `${Math.max(10, (v / max) * 100)}%`,
+            background: color,
+            opacity: i === data.length - 1 ? 1 : 0.4,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, icon, accent, trend, trendColor, compact }) {
+  const color = trendColor || 'var(--accent-live)';
+  return (
+    <div className={`dash-stat-card${accent ? ' accent' : ''}${compact ? ' compact' : ''}`}>
+      <div className="dash-stat-top">
+        <div className="dash-stat-icon">
+          <Icon name={icon} />
+        </div>
+        <div className="dash-stat-text">
+          <div className="dash-stat-value">{value}</div>
+          <div className="dash-stat-label">{label}</div>
+          {sub && <div className="dash-stat-sub">{sub}</div>}
+        </div>
       </div>
-      <div className="dash-stat-text">
-        <div className="dash-stat-value">{value}</div>
-        <div className="dash-stat-label">{label}</div>
-        {sub && <div className="dash-stat-sub">{sub}</div>}
-      </div>
-      {trend && <Sparkline data={trend} color={trendColor || 'var(--accent-live)'} />}
+      {trend && (compact
+        ? <BarChart data={trend} color={color} />
+        : <Sparkline data={trend} color={color} />)}
     </div>
   );
 }
@@ -317,6 +344,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
   const [confirmCancel, setConfirmCancel] = React.useState(null);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
+  const openView = (cita) => setPanel({ mode: 'view', cita });
   const openEdit = (cita) => setPanel({ mode: 'edit', cita });
   const openNuevoCliente = () => setClienteModal({ mode: 'new' });
   const openBloqueo = () => setBloqueoModal(true);
@@ -337,7 +365,11 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
   };
 
   const handleConfirmCancel = () => {
-    if (confirmCancel) onSaveCita({ ...confirmCancel, estado: 'cancelled' });
+    if (confirmCancel) {
+      onSaveCita({ ...confirmCancel, estado: 'cancelled' });
+      // Si el panel de detalle mostraba esta cita, lo cerramos.
+      setPanel(p => (p && p.cita && p.cita.id === confirmCancel.id ? null : p));
+    }
     setConfirmCancel(null);
   };
 
@@ -358,17 +390,17 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
         </div>
 
         <div className="dash-stats-row">
-          <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent trend={STAT_TRENDS.citas} />
-          <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" trend={STAT_TRENDS.confirmadas} />
-          <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" trend={STAT_TRENDS.pendientes} />
-          <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" trend={STAT_TRENDS.nuevos} />
+          <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent trend={STAT_TRENDS.citas} compact={!!panel} />
+          <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" trend={STAT_TRENDS.confirmadas} compact={!!panel} />
+          <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" trend={STAT_TRENDS.pendientes} compact={!!panel} />
+          <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" trend={STAT_TRENDS.nuevos} compact={!!panel} />
         </div>
 
         <div className={`dash-grid${panel ? ' single' : ''}`}>
           <div className="dash-col-main">
             <AgendaHoy
               citas={citas}
-              onRowClick={openEdit}
+              onRowClick={openView}
               onEdit={openEdit}
               onUpdate={onSaveCita}
               onRequestCancel={setConfirmCancel}
@@ -392,6 +424,9 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
           initialHora={panel.hora}
           onClose={() => setPanel(null)}
           onSave={handleSave}
+          onEdit={openEdit}
+          onReagendar={openEdit}
+          onAnular={setConfirmCancel}
         />
       )}
 
