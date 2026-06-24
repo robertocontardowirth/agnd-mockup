@@ -20,22 +20,33 @@ function EstadoBadge({ estado }) {
 }
 
 // Mini gráfico de línea (sparkline) para visualizar la progresión de un indicador.
-function Sparkline({ data, color = 'var(--accent-live)', width = 78, height = 36 }) {
+// `fluid` lo hace ocupar todo el ancho (modo compacto, bajo el texto); el trazo
+// usa vector-effect non-scaling-stroke para no deformarse al estirarse.
+function Sparkline({ data, color = 'var(--accent-live)', width = 78, height = 36, fluid }) {
   const gid = React.useMemo(() => 'sk' + Math.random().toString(36).slice(2, 8), []);
   if (!data || data.length < 2) return null;
+  const W = fluid ? 300 : width;
+  const H = fluid ? 44 : height;
   const max = Math.max(...data);
   const min = Math.min(...data);
   const span = max - min || 1;
-  const stepX = width / (data.length - 1);
+  const stepX = W / (data.length - 1);
   const pts = data.map((v, i) => [
     i * stepX,
-    height - 3 - ((v - min) / span) * (height - 6),
+    H - 3 - ((v - min) / span) * (H - 6),
   ]);
   const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const area = `${line} L${width.toFixed(1)},${height} L0,${height} Z`;
+  const area = `${line} L${W.toFixed(1)},${H} L0,${H} Z`;
   const last = pts[pts.length - 1];
   return (
-    <svg className="dash-spark" width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+    <svg
+      className={`dash-spark${fluid ? ' is-fluid' : ''}`}
+      width={fluid ? '100%' : width}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio={fluid ? 'none' : 'xMidYMid meet'}
+      aria-hidden="true"
+    >
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.24" />
@@ -43,31 +54,17 @@ function Sparkline({ data, color = 'var(--accent-live)', width = 78, height = 36
         </linearGradient>
       </defs>
       <path d={area} fill={`url(#${gid})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={last[0]} cy={last[1]} r="2.4" fill={color} />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth={fluid ? 2 : 1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        vectorEffect={fluid ? 'non-scaling-stroke' : undefined}
+      />
+      {!fluid && <circle cx={last[0]} cy={last[1]} r="2.4" fill={color} />}
     </svg>
-  );
-}
-
-// Gráfico de barras full-width — se usa cuando la tarjeta está en modo compacto
-// (panel de reserva abierto), apilado bajo el texto en lugar de a la derecha.
-function BarChart({ data, color = 'var(--accent-live)' }) {
-  if (!data || !data.length) return null;
-  const max = Math.max(...data) || 1;
-  return (
-    <div className="dash-bars" aria-hidden="true">
-      {data.map((v, i) => (
-        <span
-          key={i}
-          className="dash-bar"
-          style={{
-            height: `${Math.max(10, (v / max) * 100)}%`,
-            background: color,
-            opacity: i === data.length - 1 ? 1 : 0.4,
-          }}
-        />
-      ))}
-    </div>
   );
 }
 
@@ -85,9 +82,7 @@ function StatCard({ label, value, sub, icon, accent, trend, trendColor, compact 
           {sub && <div className="dash-stat-sub">{sub}</div>}
         </div>
       </div>
-      {trend && (compact
-        ? <BarChart data={trend} color={color} />
-        : <Sparkline data={trend} color={color} />)}
+      {trend && <Sparkline data={trend} color={color} fluid={compact} />}
     </div>
   );
 }

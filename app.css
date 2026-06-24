@@ -330,24 +330,17 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 }
 
 /* Modo compacto: con el panel de reserva abierto las tarjetas se apilan y el
-   gráfico pasa a ser de barras, abajo y ocupando todo el ancho disponible. */
+   gráfico de línea pasa abajo, ocupando todo el ancho disponible. */
 .dash-stat-card.compact {
   flex-direction: column;
   align-items: stretch;
   gap: 14px;
 }
 .dash-stat-card.compact .dash-stat-top { width: 100%; }
-.dash-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
+.dash-spark.is-fluid {
   width: 100%;
-  height: 42px;
-}
-.dash-bar {
-  flex: 1;
-  min-width: 3px;
-  border-radius: 3px 3px 0 0;
+  height: 44px;
+  align-self: stretch;
 }
 
 /* Con el panel abierto, en anchos medios pasamos a 2 columnas para que las
