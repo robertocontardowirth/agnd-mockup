@@ -25,7 +25,9 @@
 <script type="text/babel" src="EquipoSection.jsx"></script>
 <script type="text/babel" src="EspaciosSection.jsx"></script>
 <script type="text/babel" src="RecursosSection.jsx"></script>
+<script type="text/babel" src="ServiciosSection.jsx"></script>
 <script type="text/babel" src="CuentaSection.jsx"></script>
+<script type="text/babel" src="NotificacionesSection.jsx"></script>
 
 <script type="text/babel">
 
@@ -119,6 +121,16 @@ function AppRoot() {
     );
   };
 
+  // Store de servicios (catálogo)
+  const [servicios, setServicios] = React.useState(() => (window.MOCK_SERVICIOS || []));
+  const saveServicio = (svc) => {
+    setServicios(prev =>
+      prev.some(s => s.id === svc.id)
+        ? prev.map(s => (s.id === svc.id ? svc : s))
+        : [...prev, svc]
+    );
+  };
+
   React.useEffect(() => {
     document.body.dataset.theme = t.dark ? 'dark' : 'light';
     document.body.dataset.accent = t.accent;
@@ -130,17 +142,21 @@ function AppRoot() {
   };
 
   const content = section === 'home'
-    ? <DashboardHome citas={citas} onSaveCita={saveCita} onSaveCliente={saveCliente} onSaveBloqueo={saveBloqueo} />
+    ? <DashboardHome citas={citas} onSaveCita={saveCita} onSaveCliente={saveCliente} onSaveBloqueo={saveBloqueo} onNavigate={handleSection} />
     : section === 'agenda'
       ? <AgendaSection sub={sub || 'hoy'} citas={citas} onSaveCita={saveCita} bloqueos={bloqueos} onSaveBloqueo={saveBloqueo} onRemoveBloqueo={removeBloqueo} />
       : section === 'clientes'
         ? <ClientesSection sub={sub || 'todos'} clientes={clientes} onSaveCliente={saveCliente} />
+      : section === 'servicios'
+        ? <ServiciosSection sub={sub} servicios={servicios} onSaveServicio={saveServicio} />
       : section === 'equipo'
         ? <EquipoSection sub={sub} colaboradores={colaboradores} onSaveColaborador={saveColaborador} />
       : section === 'espacios'
         ? <EspaciosSection sub={sub} espacios={espacios} onSaveEspacio={saveEspacio} />
       : section === 'recursos'
         ? <RecursosSection sub={sub} recursos={recursos} onSaveRecurso={saveRecurso} />
+      : section === 'notificaciones'
+        ? <NotificacionesView />
       : section === 'perfil'
         ? <PerfilSection />
       : section === 'negocio'

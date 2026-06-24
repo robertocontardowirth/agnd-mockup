@@ -19,24 +19,72 @@ function EstadoBadge({ estado }) {
   return <span className={`badge ${cls}`}>{label}</span>;
 }
 
-function StatCard({ label, value, sub, icon, accent }) {
+// Mini gráfico de línea (sparkline) para visualizar la progresión de un indicador.
+function Sparkline({ data, color = 'var(--accent-live)', width = 78, height = 36 }) {
+  const gid = React.useMemo(() => 'sk' + Math.random().toString(36).slice(2, 8), []);
+  if (!data || data.length < 2) return null;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const span = max - min || 1;
+  const stepX = width / (data.length - 1);
+  const pts = data.map((v, i) => [
+    i * stepX,
+    height - 3 - ((v - min) / span) * (height - 6),
+  ]);
+  const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const area = `${line} L${width.toFixed(1)},${height} L0,${height} Z`;
+  const last = pts[pts.length - 1];
+  return (
+    <svg className="dash-spark" width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.24" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gid})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={last[0]} cy={last[1]} r="2.4" fill={color} />
+    </svg>
+  );
+}
+
+function StatCard({ label, value, sub, icon, accent, trend, trendColor }) {
   return (
     <div className={`dash-stat-card${accent ? ' accent' : ''}`}>
       <div className="dash-stat-icon">
         <Icon name={icon} />
       </div>
-      <div>
+      <div className="dash-stat-text">
         <div className="dash-stat-value">{value}</div>
         <div className="dash-stat-label">{label}</div>
         {sub && <div className="dash-stat-sub">{sub}</div>}
       </div>
+      {trend && <Sparkline data={trend} color={trendColor || 'var(--accent-live)'} />}
     </div>
+  );
+}
+
+// Diálogo de confirmación reutilizable (acciones destructivas como anular).
+function ConfirmDialog({ title, message, confirmLabel, danger, onConfirm, onClose }) {
+  const footer = (
+    <React.Fragment>
+      <button className="btn-sm-ghost confirm-cancel" onClick={onClose}>Cancelar</button>
+      <button className={`btn-primary-sm${danger ? ' danger' : ''}`} onClick={onConfirm}>
+        {confirmLabel || 'Confirmar'}
+      </button>
+    </React.Fragment>
+  );
+  return (
+    <Modal eyebrow="Confirmación" title={title} onClose={onClose} footer={footer}>
+      <p className="confirm-msg">{message}</p>
+    </Modal>
   );
 }
 
 // Menú de opciones por cita (botón "..."). Se renderiza en position:fixed vía
 // portal para no quedar recortado por el overflow:hidden de la tarjeta.
-function CitaRowMenu({ cita, onEdit, onUpdate }) {
+function CitaRowMenu({ cita, onEdit, onUpdate, onRequestCancel }) {
   const [open, setOpen] = React.useState(false);
   const [pos, setPos] = React.useState({ top: 0, left: 0 });
   const btnRef = React.useRef(null);
@@ -99,7 +147,7 @@ function CitaRowMenu({ cita, onEdit, onUpdate }) {
         </button>
       )}
       <div className="row-menu-sep" />
-      <button className="row-menu-item danger" role="menuitem" onClick={act(() => onUpdate({ ...cita, estado: 'cancelled' }))}>
+      <button className="row-menu-item danger" role="menuitem" onClick={act(() => onRequestCancel(cita))}>
         <Icon name="x-circle" />Anular
       </button>
     </div>
@@ -122,9 +170,7 @@ function CitaRowMenu({ cita, onEdit, onUpdate }) {
   );
 }
 
-function AgendaHoy({ citas, onEdit, onUpdate }) {
-  const [selected, setSelected] = React.useState(null);
-
+function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onVerCalendario, activeId }) {
   return (
     <div className="dash-card">
       <div className="dash-card-header">
@@ -132,14 +178,16 @@ function AgendaHoy({ citas, onEdit, onUpdate }) {
           <Icon name="calendar" />
           Agenda de hoy
         </div>
-        <button className="btn-sm-ghost">Ver calendario</button>
+        <button className="btn-sm-ghost" onClick={onVerCalendario}>
+          Ver calendario<Icon name="arrow-right" />
+        </button>
       </div>
       <div className="cita-list">
         {citas.map(c => (
           <div
             key={c.id}
-            className={`cita-row${selected === c.id ? ' selected' : ''}`}
-            onClick={() => setSelected(selected === c.id ? null : c.id)}
+            className={`cita-row${activeId === c.id ? ' selected' : ''}`}
+            onClick={() => onRowClick(c)}
           >
             <div className="cita-hora">{c.hora}</div>
             <div className="cita-info">
@@ -147,7 +195,7 @@ function AgendaHoy({ citas, onEdit, onUpdate }) {
               <div className="cita-meta">{c.servicio} · {c.duracion} min · {c.colaborador}</div>
             </div>
             <EstadoBadge estado={c.estado} />
-            <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} />
+            <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} onRequestCancel={onRequestCancel} />
           </div>
         ))}
       </div>
@@ -243,7 +291,15 @@ function ActividadReciente() {
   );
 }
 
-function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
+// Series de tendencia (mock) para los sparklines de cada indicador.
+const STAT_TRENDS = {
+  citas:        [5, 6, 5, 7, 6, 8, 7],
+  confirmadas:  [3, 4, 4, 5, 4, 6, 5],
+  pendientes:   [3, 2, 3, 1, 2, 1, 2],
+  nuevos:       [1, 2, 1, 3, 2, 2, 3],
+};
+
+function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavigate }) {
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
     day: 'numeric',
@@ -257,6 +313,8 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
   const [clienteModal, setClienteModal] = React.useState(null);
   // bloqueo de horario (acción rápida)
   const [bloqueoModal, setBloqueoModal] = React.useState(false);
+  // cita pendiente de confirmación de anulación
+  const [confirmCancel, setConfirmCancel] = React.useState(null);
 
   const openNew = () => setPanel({ mode: 'new', hora: '' });
   const openEdit = (cita) => setPanel({ mode: 'edit', cita });
@@ -278,6 +336,11 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
     setBloqueoModal(false);
   };
 
+  const handleConfirmCancel = () => {
+    if (confirmCancel) onSaveCita({ ...confirmCancel, estado: 'cancelled' });
+    setConfirmCancel(null);
+  };
+
   return (
     <div className={`dash-home${panel ? ' has-panel' : ''}`}>
       <div className="dash-home-main">
@@ -295,15 +358,23 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
         </div>
 
         <div className="dash-stats-row">
-          <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent />
-          <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" />
-          <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" />
-          <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" />
+          <StatCard label="Citas hoy"       value={String(citas.length)} sub="+2 vs ayer"  icon="calendar"    accent trend={STAT_TRENDS.citas} />
+          <StatCard label="Confirmadas"     value={String(citas.filter(c => c.estado === 'confirmed').length)} icon="check-circle" trend={STAT_TRENDS.confirmadas} />
+          <StatCard label="Pendientes"      value={String(citas.filter(c => c.estado === 'pending').length)}   icon="clock" trend={STAT_TRENDS.pendientes} />
+          <StatCard label="Nuevos clientes" value="3" sub="esta semana" icon="user-plus" trend={STAT_TRENDS.nuevos} />
         </div>
 
         <div className={`dash-grid${panel ? ' single' : ''}`}>
           <div className="dash-col-main">
-            <AgendaHoy citas={citas} onEdit={openEdit} onUpdate={onSaveCita} />
+            <AgendaHoy
+              citas={citas}
+              onRowClick={openEdit}
+              onEdit={openEdit}
+              onUpdate={onSaveCita}
+              onRequestCancel={setConfirmCancel}
+              onVerCalendario={() => onNavigate && onNavigate('agenda')}
+              activeId={panel && panel.cita ? panel.cita.id : null}
+            />
           </div>
           {!panel && (
             <div className="dash-col-side">
@@ -337,6 +408,17 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo }) {
         <BloqueoModal
           onClose={() => setBloqueoModal(false)}
           onSave={handleSaveBloqueo}
+        />
+      )}
+
+      {confirmCancel && (
+        <ConfirmDialog
+          title="Anular cita"
+          message={`¿Seguro que quieres anular la cita de ${confirmCancel.cliente} a las ${confirmCancel.hora}? El cliente será notificado.`}
+          confirmLabel="Sí, anular cita"
+          danger
+          onConfirm={handleConfirmCancel}
+          onClose={() => setConfirmCancel(null)}
         />
       )}
     </div>

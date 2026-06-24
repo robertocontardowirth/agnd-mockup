@@ -1,12 +1,13 @@
 // AppShell.jsx — app chrome: top bar + contextual sidebar
 
 const APP_SECTIONS = [
-  { id: 'home',     label: 'Inicio',   icon: 'layout-dashboard' },
-  { id: 'agenda',   label: 'Agenda',   icon: 'calendar' },
-  { id: 'clientes', label: 'Clientes', icon: 'users' },
-  { id: 'equipo',   label: 'Equipo',   icon: 'user-check' },
-  { id: 'espacios', label: 'Espacios', icon: 'building-2' },
-  { id: 'recursos', label: 'Recursos', icon: 'package' },
+  { id: 'home',      label: 'Inicio',    icon: 'layout-dashboard' },
+  { id: 'agenda',    label: 'Agenda',    icon: 'calendar' },
+  { id: 'clientes',  label: 'Clientes',  icon: 'users' },
+  { id: 'servicios', label: 'Servicios', icon: 'tag' },
+  { id: 'equipo',    label: 'Equipo',    icon: 'user-check' },
+  { id: 'espacios',  label: 'Espacios',  icon: 'building-2' },
+  { id: 'recursos',  label: 'Recursos',  icon: 'package' },
 ];
 
 const SIDEBAR_CONFIG = {
@@ -26,6 +27,16 @@ const SIDEBAR_CONFIG = {
           { id: 'horarios',    label: 'Horarios',    icon: 'clock' },
           { id: 'excepciones', label: 'Excepciones', icon: 'calendar-x' },
           { id: 'bloqueos',    label: 'Bloqueos',    icon: 'ban' },
+        ],
+      },
+    ],
+  },
+  servicios: {
+    groups: [
+      {
+        items: [
+          { id: 'todos',      label: 'Todos',         icon: 'list' },
+          { id: 'categorias', label: 'Por categoría', icon: 'layers' },
         ],
       },
     ],
@@ -106,7 +117,7 @@ const MOCK_NOTIFICACIONES = [
   { id: 5, icon: 'check-circle',   text: 'Recordatorio enviado a 8 clientes de mañana',     time: 'ayer',        unread: false },
 ];
 
-function NotificationsMenu() {
+function NotificationsMenu({ onNavigate }) {
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState(MOCK_NOTIFICACIONES);
   const ref = React.useRef(null);
@@ -160,13 +171,18 @@ function NotificationsMenu() {
                   <span className="notif-item-text">{n.text}</span>
                   <span className="notif-item-time">{n.time}</span>
                 </span>
-                {n.unread && <span className="notif-unread-dot" />}
+                <span className={`notif-unread-dot${n.unread ? '' : ' is-hidden'}`} aria-hidden={!n.unread} />
               </button>
             ))}
           </div>
 
           <div className="notif-menu-foot">
-            <button className="notif-foot-btn">Ver todas las notificaciones</button>
+            <button
+              className="notif-foot-btn"
+              onClick={() => { setOpen(false); onNavigate && onNavigate('notificaciones'); }}
+            >
+              Ver todas las notificaciones
+            </button>
           </div>
         </div>
       )}
@@ -408,7 +424,7 @@ function AppTopBar({ section, onSection, theme, onTweak }) {
         </div>
 
         <div className="app-topbar-right">
-          <NotificationsMenu />
+          <NotificationsMenu onNavigate={onSection} />
           <HelpMenu />
           <button className="icon-btn" title="Configuración rápida" aria-label="Configuración rápida" onClick={() => setSettingsOpen(true)}>
             <Icon name="sliders-horizontal" />
