@@ -952,48 +952,6 @@ function ExcepcionesView() {
 
 // ── BLOQUEOS VIEW ─────────────────────────────────────────────────────────────
 
-function BloqueoForm({ onConfirm, onCancel }) {
-  const [form, setForm] = React.useState({ fecha: '', desde: '', hasta: '', colaborador: 'Todos', motivo: '' });
-  const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
-  const ok = form.fecha && form.desde && form.hasta && form.motivo;
-  return (
-    <div className="agenda-form-inline">
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Fecha</label>
-        <input type="date" className="agenda-time-input" value={form.fecha} onChange={up('fecha')} />
-      </div>
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Desde</label>
-        <input type="time" className="agenda-time-input" value={form.desde} onChange={up('desde')} />
-        <label className="agenda-form-label" style={{ marginLeft: 12 }}>Hasta</label>
-        <input type="time" className="agenda-time-input" value={form.hasta} onChange={up('hasta')} />
-      </div>
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Colaborador</label>
-        <select className="agenda-time-input" value={form.colaborador} onChange={up('colaborador')}>
-          {COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-      <div className="agenda-form-row">
-        <label className="agenda-form-label">Motivo</label>
-        <input
-          type="text"
-          className="agenda-time-input agenda-form-input-grow"
-          placeholder="Ej: Capacitación"
-          value={form.motivo}
-          onChange={up('motivo')}
-        />
-      </div>
-      <div className="agenda-form-actions">
-        <button className="btn-primary-sm" disabled={!ok} onClick={() => ok && onConfirm(form)}>
-          <Icon name="plus" />Agregar
-        </button>
-        <button className="btn-sm-ghost" onClick={onCancel}>Cancelar</button>
-      </div>
-    </div>
-  );
-}
-
 // Modal de bloqueo · acceso rápido para bloquear una franja desde cualquier lado
 function BloqueoModal({ onClose, onSave }) {
   const [form, setForm] = React.useState({ fecha: '', desde: '', hasta: '', colaborador: COLABORADORES[0], motivo: '' });
@@ -1052,9 +1010,9 @@ function BloqueoModal({ onClose, onSave }) {
 }
 
 function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
-  const [showForm, setShowForm] = React.useState(false);
+  const [showModal, setShowModal] = React.useState(false);
 
-  const add = form => { onSaveBloqueo({ id: Date.now(), ...form }); setShowForm(false); };
+  const handleSave = b => { onSaveBloqueo(b); setShowModal(false); };
 
   const fmtFecha = iso => {
     const [y, m, d] = iso.split('-');
@@ -1069,13 +1027,10 @@ function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
           <div className="agenda-config-title">Bloqueos de horario</div>
           <div className="agenda-config-desc">Franjas de tiempo en que un colaborador no está disponible para reservas.</div>
         </div>
-        {!showForm && (
-          <button className="btn-primary-sm" onClick={() => setShowForm(true)}>
-            <Icon name="plus" />Nuevo bloqueo
-          </button>
-        )}
+        <button className="btn-primary-sm" onClick={() => setShowModal(true)}>
+          <Icon name="plus" />Nuevo bloqueo
+        </button>
       </div>
-      {showForm && <BloqueoForm onConfirm={add} onCancel={() => setShowForm(false)} />}
       <div className="agenda-table">
         <div className="agenda-table-head bloqueos-head">
           <div>Fecha</div><div>Horario</div><div>Colaborador</div><div>Motivo</div><div />
@@ -1094,6 +1049,8 @@ function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
           </div>
         ))}
       </div>
+
+      {showModal && <BloqueoModal onClose={() => setShowModal(false)} onSave={handleSave} />}
     </div>
   );
 }
