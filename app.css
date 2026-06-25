@@ -892,8 +892,7 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .cita-block-time   { font-family: var(--font-mono); font-size: 12px; line-height: 1.25; color: var(--fg-3); white-space: nowrap; flex-shrink: 0; }
 .cita-block-client { font-size: 13.5px; font-weight: 600; line-height: 1.25; color: var(--fg-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
 .cita-block-meta   { font-size: 12px; line-height: 1.25; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
-.cita-block-espacio { display: flex; align-items: center; gap: 3px; }
-.cita-block-espacio svg { width: 11px; height: 11px; flex-shrink: 0; }
+.cita-block .cita-meta-line { gap: 10px; flex-shrink: 0; }
 
 .cita-detail-panel {
   background: var(--bg-elevated);

@@ -232,19 +232,17 @@ function CitaBlock({ cita, style, selected, onOpen }) {
       <div className="cita-block-time">{cita.hora}–{fmtMin(toMin(cita.hora) + cita.duracion)}</div>
       <div className="cita-block-client">{cita.cliente}</div>
       {cita.duracion >= 60 && (
-        <React.Fragment>
-          {servicios.length > 0 && <div className="cita-block-meta">{servicios.join(' · ')}</div>}
+        <div className="cita-meta-line">
+          {servicios.length > 0 && (
+            <span className="cita-meta-item"><Icon name="scissors" /><span className="cita-meta-text">{servicios.join(' · ')}</span></span>
+          )}
           {colaboradores.length > 0 && (
-            <div className="cita-block-meta cita-block-espacio">
-              <Icon name="user" />{colaboradores.join(' · ')}
-            </div>
+            <span className="cita-meta-item"><Icon name="user" /><span className="cita-meta-text">{colaboradores.join(' · ')}</span></span>
           )}
           {espacios.length > 0 && (
-            <div className="cita-block-meta cita-block-espacio">
-              <Icon name="map-pin" />{espacios.join(' · ')}
-            </div>
+            <span className="cita-meta-item"><Icon name="map-pin" /><span className="cita-meta-text">{espacios.join(' · ')}</span></span>
           )}
-        </React.Fragment>
+        </div>
       )}
     </div>
   );
