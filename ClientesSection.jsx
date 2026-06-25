@@ -231,6 +231,368 @@ function ClienteRow({ cliente, onEdit }) {
   );
 }
 
+// ── GRUPOS ──────────────────────────────────────────────────────────────────
+
+const GRUPO_COLORS = ['#4CD5D2', '#E8739A', '#AA4465', '#FF8A65', '#6C8AE4', '#5BBF6A', '#F2B705', '#9B7EDE'];
+
+const MOCK_GRUPOS = [
+  { id: 1, nombre: 'VIP', color: '#E8739A', descripcion: 'Clientes preferentes con atención prioritaria.', clienteIds: [1, 6] },
+  { id: 2, nombre: 'Coloración', color: '#9B7EDE', descripcion: 'Se atienden coloración de forma periódica.', clienteIds: [2, 6] },
+  { id: 3, nombre: 'Por recuperar', color: '#FF8A65', descripcion: 'Sin visitas hace más de 2 meses.', clienteIds: [5] },
+];
+
+function buildGrupoForm(g) {
+  return {
+    nombre:      g?.nombre      || '',
+    color:       g?.color       || GRUPO_COLORS[0],
+    descripcion: g?.descripcion || '',
+    clienteIds:  g?.clienteIds ? [...g.clienteIds] : [],
+  };
+}
+
+function ClienteGrupoModal({ mode, grupo, clientes, onClose, onSave }) {
+  const isEdit = mode === 'edit';
+  const [form, setForm] = React.useState(() => buildGrupoForm(grupo));
+  const [q, setQ] = React.useState('');
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const toggleMember = id => setForm(f => ({
+    ...f,
+    clienteIds: f.clienteIds.includes(id) ? f.clienteIds.filter(x => x !== id) : [...f.clienteIds, id],
+  }));
+  const ok = form.nombre.trim();
+
+  const save = () => {
+    if (!ok) return;
+    onSave({
+      id: isEdit ? grupo.id : Date.now(),
+      nombre: form.nombre.trim(),
+      color: form.color,
+      descripcion: form.descripcion.trim(),
+      clienteIds: form.clienteIds,
+    });
+  };
+
+  const footer = (
+    <React.Fragment>
+      <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
+      <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
+        <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Crear grupo'}
+      </button>
+    </React.Fragment>
+  );
+
+  const ql = q.trim().toLowerCase();
+  const lista = clientes.filter(c => !ql || c.nombre.toLowerCase().includes(ql));
+
+  return (
+    <Modal eyebrow="Clientes" title={isEdit ? 'Editar grupo' : 'Nuevo grupo'} onClose={onClose} footer={footer}>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Nombre del grupo</label>
+        <input type="text" className="reserva-input" placeholder="Ej: VIP, Coloración…" value={form.nombre} onChange={e => set('nombre', e.target.value)} autoFocus />
+      </div>
+
+      <div className="reserva-field">
+        <label className="reserva-field-label">Color</label>
+        <div className="grupo-color-swatches">
+          {GRUPO_COLORS.map(col => (
+            <button
+              key={col}
+              type="button"
+              className={`grupo-color-swatch${form.color === col ? ' is-active' : ''}`}
+              style={{ background: col }}
+              onClick={() => set('color', col)}
+              aria-label={`Color ${col}`}
+            >
+              {form.color === col && <Icon name="check" />}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="reserva-field">
+        <label className="reserva-field-label">Descripción <span className="reserva-field-opt">(opcional)</span></label>
+        <input type="text" className="reserva-input" placeholder="¿Para qué usas este grupo?" value={form.descripcion} onChange={e => set('descripcion', e.target.value)} />
+      </div>
+
+      <div className="reserva-field">
+        <label className="reserva-field-label">Miembros <span className="reserva-field-opt">({form.clienteIds.length} seleccionados)</span></label>
+        <div className="grupo-member-search">
+          <Icon name="search" />
+          <input type="text" placeholder="Buscar cliente…" value={q} onChange={e => setQ(e.target.value)} />
+        </div>
+        <div className="grupo-member-list">
+          {lista.length === 0 ? (
+            <div className="grupo-member-empty">Sin resultados</div>
+          ) : lista.map(c => {
+            const on = form.clienteIds.includes(c.id);
+            return (
+              <button key={c.id} type="button" className={`grupo-member${on ? ' on' : ''}`} onClick={() => toggleMember(c.id)}>
+                <span className={`cliente-avatar cliente-avatar-${avatarColorIndex(c.nombre)} grupo-member-avatar`}>{iniciales(c.nombre)}</span>
+                <span className="grupo-member-name">{c.nombre}</span>
+                <span className="grupo-member-check">{on && <Icon name="check" />}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function GrupoCard({ grupo, clientes, onEdit, onDelete }) {
+  const miembros = clientes.filter(c => grupo.clienteIds.includes(c.id));
+  const preview = miembros.slice(0, 4);
+  const extra = miembros.length - preview.length;
+  return (
+    <div className="grupo-card">
+      <span className="grupo-card-bar" style={{ background: grupo.color }} />
+      <div className="grupo-card-body">
+        <div className="grupo-card-head">
+          <span className="grupo-dot" style={{ background: grupo.color }}><Icon name="users" /></span>
+          <div className="grupo-head-text">
+            <div className="grupo-title">{grupo.nombre}</div>
+            <div className="grupo-count">{miembros.length} {miembros.length === 1 ? 'cliente' : 'clientes'}</div>
+          </div>
+          <div className="grupo-actions">
+            <button className="agenda-action-btn edit" onClick={() => onEdit(grupo)} aria-label="Editar grupo"><Icon name="pencil" /></button>
+            <button className="agenda-action-btn" onClick={() => onDelete(grupo)} aria-label="Eliminar grupo"><Icon name="trash-2" /></button>
+          </div>
+        </div>
+        {grupo.descripcion && <div className="grupo-desc">{grupo.descripcion}</div>}
+        <div className="grupo-avatars">
+          {miembros.length === 0 ? (
+            <span className="grupo-empty-members">Sin clientes aún</span>
+          ) : (
+            <React.Fragment>
+              {preview.map(c => (
+                <span key={c.id} className={`cliente-avatar cliente-avatar-${avatarColorIndex(c.nombre)} grupo-avatar`}>{iniciales(c.nombre)}</span>
+              ))}
+              {extra > 0 && <span className="grupo-avatar grupo-avatar-more">+{extra}</span>}
+            </React.Fragment>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClientesGruposView({ clientes }) {
+  const [grupos, setGrupos] = React.useState(MOCK_GRUPOS);
+  const [modal, setModal] = React.useState(null);          // null | { mode, grupo }
+  const [confirmDel, setConfirmDel] = React.useState(null); // grupo a eliminar
+
+  const handleSave = (g) => {
+    setGrupos(p => (p.some(x => x.id === g.id) ? p.map(x => (x.id === g.id ? g : x)) : [...p, g]));
+    setModal(null);
+  };
+  const handleDelete = () => {
+    if (confirmDel) setGrupos(p => p.filter(x => x.id !== confirmDel.id));
+    setConfirmDel(null);
+  };
+
+  return (
+    <div className="clientes-view">
+      <div className="agenda-config-header">
+        <div>
+          <div className="agenda-config-title">Grupos</div>
+          <div className="agenda-config-desc">Organiza tus clientes en grupos y segmentos para campañas y recordatorios.</div>
+        </div>
+        <button className="btn-primary-sm" onClick={() => setModal({ mode: 'new' })}>
+          <Icon name="plus" />Nuevo grupo
+        </button>
+      </div>
+
+      {grupos.length === 0 ? (
+        <div className="clientes-empty"><Icon name="layers" /><span>Aún no tienes grupos. Crea el primero.</span></div>
+      ) : (
+        <div className="cards-grid">
+          {grupos.map(g => (
+            <GrupoCard key={g.id} grupo={g} clientes={clientes} onEdit={(gr) => setModal({ mode: 'edit', grupo: gr })} onDelete={setConfirmDel} />
+          ))}
+        </div>
+      )}
+
+      {modal && (
+        <ClienteGrupoModal
+          mode={modal.mode}
+          grupo={modal.grupo}
+          clientes={clientes}
+          onClose={() => setModal(null)}
+          onSave={handleSave}
+        />
+      )}
+
+      {confirmDel && (
+        <ConfirmDialog
+          title="Eliminar grupo"
+          message={`¿Eliminar el grupo “${confirmDel.nombre}”? Los clientes no se borran, solo se deshace la agrupación.`}
+          confirmLabel="Eliminar grupo"
+          danger
+          onConfirm={handleDelete}
+          onClose={() => setConfirmDel(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── IMPORTAR ────────────────────────────────────────────────────────────────
+
+// Convierte texto pegado o CSV en filas {nombre, telefono, email}. Acepta coma,
+// punto y coma o tabulación como separador; ignora líneas vacías y una cabecera.
+function parseImport(text) {
+  return (text || '')
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map((line, i) => {
+      const parts = line.split(/[,;\t]/).map(s => s.trim());
+      return { _i: i, nombre: parts[0] || '', telefono: parts[1] || '', email: parts[2] || '' };
+    })
+    .filter(r => r.nombre && !/^nombre$/i.test(r.nombre));
+}
+
+function ClientesImportarView({ clientes, onSaveCliente }) {
+  const [metodo, setMetodo] = React.useState('pegar'); // 'pegar' | 'archivo'
+  const [raw, setRaw] = React.useState('');
+  const [fileName, setFileName] = React.useState('');
+  const [done, setDone] = React.useState(null); // nº importados
+  const fileRef = React.useRef(null);
+
+  const rows = React.useMemo(() => parseImport(raw), [raw]);
+  const validos = rows.filter(r => r.nombre && r.telefono);
+
+  const onFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setRaw(String(reader.result || ''));
+    reader.readAsText(file);
+  };
+
+  const descargarPlantilla = () => {
+    const csv = 'nombre,telefono,email\nJuanita Soto,+56 9 1234 5678,juanita@correo.cl\n';
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = 'plantilla-clientes.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importar = () => {
+    if (validos.length === 0) return;
+    const base = Date.now();
+    validos.forEach((r, i) => {
+      onSaveCliente({
+        id: base + i,
+        nombre: r.nombre,
+        telefono: r.telefono,
+        email: r.email,
+        etiqueta: 'nuevo',
+        visitas: 0,
+        ultimaVisita: '',
+        notas: '',
+      });
+    });
+    setDone(validos.length);
+    setRaw(''); setFileName('');
+  };
+
+  const reset = () => { setDone(null); setRaw(''); setFileName(''); };
+
+  if (done != null) {
+    return (
+      <div className="clientes-view">
+        <div className="import-done">
+          <div className="import-done-check"><Icon name="check" /></div>
+          <h2 className="import-done-title">{done} {done === 1 ? 'cliente importado' : 'clientes importados'}</h2>
+          <p className="import-done-sub">Ya están en “Todos los clientes”, con la etiqueta Nuevo.</p>
+          <button className="btn-primary-sm" onClick={reset}><Icon name="upload" />Importar otra lista</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="clientes-view">
+      <div className="agenda-config-header">
+        <div>
+          <div className="agenda-config-title">Importar clientes</div>
+          <div className="agenda-config-desc">Suma varios clientes de una vez desde un archivo CSV o pegando una lista.</div>
+        </div>
+        <button className="btn-sm-ghost" onClick={descargarPlantilla}><Icon name="download" />Descargar plantilla</button>
+      </div>
+
+      <div className="import-methods">
+        <button className={`reserva-segment-btn${metodo === 'pegar' ? ' active' : ''}`} onClick={() => setMetodo('pegar')}>
+          <Icon name="clipboard" />Pegar lista
+        </button>
+        <button className={`reserva-segment-btn${metodo === 'archivo' ? ' active' : ''}`} onClick={() => setMetodo('archivo')}>
+          <Icon name="file-up" />Archivo CSV
+        </button>
+      </div>
+
+      <div className="import-card">
+        {metodo === 'pegar' ? (
+          <React.Fragment>
+            <div className="import-hint">Una persona por línea, con el formato <code>Nombre, Teléfono, Email</code>.</div>
+            <textarea
+              className="reserva-input reserva-textarea import-textarea"
+              rows="6"
+              placeholder={'Valentina Rojas, +56 9 8123 4567, valentina@correo.cl\nCarolina Pérez, +56 9 7654 3210'}
+              value={raw}
+              onChange={e => setRaw(e.target.value)}
+            />
+          </React.Fragment>
+        ) : (
+          <div className="import-file">
+            <input ref={fileRef} type="file" accept=".csv,text/csv,text/plain" onChange={onFile} hidden />
+            <button className="import-dropzone" onClick={() => fileRef.current && fileRef.current.click()}>
+              <Icon name="file-up" />
+              <span className="import-dropzone-title">{fileName || 'Selecciona un archivo CSV'}</span>
+              <span className="import-dropzone-sub">Columnas: nombre, teléfono, email</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {rows.length > 0 && (
+        <div className="import-preview">
+          <div className="import-preview-head">
+            <span className="import-preview-title">Vista previa</span>
+            <span className="import-preview-count">{validos.length} de {rows.length} listos para importar</span>
+          </div>
+          <div className="import-table">
+            <div className="import-table-head">
+              <div>Nombre</div><div>Teléfono</div><div>Email</div><div />
+            </div>
+            {rows.map(r => {
+              const valido = r.nombre && r.telefono;
+              return (
+                <div key={r._i} className={`import-table-row${valido ? '' : ' is-invalid'}`}>
+                  <div className="import-cell-name">{r.nombre || <em>Sin nombre</em>}</div>
+                  <div>{r.telefono || <span className="import-missing">Falta teléfono</span>}</div>
+                  <div className="import-cell-email">{r.email || '—'}</div>
+                  <div className="import-cell-status">
+                    {valido ? <Icon name="check" /> : <Icon name="alert-circle" />}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="import-actions">
+            <button className="btn-sm-ghost" onClick={() => setRaw('')}>Limpiar</button>
+            <button className="btn-primary-sm" disabled={validos.length === 0} onClick={importar}>
+              <Icon name="user-plus" />Importar {validos.length} {validos.length === 1 ? 'cliente' : 'clientes'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const SUB_META = {
   todos:      { title: 'Todos los clientes', desc: 'Tu base completa de clientes y su historial.' },
   frecuentes: { title: 'Clientes frecuentes', desc: 'Quienes más reservan en tu negocio.' },
@@ -252,20 +614,9 @@ function ClientesSection({ sub, clientes, onSaveCliente }) {
     setModal(null);
   };
 
-  // Sub-vistas que aún no forman parte de este flujo (tras los hooks, para no romper su orden)
-  if (view === 'grupos' || view === 'importar') {
-    const ph = view === 'grupos'
-      ? { icon: 'layers', label: 'Grupos', desc: 'Organiza tus clientes en grupos y segmentos.' }
-      : { icon: 'upload', label: 'Importar', desc: 'Importa tus clientes desde un archivo o contactos.' };
-    return (
-      <div className="placeholder-view">
-        <Icon name={ph.icon} />
-        <h2>{ph.label}</h2>
-        <p>{ph.desc}</p>
-        <p style={{ marginTop: 4, fontSize: 12, opacity: .6 }}>Esta sección está en construcción.</p>
-      </div>
-    );
-  }
+  // Sub-vistas con flujo propio (tras los hooks de arriba, para no alterar su orden)
+  if (view === 'grupos')   return <ClientesGruposView clientes={clientes} />;
+  if (view === 'importar') return <ClientesImportarView clientes={clientes} onSaveCliente={onSaveCliente} />;
 
   const meta = SUB_META[view] || SUB_META.todos;
 
