@@ -218,13 +218,17 @@ function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onVer
               <div className="cita-hora">{c.hora}</div>
               <div className="cita-info">
                 <div className="cita-cliente">{c.cliente}</div>
-                <div className="semana-cita-meta">{servicios.join(' · ')} · {c.duracion} min</div>
-                {colaboradores.length > 0 && (
-                  <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="user" />{colaboradores.join(' · ')}</div>
-                )}
-                {espacios.length > 0 && (
-                  <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="map-pin" />{espacios.join(' · ')}</div>
-                )}
+                <div className="cita-meta-line">
+                  {servicios.length > 0 && (
+                    <span className="cita-meta-item"><Icon name="scissors" /><span className="cita-meta-text">{servicios.join(' · ')}</span></span>
+                  )}
+                  {colaboradores.length > 0 && (
+                    <span className="cita-meta-item"><Icon name="user" /><span className="cita-meta-text">{colaboradores.join(' · ')}</span></span>
+                  )}
+                  {espacios.length > 0 && (
+                    <span className="cita-meta-item"><Icon name="map-pin" /><span className="cita-meta-text">{espacios.join(' · ')}</span></span>
+                  )}
+                </div>
               </div>
               <EstadoBadge estado={c.estado} />
               <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} onRequestCancel={onRequestCancel} />

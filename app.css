@@ -442,6 +442,21 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   text-overflow: ellipsis;
 }
 
+/* Meta de la cita en una sola línea: servicios · colaboradores · espacios, c/u con ícono */
+.cita-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cita-meta-item { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.cita-meta-item svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fg-3); }
+.cita-meta-text { overflow: hidden; text-overflow: ellipsis; }
+
 .cita-action {
   width: 26px;
   height: 26px;
