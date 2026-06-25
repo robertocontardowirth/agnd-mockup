@@ -218,6 +218,8 @@ function layoutCitas(citas) {
 
 function CitaBlock({ cita, style, selected, onOpen }) {
   const short = cita.duracion <= 30;
+  const servicios = toArr(cita.servicios, cita.servicio);
+  const espacios = toArr(cita.espacios, cita.espacio);
   return (
     <div
       className={`cita-block status-${cita.estado}${selected ? ' selected' : ''}${short ? ' is-short' : ''}`}
@@ -228,7 +230,16 @@ function CitaBlock({ cita, style, selected, onOpen }) {
     >
       <div className="cita-block-time">{cita.hora}–{fmtMin(toMin(cita.hora) + cita.duracion)}</div>
       <div className="cita-block-client">{cita.cliente}</div>
-      {cita.duracion >= 60 && <div className="cita-block-meta">{cita.servicio} · {cita.colaborador}</div>}
+      {cita.duracion >= 60 && (
+        <React.Fragment>
+          {servicios.length > 0 && <div className="cita-block-meta">{servicios.join(' · ')}</div>}
+          {espacios.length > 0 && (
+            <div className="cita-block-meta cita-block-espacio">
+              <Icon name="map-pin" />{espacios.join(' · ')}
+            </div>
+          )}
+        </React.Fragment>
+      )}
     </div>
   );
 }
