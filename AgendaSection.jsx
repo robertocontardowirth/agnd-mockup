@@ -24,15 +24,15 @@ const MOCK_CITAS_SEMANA = [
 ];
 
 const MOCK_CITAS_MES = [
-  { id: 20, fecha: '2026-05-04', hora: '09:00', cliente: 'Valentina Rojas',  estado: 'confirmed' },
-  { id: 21, fecha: '2026-05-04', hora: '11:00', cliente: 'Sofía Herrera',    estado: 'pending' },
-  { id: 22, fecha: '2026-05-04', hora: '14:00', cliente: 'Camila Fuentes',   estado: 'confirmed' },
-  { id: 23, fecha: '2026-05-11', hora: '10:00', cliente: 'Carolina Pérez',   estado: 'confirmed' },
-  { id: 24, fecha: '2026-05-18', hora: '09:00', cliente: 'Daniela Torres',   estado: 'confirmed' },
-  { id: 25, fecha: '2026-05-18', hora: '11:30', cliente: 'Isabel Castro',    estado: 'pending' },
-  { id: 26, fecha: '2026-05-20', hora: '09:00', cliente: 'Fernanda Muñoz',   estado: 'confirmed' },
-  { id: 27, fecha: '2026-05-26', hora: '10:00', cliente: 'Jorge Salazar',    estado: 'cancelled' },
-  { id: 28, fecha: '2026-05-28', hora: '14:00', cliente: 'Andrea García',    estado: 'confirmed' },
+  { id: 20, fecha: '2026-05-04', hora: '09:00', cliente: 'Valentina Rojas',  servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 21, fecha: '2026-05-04', hora: '11:00', cliente: 'Sofía Herrera',    servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'pending' },
+  { id: 22, fecha: '2026-05-04', hora: '14:00', cliente: 'Camila Fuentes',   servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 23, fecha: '2026-05-11', hora: '10:00', cliente: 'Carolina Pérez',   servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
+  { id: 24, fecha: '2026-05-18', hora: '09:00', cliente: 'Daniela Torres',   servicios: ['Pedicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
+  { id: 25, fecha: '2026-05-18', hora: '11:30', cliente: 'Isabel Castro',    servicios: ['Coloración', 'Corte'], colaboradores: ['Andrea M.', 'Paula R.'], espacios: ['Sala de color'],        estado: 'pending' },
+  { id: 26, fecha: '2026-05-20', hora: '09:00', cliente: 'Fernanda Muñoz',   servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
+  { id: 27, fecha: '2026-05-26', hora: '10:00', cliente: 'Jorge Salazar',    servicios: ['Corte'],               colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'cancelled' },
+  { id: 28, fecha: '2026-05-28', hora: '14:00', cliente: 'Andrea García',    servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
 ];
 
 const MOCK_HORARIOS = [
@@ -828,15 +828,27 @@ function MesSidePanel({ date, citas, onClose }) {
           <AgendaEmptyState icon="calendar" message="Sin citas este día" />
         ) : (
           <div className="cita-list">
-            {citas.map(c => (
-              <div key={c.id} className="cita-row">
-                <div className="cita-hora">{c.hora}</div>
-                <div className="cita-info">
-                  <div className="cita-cliente">{c.cliente}</div>
+            {citas.map(c => {
+              const servicios = toArr(c.servicios, c.servicio);
+              const colaboradores = toArr(c.colaboradores, c.colaborador);
+              const espacios = toArr(c.espacios, c.espacio);
+              return (
+                <div key={c.id} className="cita-row cita-row--multiline">
+                  <div className="cita-hora">{c.hora}</div>
+                  <div className="cita-info">
+                    <div className="cita-cliente">{c.cliente}</div>
+                    {servicios.length > 0 && <div className="semana-cita-meta">{servicios.join(' · ')}</div>}
+                    {colaboradores.length > 0 && (
+                      <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="user" />{colaboradores.join(' · ')}</div>
+                    )}
+                    {espacios.length > 0 && (
+                      <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="map-pin" />{espacios.join(' · ')}</div>
+                    )}
+                  </div>
+                  <EstadoBadge estado={c.estado} />
                 </div>
-                <EstadoBadge estado={c.estado} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

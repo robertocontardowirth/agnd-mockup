@@ -408,6 +408,9 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   transition: background var(--d-fast) var(--ease-out);
 }
 .cita-row:last-child { border-bottom: none; }
+.cita-row--multiline { align-items: flex-start; }
+.cita-row--multiline .cita-hora { padding-top: 1px; }
+.cita-row--multiline .cita-info { display: flex; flex-direction: column; gap: 3px; }
 .cita-row:hover,
 .cita-row.selected { background: rgba(147,225,216,.07); }
 .cita-row .badge { font-size: 12px; padding: 3px 9px; }
