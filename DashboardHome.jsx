@@ -205,21 +205,32 @@ function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onVer
         </button>
       </div>
       <div className="cita-list">
-        {citas.map(c => (
-          <div
-            key={c.id}
-            className={`cita-row${activeId === c.id ? ' selected' : ''}`}
-            onClick={() => onRowClick(c)}
-          >
-            <div className="cita-hora">{c.hora}</div>
-            <div className="cita-info">
-              <div className="cita-cliente">{c.cliente}</div>
-              <div className="cita-meta">{c.servicio} · {c.duracion} min · {c.colaborador}</div>
+        {citas.map(c => {
+          const servicios = toArr(c.servicios, c.servicio);
+          const colaboradores = toArr(c.colaboradores, c.colaborador);
+          const espacios = toArr(c.espacios, c.espacio);
+          return (
+            <div
+              key={c.id}
+              className={`cita-row cita-row--multiline${activeId === c.id ? ' selected' : ''}`}
+              onClick={() => onRowClick(c)}
+            >
+              <div className="cita-hora">{c.hora}</div>
+              <div className="cita-info">
+                <div className="cita-cliente">{c.cliente}</div>
+                <div className="semana-cita-meta">{servicios.join(' · ')} · {c.duracion} min</div>
+                {colaboradores.length > 0 && (
+                  <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="user" />{colaboradores.join(' · ')}</div>
+                )}
+                {espacios.length > 0 && (
+                  <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="map-pin" />{espacios.join(' · ')}</div>
+                )}
+              </div>
+              <EstadoBadge estado={c.estado} />
+              <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} onRequestCancel={onRequestCancel} />
             </div>
-            <EstadoBadge estado={c.estado} />
-            <CitaRowMenu cita={c} onEdit={onEdit} onUpdate={onUpdate} onRequestCancel={onRequestCancel} />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
