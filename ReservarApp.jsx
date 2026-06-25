@@ -13,27 +13,30 @@ const NEGOCIO = {
   reviews: 212,
 };
 
-const CATEGORIAS = [
-  { id: 'cabello',  label: 'Cabello',  icon: 'scissors' },
-  { id: 'unas',     label: 'Uñas',     icon: 'sparkles' },
-  { id: 'barberia', label: 'Barbería', icon: 'scissors' },
-];
-
-const SERVICIOS = [
-  { id: 'corte',          cat: 'cabello',  nombre: 'Corte',            duracion: 45, precio: 12000, desc: 'Lavado, corte y peinado.' },
-  { id: 'corte-brushing', cat: 'cabello',  nombre: 'Corte + Brushing', duracion: 60, precio: 18000, desc: 'Corte con terminación de brushing.' },
-  { id: 'coloracion',     cat: 'cabello',  nombre: 'Coloración',       duracion: 90, precio: 35000, desc: 'Color completo con productos premium.' },
-  { id: 'brushing',       cat: 'cabello',  nombre: 'Brushing',         duracion: 30, precio: 9000,  desc: 'Peinado y terminación.' },
-  { id: 'manicure',       cat: 'unas',     nombre: 'Manicure',         duracion: 45, precio: 14000, desc: 'Manicure tradicional o semipermanente.' },
-  { id: 'pedicure',       cat: 'unas',     nombre: 'Pedicure',         duracion: 60, precio: 16000, desc: 'Pedicure completo con esmaltado.' },
-  { id: 'barberia',       cat: 'barberia', nombre: 'Barbería',         duracion: 30, precio: 10000, desc: 'Arreglo de barba y perfilado.' },
-];
-
+// Los profesionales mantienen su presentación (foto, color, rol) pero la
+// elegibilidad por servicio se deriva del catálogo compartido (service.pros),
+// que comparte ids con MOCK_COLABORADORES.
 const PROS = [
-  { id: 1, nombre: 'Andrea Morales', rol: 'Estilista senior', color: '#4CD5D2', foto: 'https://randomuser.me/api/portraits/women/68.jpg', servicios: ['corte', 'corte-brushing', 'coloracion', 'brushing'] },
-  { id: 2, nombre: 'Paula Reyes',    rol: 'Manicurista',       color: '#FFA69E', foto: 'https://randomuser.me/api/portraits/women/44.jpg', servicios: ['manicure', 'pedicure'] },
-  { id: 3, nombre: 'Diego Fuentes',  rol: 'Barbero',           color: '#AA4465', foto: 'https://randomuser.me/api/portraits/men/32.jpg',   servicios: ['corte', 'barberia'] },
+  { id: 1, nombre: 'Andrea Morales', rol: 'Estilista senior', color: '#4CD5D2', foto: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  { id: 2, nombre: 'Paula Reyes',    rol: 'Manicurista',       color: '#FFA69E', foto: 'https://randomuser.me/api/portraits/women/44.jpg' },
+  { id: 3, nombre: 'Diego Fuentes',  rol: 'Barbero',           color: '#AA4465', foto: 'https://randomuser.me/api/portraits/men/32.jpg' },
 ];
+
+// Catálogo público derivado del catálogo canónico (window.MOCK_SERVICIOS):
+// solo servicios activos y no ocultados desde la configuración del admin.
+function buildBookingCatalog(cfg) {
+  const vis = cfg.serviciosVisibles;
+  const iconMap = window.SERVICIO_CAT_ICON || {};
+  const servicios = (window.MOCK_SERVICIOS || [])
+    .filter(s => s.activo && (!vis || vis[s.id] !== false));
+  const categorias = [];
+  servicios.forEach(s => {
+    if (!categorias.some(c => c.id === s.categoria)) {
+      categorias.push({ id: s.categoria, label: s.categoria, icon: iconMap[s.categoria] || 'tag' });
+    }
+  });
+  return { servicios, categorias };
+}
 
 // ── CONFIGURACIÓN GUARDADA ────────────────────────────────────────────────────
 // La página de configuración del admin (ReservasConfigSection) guarda en
@@ -50,6 +53,7 @@ const RESERVAS_CONFIG_DEFAULTS = {
   mostrarRating: true,
   mostrarPrecios: true,
   mostrarDuracion: true,
+  serviciosVisibles: null,
   profesionalesVisibles: null,
   sinPreferencia: true,
   confirmacionAuto: true,
@@ -192,14 +196,22 @@ function Stepper({ step }) {
 
 // ── PASO 1 · SERVICIO ─────────────────────────────────────────────────────────
 
-function ServicioStep({ value, onPick, cfg }) {
+function ServicioStep({ catalogo, value, onPick, cfg }) {
+  if (catalogo.servicios.length === 0) {
+    return (
+      <div className="bk-step-body">
+        <h2 className="bk-step-title">¿Qué te quieres hacer?</h2>
+        <div className="bk-slot-empty"><Icon name="tag" size={18} />No hay servicios disponibles por ahora.</div>
+      </div>
+    );
+  }
   return (
     <div className="bk-step-body">
       <h2 className="bk-step-title">¿Qué te quieres hacer?</h2>
       <p className="bk-step-desc">Elige el servicio que quieres reservar.</p>
 
-      {CATEGORIAS.map(cat => {
-        const items = SERVICIOS.filter(s => s.cat === cat.id);
+      {catalogo.categorias.map(cat => {
+        const items = catalogo.servicios.filter(s => s.categoria === cat.id);
         if (!items.length) return null;
         return (
           <div key={cat.id} className="bk-cat">
@@ -250,10 +262,11 @@ function ProAvatar({ pro, size }) {
   return <span className="bk-pro-avatar" style={{ ...dim, background: pro.color }}>{iniciales(pro.nombre)}</span>;
 }
 
-function ProfesionalStep({ servicioId, value, onPick, cfg }) {
+function ProfesionalStep({ servicio, value, onPick, cfg }) {
   const vis = cfg.profesionalesVisibles;
+  const ofrecen = servicio ? servicio.pros : [];
   const elegibles = PROS
-    .filter(p => p.servicios.includes(servicioId))
+    .filter(p => ofrecen.includes(p.id))
     .filter(p => !vis || vis[p.id] !== false);
   const sinPref = { id: 'any', nombre: 'Sin preferencia', rol: 'Te asignamos al mejor disponible', any: true };
   const opciones = cfg.sinPreferencia ? [sinPref, ...elegibles] : elegibles;
@@ -487,7 +500,8 @@ function ReservarApp() {
   const [acepta, setAcepta] = React.useState(false);
   const [codigo, setCodigo] = React.useState(null);
 
-  const servicio = SERVICIOS.find(s => s.id === servicioId) || null;
+  const catalogo = React.useMemo(() => buildBookingCatalog(cfg), [cfg]);
+  const servicio = catalogo.servicios.find(s => s.id === servicioId) || null;
   const proOpciones = [{ id: 'any', nombre: 'Sin preferencia', any: true }, ...PROS];
   const pro = proOpciones.find(p => p.id === proId) || null;
   const fecha = fechas.find(f => f.key === fechaKey) || null;
@@ -495,7 +509,8 @@ function ReservarApp() {
   const pickServicio = (id) => {
     setServicioId(id);
     // Si el profesional elegido ya no ofrece el nuevo servicio, lo reseteamos.
-    if (proId && proId !== 'any' && !PROS.find(p => p.id === proId)?.servicios.includes(id)) setProId(null);
+    const svc = catalogo.servicios.find(s => s.id === id);
+    if (proId && proId !== 'any' && svc && !svc.pros.includes(proId)) setProId(null);
   };
   const setDato = (k, v) => setDatos(d => ({ ...d, [k]: v }));
 
@@ -569,8 +584,8 @@ function ReservarApp() {
           <div className="bk-flow">
             <Stepper step={step} />
             <div className="bk-card">
-              {step === 0 && <ServicioStep value={servicioId} onPick={pickServicio} cfg={cfg} />}
-              {step === 1 && <ProfesionalStep servicioId={servicioId} value={proId} onPick={setProId} cfg={cfg} />}
+              {step === 0 && <ServicioStep catalogo={catalogo} value={servicioId} onPick={pickServicio} cfg={cfg} />}
+              {step === 1 && <ProfesionalStep servicio={servicio} value={proId} onPick={setProId} cfg={cfg} />}
               {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} earliestTs={earliestTs} />}
               {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} cfg={cfg} />}
 

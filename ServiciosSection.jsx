@@ -1,22 +1,9 @@
 // ServiciosSection.jsx — Sección Servicios: catálogo de servicios del negocio.
 // Cada servicio se asocia a un colaborador (profesional) y tiene un precio base.
 // Los servicios son un store compartido; llegan por props desde AppRoot.
+// El catálogo (SERVICIO_CATEGORIAS, SERVICIO_CAT_ICON, MOCK_SERVICIOS) se define en
+// ServiciosCatalog.jsx —fuente única compartida con la página pública de reservas—.
 // MOCK_COLABORADORES se define en EquipoSection.jsx (carga antes que este script).
-
-// ── MOCK DATA ────────────────────────────────────────────────────────────────
-
-const SERVICIO_CATEGORIAS = ['Cabello', 'Uñas', 'Barbería', 'Estética'];
-const SERVICIO_CAT_ICON = { Cabello: 'scissors', 'Uñas': 'hand', 'Barbería': 'scissors', 'Estética': 'sparkles' };
-
-const MOCK_SERVICIOS = [
-  { id: 1, nombre: 'Corte de pelo',        categoria: 'Cabello',  colaboradorId: 1, duracion: 45, precio: 18000, activo: true },
-  { id: 2, nombre: 'Corte + Brushing',     categoria: 'Cabello',  colaboradorId: 1, duracion: 60, precio: 25000, activo: true },
-  { id: 3, nombre: 'Coloración completa',  categoria: 'Cabello',  colaboradorId: 1, duracion: 90, precio: 45000, activo: true },
-  { id: 4, nombre: 'Manicure',             categoria: 'Uñas',     colaboradorId: 2, duracion: 45, precio: 14000, activo: true },
-  { id: 5, nombre: 'Pedicure',             categoria: 'Uñas',     colaboradorId: 2, duracion: 60, precio: 17000, activo: true },
-  { id: 6, nombre: 'Corte clásico',        categoria: 'Barbería', colaboradorId: 3, duracion: 30, precio: 12000, activo: true },
-  { id: 7, nombre: 'Arreglo de barba',     categoria: 'Barbería', colaboradorId: 3, duracion: 30, precio: 9000,  activo: false },
-];
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -284,4 +271,4 @@ function ServiciosSection({ sub, servicios, onSaveServicio }) {
   return <ServiciosTodosView servicios={servicios} onSave={onSaveServicio} />;
 }
 
-Object.assign(window, { ServiciosSection, MOCK_SERVICIOS });
+Object.assign(window, { ServiciosSection });
