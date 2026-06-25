@@ -85,6 +85,20 @@ function accentStyle(acento) {
   return { '--bk': a.bk, '--bk-deep': a.deep, '--bk-soft': a.soft, '--bk-ring': a.ring, '--bk-on': a.on };
 }
 
+// ── SESIÓN DEL CLIENTE ────────────────────────────────────────────────────────
+// Iniciar sesión recupera los datos del cliente y autocompleta "Tus datos".
+const CLIENTE_KEY = 'agnd.reservar.cliente';
+
+const CLIENTES_DEMO = [
+  { email: 'valentina@correo.cl', nombre: 'Valentina Rojas', telefono: '+56 9 8123 4567' },
+  { email: 'carolina@correo.cl',  nombre: 'Carolina Pérez',  telefono: '+56 9 7654 3210' },
+];
+
+function loadCliente() {
+  try { const r = localStorage.getItem(CLIENTE_KEY); if (r) return JSON.parse(r); } catch (e) { /* mock */ }
+  return null;
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -142,14 +156,84 @@ function buildSlots(fecha, earliestTs) {
 
 // ── BARRA SUPERIOR ────────────────────────────────────────────────────────────
 
-function ReservarTopBar() {
+function ReservarTopBar({ cliente, onLogin, onLogout }) {
   return (
     <header className="bk-topbar">
       <div className="bk-topbar-inner">
-        <Logo size={22} />
-        <span className="bk-topbar-powered">Reservas con <strong>AGND</strong></span>
+        <div className="bk-topbar-brand">
+          <Logo size={22} />
+          <span className="bk-topbar-powered">Reservas con <strong>AGND</strong></span>
+        </div>
+        <div className="bk-topbar-auth">
+          {cliente ? (
+            <div className="bk-account">
+              <span className="bk-account-avatar">{iniciales(cliente.nombre || cliente.email)}</span>
+              <span className="bk-account-name">{cliente.nombre || cliente.email}</span>
+              <button className="bk-account-logout" onClick={onLogout} title="Cerrar sesión" aria-label="Cerrar sesión">
+                <Icon name="log-out" size={15} />
+              </button>
+            </div>
+          ) : (
+            <button className="bk-login-btn" onClick={onLogin}>
+              <Icon name="user" size={15} />Ingresar
+            </button>
+          )}
+        </div>
       </div>
     </header>
+  );
+}
+
+// Modal de inicio de sesión del cliente (mock): autocompleta sus datos.
+function LoginModal({ onClose, onLogin }) {
+  const [email, setEmail] = React.useState('');
+  const [pass, setPass] = React.useState('');
+  const ok = email.trim();
+
+  React.useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+
+  const submit = () => {
+    if (!ok) return;
+    const found = CLIENTES_DEMO.find(c => c.email.toLowerCase() === email.trim().toLowerCase());
+    onLogin(found || { email: email.trim(), nombre: '', telefono: '' });
+  };
+  const onKey = e => { if (e.key === 'Enter') submit(); };
+
+  return (
+    <div className="bk-modal-overlay" onMouseDown={onClose}>
+      <div className="bk-modal" role="dialog" aria-modal="true" aria-label="Inicia sesión" onMouseDown={e => e.stopPropagation()}>
+        <button className="bk-modal-close" onClick={onClose} aria-label="Cerrar"><Icon name="x" size={18} /></button>
+        <div className="bk-modal-head">
+          <span className="bk-modal-logo"><Icon name="user" size={22} /></span>
+          <h2 className="bk-modal-title">Inicia sesión</h2>
+          <p className="bk-modal-sub">Agiliza tu reserva: recuperamos tus datos al instante.</p>
+        </div>
+        <div className="bk-form">
+          <div className="bk-field">
+            <label className="bk-label">Email</label>
+            <input className="bk-input" type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={onKey} placeholder="correo@ejemplo.com" autoFocus />
+          </div>
+          <div className="bk-field">
+            <label className="bk-label">Contraseña</label>
+            <input className="bk-input" type="password" value={pass} onChange={e => setPass(e.target.value)} onKeyDown={onKey} placeholder="••••••••" />
+          </div>
+          <button className="bk-btn bk-btn-primary bk-login-submit" disabled={!ok} onClick={submit}>
+            Ingresar<Icon name="arrow-right" size={16} />
+          </button>
+          <div className="bk-login-hint">
+            Demo: prueba con{' '}
+            <button type="button" className="bk-login-demo" onClick={() => { setEmail('valentina@correo.cl'); setPass('demo'); }}>valentina@correo.cl</button>
+          </div>
+          <button type="button" className="bk-login-guest" onClick={onClose}>Continuar como invitado</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -359,7 +443,7 @@ function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora, earlie
 
 // ── PASO 4 · TUS DATOS ────────────────────────────────────────────────────────
 
-function DatosStep({ datos, acepta, onChange, onAcepta, cfg }) {
+function DatosStep({ datos, acepta, onChange, onAcepta, cfg, cliente }) {
   const up = k => e => onChange(k, e.target.value);
   return (
     <div className="bk-step-body">
@@ -367,6 +451,12 @@ function DatosStep({ datos, acepta, onChange, onAcepta, cfg }) {
       <p className="bk-step-desc">Para confirmar tu reserva y enviarte el recordatorio.</p>
 
       <div className="bk-form">
+        {cliente && (
+          <div className="bk-login-note">
+            <Icon name="check-circle" size={15} />
+            Reservando como <strong>{cliente.nombre || cliente.email}</strong>. Revisa tus datos abajo.
+          </div>
+        )}
         <div className="bk-field">
           <label className="bk-label">Nombre y apellido</label>
           <input className="bk-input" value={datos.nombre} onChange={up('nombre')} placeholder="Tu nombre" autoFocus />
@@ -496,7 +586,12 @@ function ReservarApp() {
   const [proId, setProId] = React.useState(null);
   const [fechaKey, setFechaKey] = React.useState(null);
   const [hora, setHora] = React.useState(null);
-  const [datos, setDatos] = React.useState({ nombre: '', telefono: '', email: '', notas: '' });
+  const [cliente, setCliente] = React.useState(loadCliente);
+  const [showLogin, setShowLogin] = React.useState(false);
+  const [datos, setDatos] = React.useState(() => {
+    const c = loadCliente();
+    return { nombre: c?.nombre || '', telefono: c?.telefono || '', email: c?.email || '', notas: '' };
+  });
   const [acepta, setAcepta] = React.useState(false);
   const [codigo, setCodigo] = React.useState(null);
 
@@ -535,16 +630,32 @@ function ReservarApp() {
   };
   const back = () => { if (step > 0) setStep(step - 1); };
 
+  // Inicia sesión: guarda la sesión y autocompleta los datos del cliente.
+  const handleLogin = (c) => {
+    setCliente(c);
+    try { localStorage.setItem(CLIENTE_KEY, JSON.stringify(c)); } catch (e) { /* mock */ }
+    setDatos(d => ({ ...d, nombre: c.nombre || d.nombre, telefono: c.telefono || d.telefono, email: c.email || d.email }));
+    setShowLogin(false);
+  };
+  const handleLogout = () => {
+    setCliente(null);
+    try { localStorage.removeItem(CLIENTE_KEY); } catch (e) { /* mock */ }
+  };
+
   const reset = () => {
     setStep(0); setServicioId(null); setProId(null); setFechaKey(null); setHora(null);
-    setDatos({ nombre: '', telefono: '', email: '', notas: '' }); setAcepta(false); setCodigo(null);
+    setDatos({ nombre: cliente?.nombre || '', telefono: cliente?.telefono || '', email: cliente?.email || '', notas: '' });
+    setAcepta(false); setCodigo(null);
   };
+
+  const topBar = <ReservarTopBar cliente={cliente} onLogin={() => setShowLogin(true)} onLogout={handleLogout} />;
+  const loginModal = showLogin && <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />;
 
   // Reservas desactivadas desde la configuración: página cerrada al público.
   if (!cfg.online) {
     return (
       <div className="bk-page" style={pageStyle}>
-        <ReservarTopBar />
+        {topBar}
         <main className="bk-main bk-main-done">
           <div className="bk-done">
             <div className="bk-done-check bk-done-check--off"><Icon name="calendar-off" size={32} /></div>
@@ -554,6 +665,7 @@ function ReservarApp() {
             </p>
           </div>
         </main>
+        {loginModal}
       </div>
     );
   }
@@ -561,17 +673,18 @@ function ReservarApp() {
   if (step === 4) {
     return (
       <div className="bk-page" style={pageStyle}>
-        <ReservarTopBar />
+        {topBar}
         <main className="bk-main bk-main-done">
           <Confirmacion codigo={codigo} servicio={servicio} pro={pro} fecha={fecha} hora={hora} datos={datos} onReset={reset} cfg={cfg} />
         </main>
+        {loginModal}
       </div>
     );
   }
 
   return (
     <div className="bk-page" style={pageStyle}>
-      <ReservarTopBar />
+      {topBar}
       <main className="bk-main">
         <NegocioHero cfg={cfg} />
         {(cfg.titulo || cfg.bienvenida) && (
@@ -587,7 +700,7 @@ function ReservarApp() {
               {step === 0 && <ServicioStep catalogo={catalogo} value={servicioId} onPick={pickServicio} cfg={cfg} />}
               {step === 1 && <ProfesionalStep servicio={servicio} value={proId} onPick={setProId} cfg={cfg} />}
               {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} earliestTs={earliestTs} />}
-              {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} cfg={cfg} />}
+              {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} cfg={cfg} cliente={cliente} />}
 
               <div className="bk-actions">
                 {step > 0
@@ -603,6 +716,7 @@ function ReservarApp() {
           <ResumenCard servicio={servicio} pro={pro} fecha={fecha} hora={hora} cfg={cfg} />
         </div>
       </main>
+      {loginModal}
     </div>
   );
 }

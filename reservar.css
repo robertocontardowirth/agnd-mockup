@@ -310,3 +310,82 @@
 
 /* Estado: reservas desactivadas */
 .bk-done-check--off { background: var(--bg-elevated); color: var(--fg-3); border: 1.5px solid var(--border); }
+
+/* ── Sesión del cliente (login) ───────────────────────────────────────────── */
+.bk-topbar-brand { display: flex; align-items: center; gap: 10px; }
+.bk-topbar-auth { display: flex; align-items: center; }
+
+.bk-login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--fg-1); background: var(--bg); cursor: pointer;
+  border: 1.5px solid var(--border); border-radius: var(--r-pill);
+  transition: border-color .15s ease, background .15s ease;
+}
+.bk-login-btn:hover { border-color: var(--bk); background: var(--bk-soft); }
+
+.bk-account { display: flex; align-items: center; gap: 8px; }
+.bk-account-avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bk); color: var(--bk-on, #053b3a); font-size: 12px; font-weight: 700;
+}
+.bk-account-name { font-size: 13px; font-weight: 600; color: var(--fg-1); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk-account-logout {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  background: none; border: 1px solid var(--border); color: var(--fg-2);
+  transition: border-color .15s ease, color .15s ease;
+}
+.bk-account-logout:hover { border-color: var(--bk); color: var(--fg-1); }
+
+/* Modal de login (estilo de la página de reservas) */
+.bk-modal-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(8, 20, 30, .45); backdrop-filter: blur(2px);
+}
+.bk-modal {
+  position: relative; width: 100%; max-width: 380px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-lg, 0 20px 50px rgba(0,0,0,.25));
+  padding: 28px 24px 24px;
+}
+.bk-modal-close {
+  position: absolute; top: 12px; right: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  background: none; border: none; color: var(--fg-3);
+}
+.bk-modal-close:hover { background: var(--bg); color: var(--fg-1); }
+.bk-modal-head { text-align: center; margin-bottom: 18px; }
+.bk-modal-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: var(--r-md); margin-bottom: 10px;
+  background: var(--bk-soft); color: var(--bk-deep);
+}
+.bk-modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--fg-1); margin: 0; }
+.bk-modal-sub { font-size: 13px; color: var(--fg-2); margin: 4px 0 0; }
+
+.bk-login-submit { width: 100%; justify-content: center; margin-top: 4px; }
+.bk-login-hint { font-size: 12px; color: var(--fg-3); text-align: center; }
+.bk-login-demo {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--font-mono); font-size: 12px; color: var(--bk-deep); font-weight: 600;
+  text-decoration: underline;
+}
+.bk-login-guest {
+  width: 100%; padding: 8px; margin-top: 2px; cursor: pointer;
+  background: none; border: none; font-family: var(--font-body);
+  font-size: 13px; font-weight: 600; color: var(--fg-2);
+}
+.bk-login-guest:hover { color: var(--fg-1); }
+
+/* Aviso de sesión activa en el paso "Tus datos" */
+.bk-login-note {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 12px; border-radius: var(--r-md);
+  background: var(--bk-soft); color: var(--bk-deep);
+  font-size: 13px; font-weight: 500;
+}
+.bk-login-note .icon { flex-shrink: 0; }
