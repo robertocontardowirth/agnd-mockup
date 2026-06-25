@@ -14,6 +14,20 @@ const RC_ACENTOS = [
 const rcPrecio = n => '$' + (n || 0).toLocaleString('es-CL');
 const rcAcentoColor = id => (RC_ACENTOS.find(a => a.id === id) || RC_ACENTOS[0]).color;
 
+// Clave compartida con la página pública de reservas (ReservarApp lee de aquí).
+const RC_STORE_KEY = 'agnd.reservas.config';
+
+// Carga la config guardada (localStorage) fusionada sobre los valores por defecto,
+// para que la página pública y el admin compartan el mismo estado entre recargas.
+function rcLoadConfig() {
+  const base = reservasDefaults();
+  try {
+    const raw = localStorage.getItem(RC_STORE_KEY);
+    if (raw) return { ...base, ...JSON.parse(raw) };
+  } catch (e) { /* mock: sin persistencia disponible */ }
+  return base;
+}
+
 function reservasDefaults() {
   const servicios = window.MOCK_SERVICIOS || [];
   const colaboradores = window.MOCK_COLABORADORES || [];
@@ -328,7 +342,13 @@ const RC_VIEW_META = {
 };
 
 function ReservasConfigSection({ sub }) {
-  const [cfg, setCfg] = usePersistedState('reservas.config', reservasDefaults);
+  const [cfg, setCfg] = usePersistedState('reservas.config', rcLoadConfig);
+
+  // Cada cambio se refleja en localStorage para que la página pública lo aplique.
+  React.useEffect(() => {
+    try { localStorage.setItem(RC_STORE_KEY, JSON.stringify(cfg)); } catch (e) { /* mock */ }
+  }, [cfg]);
+
   const up = k => e => setCfg(c => ({ ...c, [k]: e.target.value }));
   const set = (k, v) => setCfg(c => ({ ...c, [k]: v }));
   const toggleMap = (mapKey, id) =>

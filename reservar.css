@@ -79,7 +79,7 @@
   transition: all var(--d-fast) var(--ease-out);
 }
 .bk-step.is-active .bk-step-dot { border-color: var(--bk); color: var(--bk-deep); box-shadow: 0 0 0 4px var(--bk-ring); }
-.bk-step.is-done .bk-step-dot { background: var(--bk); border-color: var(--bk); color: #053b3a; }
+.bk-step.is-done .bk-step-dot { background: var(--bk); border-color: var(--bk); color: var(--bk-on, #053b3a); }
 .bk-step-label { font-size: 13px; font-weight: 600; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bk-step.is-active .bk-step-label { color: var(--fg-1); }
 .bk-step.is-done .bk-step-label { color: var(--fg-2); }
@@ -124,7 +124,7 @@
 .bk-radio {
   width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
   border: 1.5px solid var(--border); background: var(--bg-elevated);
-  display: inline-flex; align-items: center; justify-content: center; color: #053b3a;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--bk-on, #053b3a);
   transition: all var(--d-fast) var(--ease-out);
 }
 .bk-service.is-selected .bk-radio { background: var(--bk); border-color: var(--bk); }
@@ -153,7 +153,7 @@
 .bk-pro-check {
   position: absolute; top: 10px; right: 10px;
   width: 22px; height: 22px; border-radius: 50%;
-  background: var(--bk); color: #053b3a;
+  background: var(--bk); color: var(--bk-on, #053b3a);
   display: inline-flex; align-items: center; justify-content: center;
 }
 
@@ -187,7 +187,7 @@
   transition: all var(--d-fast) var(--ease-out);
 }
 .bk-slot:hover:not(:disabled) { border-color: var(--bk); color: var(--bk-deep); }
-.bk-slot.is-selected { background: var(--bk); border-color: var(--bk); color: #053b3a; font-weight: 700; }
+.bk-slot.is-selected { background: var(--bk); border-color: var(--bk); color: var(--bk-on, #053b3a); font-weight: 700; }
 .bk-slot:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
 .bk-slot-empty {
   display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -222,7 +222,7 @@
   padding: 11px 20px; border-radius: var(--r-md); cursor: pointer;
   border: 1.5px solid transparent; transition: all var(--d-fast) var(--ease-out);
 }
-.bk-btn-primary { background: var(--bk); color: #053b3a; }
+.bk-btn-primary { background: var(--bk); color: var(--bk-on, #053b3a); }
 .bk-btn-primary:hover:not(:disabled) { background: var(--bk-deep); color: #fff; }
 .bk-btn-primary:disabled { opacity: .45; cursor: not-allowed; }
 .bk-btn-ghost { background: transparent; border-color: var(--border); color: var(--fg-1); }
@@ -294,3 +294,19 @@
   .bk-field-grid { grid-template-columns: 1fr; }
   .bk-done-actions { flex-direction: column; }
 }
+
+/* Bienvenida configurable (título + mensaje desde la config de reservas) */
+.bk-welcome { margin: 4px 0 18px; }
+.bk-welcome-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--fg-1); margin: 0; }
+.bk-welcome-sub { font-size: 14px; color: var(--fg-2); margin: 4px 0 0; }
+
+/* Política mostrada en la confirmación */
+.bk-done-policy {
+  display: flex; align-items: flex-start; gap: 6px;
+  max-width: 420px; margin: 4px auto 0;
+  font-size: 12.5px; color: var(--fg-3); text-align: left;
+}
+.bk-done-policy .icon { flex-shrink: 0; margin-top: 1px; }
+
+/* Estado: reservas desactivadas */
+.bk-done-check--off { background: var(--bg-elevated); color: var(--fg-3); border: 1.5px solid var(--border); }

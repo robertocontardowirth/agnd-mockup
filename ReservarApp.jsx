@@ -35,6 +35,52 @@ const PROS = [
   { id: 3, nombre: 'Diego Fuentes',  rol: 'Barbero',           color: '#AA4465', foto: 'https://randomuser.me/api/portraits/men/32.jpg',   servicios: ['corte', 'barberia'] },
 ];
 
+// ── CONFIGURACIÓN GUARDADA ────────────────────────────────────────────────────
+// La página de configuración del admin (ReservasConfigSection) guarda en
+// localStorage bajo esta clave; aquí la leemos y la aplicamos a la página pública.
+
+const RESERVAS_CONFIG_KEY = 'agnd.reservas.config';
+
+const RESERVAS_CONFIG_DEFAULTS = {
+  online: true,
+  titulo: 'Reserva tu hora',
+  bienvenida: 'Agenda con nosotros en menos de un minuto.',
+  acento: 'aqua',
+  mostrarLogo: true,
+  mostrarRating: true,
+  mostrarPrecios: true,
+  mostrarDuracion: true,
+  profesionalesVisibles: null,
+  sinPreferencia: true,
+  confirmacionAuto: true,
+  anticipacionMin: '60',
+  ventanaDias: '14',
+  requiereTelefono: true,
+  requiereEmail: false,
+  politica: '',
+};
+
+// Acentos disponibles → variables CSS de la página de reservas (--bk*).
+const BK_ACENTOS = {
+  aqua:  { bk: '#4CD5D2', deep: '#1F9C99', soft: '#E6FAF8', ring: 'rgba(76,213,210,.28)',  on: '#053b3a' },
+  rose:  { bk: '#E8739A', deep: '#C24E78', soft: '#FCE9F0', ring: 'rgba(232,115,154,.28)', on: '#ffffff' },
+  plum:  { bk: '#AA4465', deep: '#7E2E49', soft: '#F6E6EC', ring: 'rgba(170,68,101,.28)',  on: '#ffffff' },
+  coral: { bk: '#FF8A65', deep: '#E0623B', soft: '#FFEDE5', ring: 'rgba(255,138,101,.28)', on: '#ffffff' },
+};
+
+function loadReservasConfig() {
+  try {
+    const raw = localStorage.getItem(RESERVAS_CONFIG_KEY);
+    if (raw) return { ...RESERVAS_CONFIG_DEFAULTS, ...JSON.parse(raw) };
+  } catch (e) { /* mock: sin persistencia disponible */ }
+  return RESERVAS_CONFIG_DEFAULTS;
+}
+
+function accentStyle(acento) {
+  const a = BK_ACENTOS[acento] || BK_ACENTOS.aqua;
+  return { '--bk': a.bk, '--bk-deep': a.deep, '--bk-soft': a.soft, '--bk-ring': a.ring, '--bk-on': a.on };
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -46,12 +92,13 @@ function iniciales(nombre) {
   return nombre.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
 }
 
-// Próximos 14 días desde hoy. Domingo = cerrado.
-function buildDates() {
+// Próximos N días desde hoy (ventana configurable). Domingo = cerrado.
+function buildDates(dias) {
+  const total = Math.max(1, parseInt(dias, 10) || 14);
   const out = [];
   const base = new Date();
   base.setHours(0, 0, 0, 0);
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < total; i++) {
     const d = new Date(base);
     d.setDate(base.getDate() + i);
     out.push({
@@ -68,13 +115,20 @@ function buildDates() {
 }
 
 // Slots de 30 min entre 10:00 y 19:00. Disponibilidad mock determinista por fecha.
-function buildSlots(fecha) {
+// earliestTs (opcional): marca como ocupados los slots anteriores a esa marca de
+// tiempo, para respetar la anticipación mínima configurada.
+function buildSlots(fecha, earliestTs) {
   if (!fecha || fecha.cerrado) return { manana: [], tarde: [] };
   const manana = [], tarde = [];
   for (let h = 10; h < 19; h++) {
     for (const m of [0, 30]) {
       const idx = (h * 2) + (m === 30 ? 1 : 0);
-      const libre = (fecha.num + idx) % 3 !== 0;
+      let libre = (fecha.num + idx) % 3 !== 0;
+      if (libre && earliestTs != null) {
+        const slot = new Date(fecha.date);
+        slot.setHours(h, m, 0, 0);
+        if (slot.getTime() < earliestTs) libre = false;
+      }
       const t = `${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`;
       (h < 13 ? manana : tarde).push({ t, libre });
     }
@@ -95,16 +149,20 @@ function ReservarTopBar() {
   );
 }
 
-function NegocioHero() {
+function NegocioHero({ cfg }) {
   return (
     <div className="bk-hero">
-      <div className="bk-hero-logo"><Icon name="scissors" size={26} /></div>
+      {cfg.mostrarLogo && <div className="bk-hero-logo"><Icon name="scissors" size={26} /></div>}
       <div className="bk-hero-text">
         <h1 className="bk-hero-name">{NEGOCIO.nombre}</h1>
         <div className="bk-hero-rubro">{NEGOCIO.rubro}</div>
         <div className="bk-hero-meta">
-          <span className="bk-hero-rating"><Icon name="star" size={14} />{NEGOCIO.rating} <em>({NEGOCIO.reviews})</em></span>
-          <span className="bk-hero-dot">·</span>
+          {cfg.mostrarRating && (
+            <React.Fragment>
+              <span className="bk-hero-rating"><Icon name="star" size={14} />{NEGOCIO.rating} <em>({NEGOCIO.reviews})</em></span>
+              <span className="bk-hero-dot">·</span>
+            </React.Fragment>
+          )}
           <span className="bk-hero-addr"><Icon name="map-pin" size={14} />{NEGOCIO.direccion}</span>
         </div>
       </div>
@@ -134,7 +192,7 @@ function Stepper({ step }) {
 
 // ── PASO 1 · SERVICIO ─────────────────────────────────────────────────────────
 
-function ServicioStep({ value, onPick }) {
+function ServicioStep({ value, onPick, cfg }) {
   return (
     <div className="bk-step-body">
       <h2 className="bk-step-title">¿Qué te quieres hacer?</h2>
@@ -156,10 +214,10 @@ function ServicioStep({ value, onPick }) {
                   <div className="bk-service-main">
                     <div className="bk-service-name">{s.nombre}</div>
                     <div className="bk-service-desc">{s.desc}</div>
-                    <div className="bk-service-dur"><Icon name="clock" size={13} />{s.duracion} min</div>
+                    {cfg.mostrarDuracion && <div className="bk-service-dur"><Icon name="clock" size={13} />{s.duracion} min</div>}
                   </div>
                   <div className="bk-service-end">
-                    <span className="bk-service-price">{precioCLP(s.precio)}</span>
+                    {cfg.mostrarPrecios && <span className="bk-service-price">{precioCLP(s.precio)}</span>}
                     <span className="bk-radio" aria-hidden="true">{value === s.id && <Icon name="check" size={14} />}</span>
                   </div>
                 </button>
@@ -192,9 +250,13 @@ function ProAvatar({ pro, size }) {
   return <span className="bk-pro-avatar" style={{ ...dim, background: pro.color }}>{iniciales(pro.nombre)}</span>;
 }
 
-function ProfesionalStep({ servicioId, value, onPick }) {
-  const elegibles = PROS.filter(p => p.servicios.includes(servicioId));
-  const opciones = [{ id: 'any', nombre: 'Sin preferencia', rol: 'Te asignamos al mejor disponible', any: true }, ...elegibles];
+function ProfesionalStep({ servicioId, value, onPick, cfg }) {
+  const vis = cfg.profesionalesVisibles;
+  const elegibles = PROS
+    .filter(p => p.servicios.includes(servicioId))
+    .filter(p => !vis || vis[p.id] !== false);
+  const sinPref = { id: 'any', nombre: 'Sin preferencia', rol: 'Te asignamos al mejor disponible', any: true };
+  const opciones = cfg.sinPreferencia ? [sinPref, ...elegibles] : elegibles;
 
   return (
     <div className="bk-step-body">
@@ -223,9 +285,9 @@ function ProfesionalStep({ servicioId, value, onPick }) {
 
 // ── PASO 3 · FECHA Y HORA ─────────────────────────────────────────────────────
 
-function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora }) {
+function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora, earliestTs }) {
   const fecha = fechas.find(f => f.key === fechaKey) || null;
-  const { manana, tarde } = buildSlots(fecha);
+  const { manana, tarde } = buildSlots(fecha, earliestTs);
   const hayCupos = manana.some(s => s.libre) || tarde.some(s => s.libre);
 
   const renderGroup = (label, slots) => (
@@ -284,7 +346,7 @@ function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora }) {
 
 // ── PASO 4 · TUS DATOS ────────────────────────────────────────────────────────
 
-function DatosStep({ datos, acepta, onChange, onAcepta }) {
+function DatosStep({ datos, acepta, onChange, onAcepta, cfg }) {
   const up = k => e => onChange(k, e.target.value);
   return (
     <div className="bk-step-body">
@@ -298,11 +360,11 @@ function DatosStep({ datos, acepta, onChange, onAcepta }) {
         </div>
         <div className="bk-field-grid">
           <div className="bk-field">
-            <label className="bk-label">Teléfono</label>
+            <label className="bk-label">Teléfono {!cfg.requiereTelefono && <span className="bk-opt">(opcional)</span>}</label>
             <input className="bk-input" type="tel" value={datos.telefono} onChange={up('telefono')} placeholder="+56 9 ..." />
           </div>
           <div className="bk-field">
-            <label className="bk-label">Email <span className="bk-opt">(opcional)</span></label>
+            <label className="bk-label">Email {cfg.requiereEmail ? null : <span className="bk-opt">(opcional)</span>}</label>
             <input className="bk-input" type="email" value={datos.email} onChange={up('email')} placeholder="correo@ejemplo.com" />
           </div>
         </div>
@@ -322,7 +384,7 @@ function DatosStep({ datos, acepta, onChange, onAcepta }) {
 
 // ── RESUMEN LATERAL ───────────────────────────────────────────────────────────
 
-function ResumenCard({ servicio, pro, fecha, hora }) {
+function ResumenCard({ servicio, pro, fecha, hora, cfg }) {
   const Row = ({ icon, label, value, node }) => (
     <div className="bk-sum-row">
       <span className="bk-sum-icon">{node || <Icon name={icon} size={16} />}</span>
@@ -351,14 +413,18 @@ function ResumenCard({ servicio, pro, fecha, hora }) {
         <Row icon="clock" label="Hora" value={hora} />
       </div>
 
-      {servicio && (
+      {servicio && (cfg.mostrarDuracion || cfg.mostrarPrecios) && (
         <div className="bk-summary-total">
-          <div className="bk-summary-total-line">
-            <span>Duración</span><span>{servicio.duracion} min</span>
-          </div>
-          <div className="bk-summary-total-line is-price">
-            <span>Total</span><span>{precioCLP(servicio.precio)}</span>
-          </div>
+          {cfg.mostrarDuracion && (
+            <div className="bk-summary-total-line">
+              <span>Duración</span><span>{servicio.duracion} min</span>
+            </div>
+          )}
+          {cfg.mostrarPrecios && (
+            <div className="bk-summary-total-line is-price">
+              <span>Total</span><span>{precioCLP(servicio.precio)}</span>
+            </div>
+          )}
         </div>
       )}
     </aside>
@@ -367,24 +433,30 @@ function ResumenCard({ servicio, pro, fecha, hora }) {
 
 // ── CONFIRMACIÓN ──────────────────────────────────────────────────────────────
 
-function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset }) {
+function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset, cfg }) {
   const fechaTxt = fecha ? `${fecha.hoy ? 'Hoy' : fecha.dia} ${fecha.num} ${fecha.mes}` : '';
   const proTxt = pro ? (pro.any ? 'Sin preferencia' : pro.nombre) : '';
+  const estadoTxt = cfg.confirmacionAuto ? '¡Reserva confirmada!' : 'Reserva recibida';
+  const subTxt = cfg.confirmacionAuto
+    ? `Te enviamos los detalles${datos.email ? ` a ${datos.email}` : ''}.`
+    : 'Te avisaremos en cuanto el negocio confirme tu hora.';
   return (
     <div className="bk-done">
-      <div className="bk-done-check"><Icon name="check" size={34} /></div>
-      <h1 className="bk-done-title">¡Reserva confirmada!</h1>
+      <div className="bk-done-check"><Icon name={cfg.confirmacionAuto ? 'check' : 'clock'} size={34} /></div>
+      <h1 className="bk-done-title">{estadoTxt}</h1>
       <p className="bk-done-sub">
-        Te enviamos los detalles{datos.email ? ` a ${datos.email}` : ''}. Tu código es <strong>{codigo}</strong>.
+        {subTxt} Tu código es <strong>{codigo}</strong>.
       </p>
 
       <div className="bk-done-card">
-        <div className="bk-done-row"><Icon name="sparkles" size={16} /><span>{servicio.nombre}</span><b>{precioCLP(servicio.precio)}</b></div>
+        <div className="bk-done-row"><Icon name="sparkles" size={16} /><span>{servicio.nombre}</span>{cfg.mostrarPrecios && <b>{precioCLP(servicio.precio)}</b>}</div>
         <div className="bk-done-row"><Icon name="user" size={16} /><span>{proTxt}</span></div>
         <div className="bk-done-row"><Icon name="calendar" size={16} /><span>{fechaTxt}</span></div>
-        <div className="bk-done-row"><Icon name="clock" size={16} /><span>{hora} · {servicio.duracion} min</span></div>
+        <div className="bk-done-row"><Icon name="clock" size={16} /><span>{hora}{cfg.mostrarDuracion ? ` · ${servicio.duracion} min` : ''}</span></div>
         <div className="bk-done-row"><Icon name="map-pin" size={16} /><span>{NEGOCIO.direccion}</span></div>
       </div>
+
+      {cfg.politica && <p className="bk-done-policy"><Icon name="info" size={14} />{cfg.politica}</p>}
 
       <div className="bk-done-actions">
         <button className="bk-btn bk-btn-ghost"><Icon name="calendar-plus" size={16} />Agregar al calendario</button>
@@ -397,7 +469,15 @@ function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset }) {
 // ── APP ───────────────────────────────────────────────────────────────────────
 
 function ReservarApp() {
-  const fechas = React.useMemo(buildDates, []);
+  const cfg = React.useMemo(loadReservasConfig, []);
+  const fechas = React.useMemo(() => buildDates(cfg.ventanaDias), [cfg.ventanaDias]);
+  // Marca de tiempo mínima reservable según la anticipación configurada.
+  const earliestTs = React.useMemo(
+    () => Date.now() + (parseInt(cfg.anticipacionMin, 10) || 0) * 60000,
+    [cfg.anticipacionMin]
+  );
+  const pageStyle = accentStyle(cfg.acento);
+
   const [step, setStep] = React.useState(0);
   const [servicioId, setServicioId] = React.useState(null);
   const [proId, setProId] = React.useState(null);
@@ -419,11 +499,15 @@ function ReservarApp() {
   };
   const setDato = (k, v) => setDatos(d => ({ ...d, [k]: v }));
 
+  const datosOk = datos.nombre.trim()
+    && (!cfg.requiereTelefono || datos.telefono.trim())
+    && (!cfg.requiereEmail || datos.email.trim())
+    && acepta;
   const canNext =
     step === 0 ? !!servicioId :
     step === 1 ? !!proId :
     step === 2 ? !!(fechaKey && hora) :
-    step === 3 ? !!(datos.nombre.trim() && datos.telefono.trim() && acepta) : false;
+    step === 3 ? !!datosOk : false;
 
   const next = () => {
     if (!canNext) return;
@@ -441,30 +525,54 @@ function ReservarApp() {
     setDatos({ nombre: '', telefono: '', email: '', notas: '' }); setAcepta(false); setCodigo(null);
   };
 
-  if (step === 4) {
+  // Reservas desactivadas desde la configuración: página cerrada al público.
+  if (!cfg.online) {
     return (
-      <div className="bk-page">
+      <div className="bk-page" style={pageStyle}>
         <ReservarTopBar />
         <main className="bk-main bk-main-done">
-          <Confirmacion codigo={codigo} servicio={servicio} pro={pro} fecha={fecha} hora={hora} datos={datos} onReset={reset} />
+          <div className="bk-done">
+            <div className="bk-done-check bk-done-check--off"><Icon name="calendar-off" size={32} /></div>
+            <h1 className="bk-done-title">Reservas no disponibles</h1>
+            <p className="bk-done-sub">
+              {NEGOCIO.nombre} no está aceptando reservas online en este momento. Inténtalo más tarde o contáctanos directamente.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (step === 4) {
+    return (
+      <div className="bk-page" style={pageStyle}>
+        <ReservarTopBar />
+        <main className="bk-main bk-main-done">
+          <Confirmacion codigo={codigo} servicio={servicio} pro={pro} fecha={fecha} hora={hora} datos={datos} onReset={reset} cfg={cfg} />
         </main>
       </div>
     );
   }
 
   return (
-    <div className="bk-page">
+    <div className="bk-page" style={pageStyle}>
       <ReservarTopBar />
       <main className="bk-main">
-        <NegocioHero />
+        <NegocioHero cfg={cfg} />
+        {(cfg.titulo || cfg.bienvenida) && (
+          <div className="bk-welcome">
+            {cfg.titulo && <h2 className="bk-welcome-title">{cfg.titulo}</h2>}
+            {cfg.bienvenida && <p className="bk-welcome-sub">{cfg.bienvenida}</p>}
+          </div>
+        )}
         <div className="bk-layout">
           <div className="bk-flow">
             <Stepper step={step} />
             <div className="bk-card">
-              {step === 0 && <ServicioStep value={servicioId} onPick={pickServicio} />}
-              {step === 1 && <ProfesionalStep servicioId={servicioId} value={proId} onPick={setProId} />}
-              {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} />}
-              {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} />}
+              {step === 0 && <ServicioStep value={servicioId} onPick={pickServicio} cfg={cfg} />}
+              {step === 1 && <ProfesionalStep servicioId={servicioId} value={proId} onPick={setProId} cfg={cfg} />}
+              {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} earliestTs={earliestTs} />}
+              {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} cfg={cfg} />}
 
               <div className="bk-actions">
                 {step > 0
@@ -477,7 +585,7 @@ function ReservarApp() {
             </div>
           </div>
 
-          <ResumenCard servicio={servicio} pro={pro} fecha={fecha} hora={hora} />
+          <ResumenCard servicio={servicio} pro={pro} fecha={fecha} hora={hora} cfg={cfg} />
         </div>
       </main>
     </div>
