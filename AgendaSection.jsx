@@ -219,6 +219,7 @@ function layoutCitas(citas) {
 function CitaBlock({ cita, style, selected, onOpen }) {
   const short = cita.duracion <= 30;
   const servicios = toArr(cita.servicios, cita.servicio);
+  const colaboradores = toArr(cita.colaboradores, cita.colaborador);
   const espacios = toArr(cita.espacios, cita.espacio);
   return (
     <div
@@ -233,6 +234,11 @@ function CitaBlock({ cita, style, selected, onOpen }) {
       {cita.duracion >= 60 && (
         <React.Fragment>
           {servicios.length > 0 && <div className="cita-block-meta">{servicios.join(' · ')}</div>}
+          {colaboradores.length > 0 && (
+            <div className="cita-block-meta cita-block-espacio">
+              <Icon name="user" />{colaboradores.join(' · ')}
+            </div>
+          )}
           {espacios.length > 0 && (
             <div className="cita-block-meta cita-block-espacio">
               <Icon name="map-pin" />{espacios.join(' · ')}
