@@ -2626,3 +2626,41 @@ select.reserva-input { cursor: pointer; }
   .rc-apariencia { grid-template-columns: 1fr; }
   .rc-apariencia-preview { position: static; }
 }
+
+/* ── INICIO · estado de la página de reservas (landing) ──────────────────────── */
+.lp-body { display: flex; flex-direction: column; gap: 12px; }
+.lp-progress-head { display: flex; align-items: baseline; justify-content: space-between; }
+.lp-progress-label { font-size: 13px; font-weight: 600; color: var(--fg-1); }
+.lp-progress-pct { font-size: 13px; font-weight: 700; color: var(--accent-live); font-variant-numeric: tabular-nums; }
+.lp-progress {
+  height: 8px; border-radius: var(--r-pill);
+  background: var(--bg); border: 1px solid var(--border); overflow: hidden;
+}
+.lp-progress-fill {
+  height: 100%; border-radius: var(--r-pill);
+  background: var(--accent-live);
+  transition: width var(--d-fast) var(--ease-out);
+}
+.lp-progress-fill.is-complete { background: #2BA84A; }
+
+.lp-checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.lp-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.lp-check-icon {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); color: var(--fg-3); border: 1px solid var(--border);
+}
+.lp-check-icon svg { width: 11px; height: 11px; }
+.lp-check.done { color: var(--fg-1); }
+.lp-check.done .lp-check-icon { background: var(--accent-live); color: #fff; border-color: var(--accent-live); }
+
+.lp-config-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 9px 12px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  color: var(--fg-1); background: var(--bg); cursor: pointer;
+  border: 1.5px solid var(--border); border-radius: var(--r-md);
+  transition: border-color var(--d-fast) var(--ease-out), background var(--d-fast) var(--ease-out);
+}
+.lp-config-btn svg { width: 15px; height: 15px; }
+.lp-config-btn:hover { border-color: var(--accent-live); background: var(--accent-tint); }

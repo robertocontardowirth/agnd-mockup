@@ -302,6 +302,72 @@ function AccionesRapidas({ onNuevaReserva, onAgregarCliente, onBloquearHorario }
   );
 }
 
+// Tarjeta de estado de la página pública de reservas (landing). Lee la config
+// guardada (rcLoadConfig, compartida con la sección Reservas) y muestra una barra
+// de progreso con un checklist de los pasos clave, más un acceso directo.
+function LandingStatusCard({ onNavigate }) {
+  const cfg = (typeof rcLoadConfig === 'function') ? rcLoadConfig() : {};
+
+  const servicios = (window.MOCK_SERVICIOS || []).filter(s => s.activo);
+  const sVis = cfg.serviciosVisibles;
+  const algunServicio = servicios.some(s => !sVis || sVis[s.id] !== false);
+
+  const pros = (window.MOCK_COLABORADORES || []).filter(c => c.activo);
+  const pVis = cfg.profesionalesVisibles;
+  const algunPro = pros.some(p => !pVis || pVis[p.id] !== false);
+
+  const txt = v => !!(v && String(v).trim());
+  const checks = [
+    { label: 'Reservas online activadas', done: !!cfg.online },
+    { label: 'Título de bienvenida',      done: txt(cfg.titulo) },
+    { label: 'Mensaje de bienvenida',     done: txt(cfg.bienvenida) },
+    { label: 'Servicios visibles',        done: algunServicio },
+    { label: 'Profesionales visibles',    done: algunPro },
+    { label: 'Política de reservas',      done: txt(cfg.politica) },
+  ];
+  const total = checks.length;
+  const completos = checks.filter(c => c.done).length;
+  const pct = Math.round((completos / total) * 100);
+  const listo = pct === 100;
+
+  return (
+    <div className="dash-card lp-card">
+      <div className="dash-card-header">
+        <div className="dash-card-title">
+          <Icon name="globe" />
+          Tu página de reservas
+        </div>
+        <a className="btn-sm-ghost" href="reservar.html" target="_blank" rel="noopener">
+          Ver página<Icon name="external-link" />
+        </a>
+      </div>
+
+      <div className="lp-body">
+        <div className="lp-progress-head">
+          <span className="lp-progress-label">{listo ? '¡Tu página está lista!' : 'Configuración'}</span>
+          <span className="lp-progress-pct">{pct}%</span>
+        </div>
+        <div className="lp-progress" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100">
+          <div className={`lp-progress-fill${listo ? ' is-complete' : ''}`} style={{ width: `${pct}%` }} />
+        </div>
+
+        <ul className="lp-checklist">
+          {checks.map(c => (
+            <li key={c.label} className={`lp-check${c.done ? ' done' : ''}`}>
+              <span className="lp-check-icon"><Icon name={c.done ? 'check' : 'circle'} /></span>
+              {c.label}
+            </li>
+          ))}
+        </ul>
+
+        <button className="lp-config-btn" onClick={() => onNavigate && onNavigate('reservas')}>
+          <Icon name="settings-2" />{listo ? 'Editar configuración' : 'Completar configuración'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ActividadReciente() {
   return (
     <div className="dash-card">
@@ -421,6 +487,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
           {!panel && (
             <div className="dash-col-side">
               <AccionesRapidas onNuevaReserva={openNew} onAgregarCliente={openNuevoCliente} onBloquearHorario={openBloqueo} />
+              <LandingStatusCard onNavigate={onNavigate} />
               <ActividadReciente />
             </div>
           )}
