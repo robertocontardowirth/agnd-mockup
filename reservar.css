@@ -389,3 +389,59 @@
   font-size: 13px; font-weight: 500;
 }
 .bk-login-note .icon { flex-shrink: 0; }
+
+/* ── Anular reserva por código ─────────────────────────────────────────────── */
+.bk-topbar-link {
+  display: inline-flex; align-items: center; gap: 6px; margin-right: 4px;
+  padding: 7px 10px; background: none; border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--fg-2);
+  border-radius: var(--r-pill); transition: color .15s ease, background .15s ease;
+}
+.bk-topbar-link:hover { color: var(--fg-1); background: var(--bg); }
+
+.bk-btn-danger { background: var(--agnd-rose-500, #AA4465); color: #fff; border-color: transparent; }
+.bk-btn-danger:hover:not(:disabled) { filter: brightness(1.06); }
+
+.bk-cancel-search { display: flex; gap: 8px; align-items: stretch; }
+.bk-cancel-input { flex: 1; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em; }
+.bk-cancel-search .bk-btn { flex-shrink: 0; }
+
+.bk-cancel-msg {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 12px; border-radius: var(--r-md);
+  font-size: 13px; color: var(--fg-2);
+  background: var(--bg); border: 1px solid var(--border);
+}
+.bk-cancel-msg .icon { flex-shrink: 0; color: var(--fg-3); }
+.bk-cancel-msg.is-error { background: rgba(170,68,101,.07); border-color: rgba(170,68,101,.25); color: var(--fg-1); }
+.bk-cancel-msg.is-error .icon { color: var(--agnd-rose-500, #AA4465); }
+
+.bk-cancel-card { border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px; display: flex; flex-direction: column; gap: 9px; }
+.bk-cancel-code {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--fg-1);
+  padding-bottom: 9px; border-bottom: 1px solid var(--border);
+}
+.bk-cancel-tag { font-family: var(--font-body); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-pill); background: rgba(170,68,101,.12); color: var(--agnd-rose-500, #AA4465); }
+.bk-cancel-row { display: flex; align-items: center; gap: 9px; font-size: 14px; color: var(--fg-1); }
+.bk-cancel-row .icon { color: var(--fg-3); flex-shrink: 0; }
+
+.bk-cancel-trigger { width: 100%; justify-content: center; }
+.bk-cancel-confirm { border: 1px solid rgba(170,68,101,.25); background: rgba(170,68,101,.05); border-radius: var(--r-md); padding: 12px; }
+.bk-cancel-confirm-text { font-size: 13px; color: var(--fg-1); margin: 0 0 10px; }
+.bk-cancel-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.bk-cancel-done { text-align: center; padding: 8px 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bk-cancel-done-check {
+  width: 48px; height: 48px; border-radius: 50%; margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: center; background: #2BA84A; color: #fff;
+}
+.bk-cancel-done-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--fg-1); }
+.bk-cancel-done-sub { font-size: 13px; color: var(--fg-2); margin: 0; }
+
+.bk-done-cancel {
+  display: inline-flex; align-items: center; gap: 6px; margin: 14px auto 0;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--fg-3);
+}
+.bk-done-cancel:hover { color: var(--fg-1); }

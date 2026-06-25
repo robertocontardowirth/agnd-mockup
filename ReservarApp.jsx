@@ -99,6 +99,35 @@ function loadCliente() {
   return null;
 }
 
+// ── RESERVAS CONFIRMADAS (para anular por código) ─────────────────────────────
+// Las reservas confirmadas se guardan por código en localStorage; así el código
+// recién generado puede anularse. Incluimos una reserva demo siempre disponible.
+const RESERVAS_KEY = 'agnd.reservar.reservas';
+
+const DEMO_RESERVAS = {
+  'AG-2024': { servicio: 'Coloración completa', pro: 'Andrea Morales', fechaTxt: 'Vie 27 jun', hora: '16:00', duracion: 90, estado: 'confirmada' },
+};
+
+function loadReservas() {
+  try { return JSON.parse(localStorage.getItem(RESERVAS_KEY) || '{}'); } catch (e) { return {}; }
+}
+function lookupReserva(code) {
+  const all = loadReservas();
+  return all[code] || DEMO_RESERVAS[code] || null;
+}
+function saveReserva(code, data) {
+  const all = loadReservas();
+  all[code] = data;
+  try { localStorage.setItem(RESERVAS_KEY, JSON.stringify(all)); } catch (e) { /* mock */ }
+}
+function cancelReserva(code) {
+  const all = loadReservas();
+  const base = all[code] || DEMO_RESERVAS[code];
+  if (!base) return;
+  all[code] = { ...base, estado: 'cancelada' };
+  try { localStorage.setItem(RESERVAS_KEY, JSON.stringify(all)); } catch (e) { /* mock */ }
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 
 const DIAS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -156,7 +185,7 @@ function buildSlots(fecha, earliestTs) {
 
 // ── BARRA SUPERIOR ────────────────────────────────────────────────────────────
 
-function ReservarTopBar({ cliente, onLogin, onLogout }) {
+function ReservarTopBar({ cliente, onLogin, onLogout, onCancel }) {
   return (
     <header className="bk-topbar">
       <div className="bk-topbar-inner">
@@ -165,6 +194,9 @@ function ReservarTopBar({ cliente, onLogin, onLogout }) {
           <span className="bk-topbar-powered">Reservas con <strong>AGND</strong></span>
         </div>
         <div className="bk-topbar-auth">
+          <button className="bk-topbar-link" onClick={onCancel}>
+            <Icon name="calendar-x" size={15} />Anular reserva
+          </button>
           {cliente ? (
             <div className="bk-account">
               <span className="bk-account-avatar">{iniciales(cliente.nombre || cliente.email)}</span>
@@ -231,6 +263,112 @@ function LoginModal({ onClose, onLogin }) {
             <button type="button" className="bk-login-demo" onClick={() => { setEmail('valentina@correo.cl'); setPass('demo'); }}>valentina@correo.cl</button>
           </div>
           <button type="button" className="bk-login-guest" onClick={onClose}>Continuar como invitado</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Modal para anular una reserva con el código (AG-XXXX).
+function CancelModal({ initialCode, onClose }) {
+  const [code, setCode] = React.useState(initialCode || '');
+  const [result, setResult] = React.useState(null);    // null | { code, reserva }
+  const [confirming, setConfirming] = React.useState(false);
+  const [cancelled, setCancelled] = React.useState(false);
+
+  React.useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+
+  const buscar = (raw) => {
+    const c = (raw != null ? raw : code).trim().toUpperCase();
+    if (!c) return;
+    setResult({ code: c, reserva: lookupReserva(c) });
+    setConfirming(false);
+    setCancelled(false);
+  };
+  // Si llega con un código (desde la confirmación), busca al abrir.
+  React.useEffect(() => { if (initialCode) buscar(initialCode); }, []); // eslint-disable-line
+
+  const anular = () => {
+    cancelReserva(result.code);
+    setCancelled(true);
+    setConfirming(false);
+  };
+
+  const r = result && result.reserva;
+  const yaCancelada = r && r.estado === 'cancelada';
+
+  return (
+    <div className="bk-modal-overlay" onMouseDown={onClose}>
+      <div className="bk-modal" role="dialog" aria-modal="true" aria-label="Anular reserva" onMouseDown={e => e.stopPropagation()}>
+        <button className="bk-modal-close" onClick={onClose} aria-label="Cerrar"><Icon name="x" size={18} /></button>
+        <div className="bk-modal-head">
+          <span className="bk-modal-logo"><Icon name="calendar-x" size={22} /></span>
+          <h2 className="bk-modal-title">Anular reserva</h2>
+          <p className="bk-modal-sub">Ingresa el código de tu reserva (lo recibiste al confirmar).</p>
+        </div>
+
+        <div className="bk-form">
+          <div className="bk-cancel-search">
+            <input
+              className="bk-input bk-cancel-input"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') buscar(); }}
+              placeholder="AG-1234"
+              autoFocus
+            />
+            <button className="bk-btn bk-btn-primary" disabled={!code.trim()} onClick={() => buscar()}>
+              <Icon name="search" size={16} />Buscar
+            </button>
+          </div>
+
+          {result && !r && (
+            <div className="bk-cancel-msg is-error">
+              <Icon name="alert-circle" size={16} />No encontramos ninguna reserva con el código <strong>{result.code}</strong>.
+            </div>
+          )}
+
+          {r && cancelled && (
+            <div className="bk-cancel-done">
+              <span className="bk-cancel-done-check"><Icon name="check" size={22} /></span>
+              <div className="bk-cancel-done-title">Reserva anulada</div>
+              <p className="bk-cancel-done-sub">Tu reserva <strong>{result.code}</strong> fue anulada. Te enviamos la confirmación.</p>
+            </div>
+          )}
+
+          {r && !cancelled && (
+            <React.Fragment>
+              <div className="bk-cancel-card">
+                <div className="bk-cancel-code">{result.code}{yaCancelada && <span className="bk-cancel-tag">Anulada</span>}</div>
+                <div className="bk-cancel-row"><Icon name="sparkles" size={15} /><span>{r.servicio}</span></div>
+                <div className="bk-cancel-row"><Icon name="user" size={15} /><span>{r.pro}</span></div>
+                <div className="bk-cancel-row"><Icon name="calendar" size={15} /><span>{r.fechaTxt}</span></div>
+                <div className="bk-cancel-row"><Icon name="clock" size={15} /><span>{r.hora}{r.duracion ? ` · ${r.duracion} min` : ''}</span></div>
+              </div>
+
+              {yaCancelada ? (
+                <div className="bk-cancel-msg"><Icon name="info" size={16} />Esta reserva ya estaba anulada.</div>
+              ) : confirming ? (
+                <div className="bk-cancel-confirm">
+                  <p className="bk-cancel-confirm-text">¿Seguro que quieres anular esta reserva? No se puede deshacer.</p>
+                  <div className="bk-cancel-confirm-actions">
+                    <button className="bk-btn bk-btn-ghost" onClick={() => setConfirming(false)}>Volver</button>
+                    <button className="bk-btn bk-btn-danger" onClick={anular}><Icon name="x-circle" size={16} />Sí, anular</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="bk-btn bk-btn-danger bk-cancel-trigger" onClick={() => setConfirming(true)}>
+                  <Icon name="x-circle" size={16} />Anular esta reserva
+                </button>
+              )}
+            </React.Fragment>
+          )}
         </div>
       </div>
     </div>
@@ -536,7 +674,7 @@ function ResumenCard({ servicio, pro, fecha, hora, cfg }) {
 
 // ── CONFIRMACIÓN ──────────────────────────────────────────────────────────────
 
-function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset, cfg }) {
+function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset, onCancel, cfg }) {
   const fechaTxt = fecha ? `${fecha.hoy ? 'Hoy' : fecha.dia} ${fecha.num} ${fecha.mes}` : '';
   const proTxt = pro ? (pro.any ? 'Sin preferencia' : pro.nombre) : '';
   const estadoTxt = cfg.confirmacionAuto ? '¡Reserva confirmada!' : 'Reserva recibida';
@@ -565,6 +703,9 @@ function Confirmacion({ codigo, servicio, pro, fecha, hora, datos, onReset, cfg 
         <button className="bk-btn bk-btn-ghost"><Icon name="calendar-plus" size={16} />Agregar al calendario</button>
         <button className="bk-btn bk-btn-primary" onClick={onReset}>Hacer otra reserva</button>
       </div>
+      <button className="bk-done-cancel" onClick={() => onCancel(codigo)}>
+        <Icon name="calendar-x" size={14} />¿Necesitas anular esta reserva?
+      </button>
     </div>
   );
 }
@@ -588,6 +729,7 @@ function ReservarApp() {
   const [hora, setHora] = React.useState(null);
   const [cliente, setCliente] = React.useState(loadCliente);
   const [showLogin, setShowLogin] = React.useState(false);
+  const [cancelModal, setCancelModal] = React.useState(null); // null | { code }
   const [datos, setDatos] = React.useState(() => {
     const c = loadCliente();
     return { nombre: c?.nombre || '', telefono: c?.telefono || '', email: c?.email || '', notas: '' };
@@ -623,7 +765,17 @@ function ReservarApp() {
     if (!canNext) return;
     if (step < 3) { setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     else {
-      setCodigo('AG-' + Math.floor(1000 + Math.random() * 9000));
+      const code = 'AG-' + Math.floor(1000 + Math.random() * 9000);
+      // Guarda la reserva para que pueda anularse con su código más adelante.
+      saveReserva(code, {
+        servicio: servicio ? servicio.nombre : '',
+        pro: pro ? (pro.any ? 'Sin preferencia' : pro.nombre) : '',
+        fechaTxt: fecha ? `${fecha.hoy ? 'Hoy' : fecha.dia} ${fecha.num} ${fecha.mes}` : '',
+        hora: hora || '',
+        duracion: servicio ? servicio.duracion : null,
+        estado: 'confirmada',
+      });
+      setCodigo(code);
       setStep(4);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -648,8 +800,18 @@ function ReservarApp() {
     setAcepta(false); setCodigo(null);
   };
 
-  const topBar = <ReservarTopBar cliente={cliente} onLogin={() => setShowLogin(true)} onLogout={handleLogout} />;
+  const topBar = (
+    <ReservarTopBar
+      cliente={cliente}
+      onLogin={() => setShowLogin(true)}
+      onLogout={handleLogout}
+      onCancel={() => setCancelModal({ code: '' })}
+    />
+  );
   const loginModal = showLogin && <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />;
+  const cancelModalEl = cancelModal && (
+    <CancelModal initialCode={cancelModal.code} onClose={() => setCancelModal(null)} />
+  );
 
   // Reservas desactivadas desde la configuración: página cerrada al público.
   if (!cfg.online) {
@@ -666,6 +828,7 @@ function ReservarApp() {
           </div>
         </main>
         {loginModal}
+        {cancelModalEl}
       </div>
     );
   }
@@ -675,9 +838,10 @@ function ReservarApp() {
       <div className="bk-page" style={pageStyle}>
         {topBar}
         <main className="bk-main bk-main-done">
-          <Confirmacion codigo={codigo} servicio={servicio} pro={pro} fecha={fecha} hora={hora} datos={datos} onReset={reset} cfg={cfg} />
+          <Confirmacion codigo={codigo} servicio={servicio} pro={pro} fecha={fecha} hora={hora} datos={datos} onReset={reset} onCancel={(c) => setCancelModal({ code: c })} cfg={cfg} />
         </main>
         {loginModal}
+        {cancelModalEl}
       </div>
     );
   }
@@ -717,6 +881,7 @@ function ReservarApp() {
         </div>
       </main>
       {loginModal}
+        {cancelModalEl}
     </div>
   );
 }
