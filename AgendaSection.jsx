@@ -24,15 +24,15 @@ const MOCK_CITAS_SEMANA = [
 ];
 
 const MOCK_CITAS_MES = [
-  { id: 20, fecha: '2026-05-04', hora: '09:00', cliente: 'Valentina Rojas',  servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
-  { id: 21, fecha: '2026-05-04', hora: '11:00', cliente: 'Sofía Herrera',    servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'pending' },
-  { id: 22, fecha: '2026-05-04', hora: '14:00', cliente: 'Camila Fuentes',   servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
-  { id: 23, fecha: '2026-05-11', hora: '10:00', cliente: 'Carolina Pérez',   servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
-  { id: 24, fecha: '2026-05-18', hora: '09:00', cliente: 'Daniela Torres',   servicios: ['Pedicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
-  { id: 25, fecha: '2026-05-18', hora: '11:30', cliente: 'Isabel Castro',    servicios: ['Coloración', 'Corte'], colaboradores: ['Andrea M.', 'Paula R.'], espacios: ['Sala de color'],        estado: 'pending' },
-  { id: 26, fecha: '2026-05-20', hora: '09:00', cliente: 'Fernanda Muñoz',   servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
-  { id: 27, fecha: '2026-05-26', hora: '10:00', cliente: 'Jorge Salazar',    servicios: ['Corte'],               colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'cancelled' },
-  { id: 28, fecha: '2026-05-28', hora: '14:00', cliente: 'Andrea García',    servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
+  { id: 20, fecha: '2026-05-04', hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 21, fecha: '2026-05-04', hora: '11:00', duracion: 45, cliente: 'Sofía Herrera',    servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'pending' },
+  { id: 22, fecha: '2026-05-04', hora: '14:00', duracion: 60, cliente: 'Camila Fuentes',   servicios: ['Corte + Brushing'],    colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 23, fecha: '2026-05-11', hora: '10:00', duracion: 90, cliente: 'Carolina Pérez',   servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
+  { id: 24, fecha: '2026-05-18', hora: '09:00', duracion: 60, cliente: 'Daniela Torres',   servicios: ['Pedicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
+  { id: 25, fecha: '2026-05-18', hora: '11:30', duracion: 135, cliente: 'Isabel Castro',   servicios: ['Coloración', 'Corte'], colaboradores: ['Andrea M.', 'Paula R.'], espacios: ['Sala de color'],        estado: 'pending' },
+  { id: 26, fecha: '2026-05-20', hora: '09:00', duracion: 45, cliente: 'Fernanda Muñoz',   servicios: ['Manicure'],            colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
+  { id: 27, fecha: '2026-05-26', hora: '10:00', duracion: 45, cliente: 'Jorge Salazar',    servicios: ['Corte'],               colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'cancelled' },
+  { id: 28, fecha: '2026-05-28', hora: '14:00', duracion: 90, cliente: 'Andrea García',    servicios: ['Coloración'],          colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
 ];
 
 const MOCK_HORARIOS = [
@@ -811,7 +811,7 @@ function MesDayCell({ date, citas, isToday, isSelected, isOut, onClick }) {
   );
 }
 
-function MesSidePanel({ date, citas, onClose }) {
+function MesSidePanel({ date, citas, onClose, onOpenCita }) {
   const dayNames   = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const title = `${dayNames[date.getDay()]} ${date.getDate()} de ${monthNames[date.getMonth()]}`;
@@ -833,7 +833,13 @@ function MesSidePanel({ date, citas, onClose }) {
               const colaboradores = toArr(c.colaboradores, c.colaborador);
               const espacios = toArr(c.espacios, c.espacio);
               return (
-                <div key={c.id} className="cita-row cita-row--multiline">
+                <div
+                  key={c.id}
+                  className="cita-row cita-row--multiline"
+                  onClick={() => onOpenCita(c)}
+                  role="button"
+                  tabIndex="0"
+                >
                   <div className="cita-hora">{c.hora}</div>
                   <div className="cita-info">
                     <div className="cita-cliente">{c.cliente}</div>
@@ -860,7 +866,7 @@ function MesView() {
   const [monthOffset, setMonthOffset] = React.useState(0);
   const [selectedDate, setSelectedDate] = React.useState(null);
   const [citasMes, setCitasMes] = React.useState(MOCK_CITAS_MES);
-  // null = cerrado | { mode: 'new', hora, fecha }
+  // null = cerrado | { mode: 'new', hora, fecha } | { mode: 'view'|'edit', cita }
   const [panel, setPanel] = React.useState(null);
 
   const today = new Date();
@@ -905,10 +911,20 @@ function MesView() {
 
   // Nueva cita: la asignamos al día seleccionado (o a hoy) y la agregamos al mes.
   const closePanel = () => setPanel(null);
-  const openNew = () => setPanel({ mode: 'new', hora: '', fecha: selectedIso || todayIso });
+  const openNew  = () => setPanel({ mode: 'new', hora: '', fecha: selectedIso || todayIso });
+  const openView = (cita) => setPanel({ mode: 'view', cita });
+  const openEdit = (cita) => setPanel({ mode: 'edit', cita });
   const handleSave = (cita) => {
     // La fecha viene del propio panel (campo Fecha); cae al día sugerido si faltara.
-    setCitasMes(prev => [...prev, { ...cita, fecha: cita.fecha || panel.fecha }]);
+    setCitasMes(prev =>
+      prev.some(c => c.id === cita.id)
+        ? prev.map(c => (c.id === cita.id ? { ...c, ...cita } : c))
+        : [...prev, { ...cita, fecha: cita.fecha || (panel && panel.fecha) || todayIso }]
+    );
+    closePanel();
+  };
+  const handleAnular = (cita) => {
+    setCitasMes(prev => prev.map(c => (c.id === cita.id ? { ...c, estado: 'cancelled' } : c)));
     closePanel();
   };
 
@@ -956,6 +972,7 @@ function MesView() {
               date={selectedDate}
               citas={selectedCitas}
               onClose={() => setSelectedDate(null)}
+              onOpenCita={openView}
             />
           )}
         </div>
@@ -963,12 +980,16 @@ function MesView() {
 
       {panel && (
         <ReservaPanel
-          mode="new"
+          mode={panel.mode}
+          cita={panel.cita}
           initialHora={panel.hora}
           withDate
-          initialFecha={panel.fecha}
+          initialFecha={panel.cita ? panel.cita.fecha : panel.fecha}
           onClose={closePanel}
           onSave={handleSave}
+          onEdit={openEdit}
+          onReagendar={openEdit}
+          onAnular={handleAnular}
         />
       )}
     </div>
