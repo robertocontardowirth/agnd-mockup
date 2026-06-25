@@ -8,6 +8,7 @@ const APP_SECTIONS = [
   { id: 'equipo',    label: 'Equipo',    icon: 'user-check' },
   { id: 'espacios',  label: 'Espacios',  icon: 'building-2' },
   { id: 'recursos',  label: 'Recursos',  icon: 'package' },
+  { id: 'reservas',  label: 'Reservas',  icon: 'globe' },
 ];
 
 const SIDEBAR_CONFIG = {
@@ -103,6 +104,29 @@ const SIDEBAR_CONFIG = {
         label: 'Ajustes',
         items: [
           { id: 'config-recursos', label: 'Configuración', icon: 'settings-2' },
+        ],
+      },
+    ],
+  },
+  reservas: {
+    groups: [
+      {
+        items: [
+          { id: 'general',    label: 'General',    icon: 'info' },
+          { id: 'apariencia', label: 'Apariencia', icon: 'palette' },
+        ],
+      },
+      {
+        label: 'Contenido',
+        items: [
+          { id: 'servicios',     label: 'Servicios',     icon: 'tag' },
+          { id: 'profesionales', label: 'Profesionales', icon: 'user-check' },
+        ],
+      },
+      {
+        label: 'Ajustes',
+        items: [
+          { id: 'reglas', label: 'Reglas de reserva', icon: 'sliders-horizontal' },
         ],
       },
     ],

@@ -2515,3 +2515,114 @@ select.reserva-input { cursor: pointer; }
 }
 .btn-danger-sm i, .btn-danger-sm svg { width: 15px; height: 15px; }
 .btn-danger-sm:hover { background: rgba(170,68,101,.08); }
+
+/* ── PÁGINA DE RESERVAS · configuración ──────────────────────────────────────── */
+.rc-offline-note {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 12px; padding: 10px 12px;
+  font-size: 13px; color: var(--fg-2);
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md);
+}
+.rc-offline-note svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--fg-3); }
+
+.rc-slug { display: flex; align-items: stretch; }
+.rc-slug-prefix {
+  display: flex; align-items: center;
+  padding: 0 10px; font-size: 13px; color: var(--fg-3);
+  background: var(--bg); border: 1.5px solid var(--border); border-right: none;
+  border-radius: var(--r-md) 0 0 var(--r-md); white-space: nowrap;
+}
+.rc-slug .reserva-input { border-radius: 0 var(--r-md) var(--r-md) 0; }
+
+/* Apariencia: controles + vista previa */
+.rc-apariencia { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+.rc-apariencia-controls { display: flex; flex-direction: column; gap: 16px; }
+.rc-apariencia-preview { position: sticky; top: 16px; }
+.rc-preview-label { font-size: 12px; font-weight: 600; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+
+.rc-swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+.rc-swatch {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; font-weight: 500; color: var(--fg-2);
+}
+.rc-swatch-color {
+  width: 44px; height: 44px; border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; box-shadow: var(--shadow-xs);
+  border: 2px solid transparent; transition: transform var(--d-fast) var(--ease-out);
+}
+.rc-swatch.is-active .rc-swatch-color { border-color: var(--fg-1); transform: scale(1.05); }
+.rc-swatch.is-active { color: var(--fg-1); }
+
+/* Vista previa de la página de reservas */
+.rc-preview {
+  border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden;
+  background: var(--bg); box-shadow: var(--shadow-sm);
+}
+.rc-preview-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; background: var(--bg-elevated); border-bottom: 1px solid var(--border);
+}
+.rc-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+.rc-preview-url { margin-left: 8px; font-size: 11px; color: var(--fg-3); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-preview-body { padding: 16px; }
+.rc-preview-hero { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.rc-preview-logo {
+  width: 34px; height: 34px; border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--rc-accent); color: #fff; flex-shrink: 0;
+}
+.rc-preview-name { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--fg-1); }
+.rc-preview-rating { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--fg-2); }
+.rc-preview-rating svg { color: #F5B301; }
+.rc-preview-rating em { color: var(--fg-3); font-style: normal; }
+.rc-preview-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--fg-1); }
+.rc-preview-sub { font-size: 12px; color: var(--fg-2); margin-top: 2px; margin-bottom: 12px; }
+.rc-preview-service {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 12px; border: 1.5px solid var(--rc-accent); border-radius: var(--r-md);
+  margin-bottom: 12px;
+}
+.rc-preview-service-name { font-size: 13px; font-weight: 600; color: var(--fg-1); }
+.rc-preview-service-meta { font-size: 11px; color: var(--fg-3); margin-top: 2px; }
+.rc-preview-price { font-size: 13px; font-weight: 700; color: var(--rc-accent); }
+.rc-preview-btn {
+  text-align: center; padding: 10px; border-radius: var(--r-md);
+  background: var(--rc-accent); color: #fff; font-size: 13px; font-weight: 600;
+}
+
+/* Listas de servicios / profesionales visibles */
+.rc-list-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.rc-count { font-size: 12px; font-weight: 600; color: var(--accent-live); flex-shrink: 0; }
+.rc-list-desc { font-size: 13px; color: var(--fg-2); margin: 4px 0 14px; }
+.rc-rows { display: flex; flex-direction: column; }
+.rc-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-top: 1px solid var(--border);
+}
+.rc-row:first-child { border-top: none; }
+.rc-row-icon {
+  width: 34px; height: 34px; border-radius: var(--r-md); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-tint); color: var(--accent-live);
+}
+.rc-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 600;
+}
+.rc-row-main { flex: 1; min-width: 0; }
+.rc-row-name { font-size: 14px; font-weight: 600; color: var(--fg-1); }
+.rc-row-meta { font-size: 12px; color: var(--fg-3); margin-top: 1px; }
+.rc-empty {
+  display: flex; align-items: center; gap: 8px;
+  padding: 20px; justify-content: center;
+  font-size: 13px; color: var(--fg-3);
+}
+.rc-empty svg { width: 16px; height: 16px; }
+
+@media (max-width: 900px) {
+  .rc-apariencia { grid-template-columns: 1fr; }
+  .rc-apariencia-preview { position: static; }
+}
