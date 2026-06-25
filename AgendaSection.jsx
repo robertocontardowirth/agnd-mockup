@@ -3,13 +3,13 @@
 // ── MOCK DATA ────────────────────────────────────────────────────────────────
 
 const MOCK_CITAS_HOY = [
-  { id: 1,  hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed', notas: 'Primera visita del mes' },
-  { id: 7,  hora: '09:30', duracion: 60, cliente: 'Martina Soto',     servicio: 'Manicure',          colaborador: 'Paula R.',  estado: 'confirmed', notas: '' },
-  { id: 2,  hora: '10:30', duracion: 90, cliente: 'Carolina Pérez',   servicio: 'Coloración',        colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
-  { id: 3,  hora: '12:00', duracion: 45, cliente: 'Sofía Herrera',    servicio: 'Manicure',          colaborador: 'Paula R.',  estado: 'pending',   notas: 'Confirmar por WhatsApp' },
-  { id: 4,  hora: '14:00', duracion: 60, cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing',  colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
-  { id: 5,  hora: '15:30', duracion: 60, cliente: 'Daniela Torres',   servicio: 'Pedicure',          colaborador: 'Paula R.',  estado: 'pending',   notas: '' },
-  { id: 6,  hora: '17:00', duracion: 90, cliente: 'Isabel Castro',    servicio: 'Coloración',        colaborador: 'Andrea M.', estado: 'confirmed', notas: '' },
+  { id: 1,  hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicios: ['Corte + Brushing'],      colaboradores: ['Andrea M.'],             espacios: ['Box 1'],            servicio: 'Corte + Brushing', colaborador: 'Andrea M.', espacio: 'Box 1',            estado: 'confirmed', notas: 'Primera visita del mes' },
+  { id: 7,  hora: '09:30', duracion: 60, cliente: 'Martina Soto',     servicios: ['Manicure'],              colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], servicio: 'Manicure',     colaborador: 'Paula R.',  espacio: 'Estación de manicure', estado: 'confirmed', notas: '' },
+  { id: 2,  hora: '10:30', duracion: 90, cliente: 'Carolina Pérez',   servicios: ['Coloración'],            colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],    servicio: 'Coloración',       colaborador: 'Andrea M.', espacio: 'Sala de color',    estado: 'confirmed', notas: '' },
+  { id: 3,  hora: '12:00', duracion: 45, cliente: 'Sofía Herrera',    servicios: ['Manicure'],              colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], servicio: 'Manicure',     colaborador: 'Paula R.',  espacio: 'Estación de manicure', estado: 'pending',   notas: 'Confirmar por WhatsApp' },
+  { id: 4,  hora: '14:00', duracion: 60, cliente: 'Camila Fuentes',   servicios: ['Corte + Brushing'],      colaboradores: ['Andrea M.'],             espacios: ['Box 1'],            servicio: 'Corte + Brushing', colaborador: 'Andrea M.', espacio: 'Box 1',            estado: 'confirmed', notas: '' },
+  { id: 5,  hora: '15:30', duracion: 60, cliente: 'Daniela Torres',   servicios: ['Pedicure'],              colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], servicio: 'Pedicure',     colaborador: 'Paula R.',  espacio: 'Estación de manicure', estado: 'pending',   notas: '' },
+  { id: 6,  hora: '17:00', duracion: 90, cliente: 'Isabel Castro',    servicios: ['Coloración', 'Corte'],   colaboradores: ['Andrea M.', 'Paula R.'], espacios: ['Sala de color'],    servicio: 'Coloración, Corte', colaborador: 'Andrea M., Paula R.', espacio: 'Sala de color', estado: 'confirmed', notas: '' },
 ];
 
 const MOCK_CITAS_SEMANA = [
@@ -126,8 +126,21 @@ function AgendaSummaryRow({ citas }) {
   );
 }
 
+// Lista de valores como chips de solo lectura (servicios, colaboradores, espacios).
+function DetailChips({ values }) {
+  if (!values.length) return <div className="cita-detail-value">—</div>;
+  return (
+    <div className="cita-detail-chips">
+      {values.map(v => <span key={v} className="cita-detail-chip">{v}</span>)}
+    </div>
+  );
+}
+
 // Detalle de la reserva en modo consulta, mostrado dentro del panel lateral
 function ReservaDetalle({ cita }) {
+  const servicios = toArr(cita.servicios, cita.servicio);
+  const colaboradores = toArr(cita.colaboradores, cita.colaborador);
+  const espacios = toArr(cita.espacios, cita.espacio);
   return (
     <div className="reserva-detail">
       <div className="reserva-detail-time">
@@ -139,13 +152,17 @@ function ReservaDetalle({ cita }) {
           <div className="cita-detail-label">Cliente</div>
           <div className="cita-detail-value">{cita.cliente}</div>
         </div>
-        <div className="cita-detail-row">
-          <div className="cita-detail-label">Servicio</div>
-          <div className="cita-detail-value">{cita.servicio}</div>
+        <div className="cita-detail-row cita-detail-row--full">
+          <div className="cita-detail-label">Servicios</div>
+          <DetailChips values={servicios} />
         </div>
-        <div className="cita-detail-row">
-          <div className="cita-detail-label">Colaborador</div>
-          <div className="cita-detail-value">{cita.colaborador}</div>
+        <div className="cita-detail-row cita-detail-row--full">
+          <div className="cita-detail-label">Colaboradores</div>
+          <DetailChips values={colaboradores} />
+        </div>
+        <div className="cita-detail-row cita-detail-row--full">
+          <div className="cita-detail-label">Espacios</div>
+          <DetailChips values={espacios} />
         </div>
         <div className="cita-detail-row">
           <div className="cita-detail-label">Estado</div>
@@ -267,12 +284,17 @@ function Timeline({ citas, selectedId, onOpen, onAdd }) {
 
 // ── PANEL DE RESERVA · convive con el contenido (no overlay). Sirve para crear y editar ──
 
+// Una reserva puede asociar varios servicios, colaboradores y espacios.
+// Soportamos datos antiguos con campos singulares (servicio/colaborador/espacio).
+const toArr = (plural, singular) => Array.isArray(plural) ? plural : (singular ? [singular] : []);
+
 function buildInitialForm({ cita, initialHora, initialFecha }) {
   if (cita) {
     return {
       cliente: cita.cliente || '',
-      servicio: cita.servicio || '',
-      colaborador: cita.colaborador || RESERVA_COLABORADORES[0],
+      servicios: toArr(cita.servicios, cita.servicio),
+      colaboradores: toArr(cita.colaboradores, cita.colaborador),
+      espacios: toArr(cita.espacios, cita.espacio),
       fecha: cita.fecha || initialFecha || '',
       hora: cita.hora || '',
       duracion: cita.duracion || 60,
@@ -281,9 +303,32 @@ function buildInitialForm({ cita, initialHora, initialFecha }) {
     };
   }
   return {
-    cliente: '', servicio: '', colaborador: RESERVA_COLABORADORES[0],
+    cliente: '', servicios: [], colaboradores: [], espacios: [],
     fecha: initialFecha || '', hora: initialHora || '', duracion: 60, estado: 'confirmed', notas: '',
   };
+}
+
+// Multi-selección por chips: cada opción se enciende/apaga con un clic.
+function ReservaChips({ options, selected, onToggle, empty }) {
+  if (!options.length) return <div className="reserva-chips-empty">{empty || 'Sin opciones'}</div>;
+  return (
+    <div className="reserva-chips">
+      {options.map(opt => {
+        const on = selected.includes(opt);
+        return (
+          <button
+            key={opt}
+            type="button"
+            className={`reserva-chip${on ? ' on' : ''}`}
+            onClick={() => onToggle(opt)}
+            aria-pressed={on}
+          >
+            {on && <Icon name="check" />}{opt}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose, onSave, onEdit, onReagendar, onAnular }) {
@@ -303,13 +348,26 @@ function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  const espacioOpts = (window.MOCK_ESPACIOS || []).filter(e => e.activo).map(e => e.nombre);
+
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
-  const onServicio = e => {
-    const nombre = e.target.value;
-    const s = SERVICIOS.find(x => x.nombre === nombre);
-    setForm(f => ({ ...f, servicio: nombre, duracion: s ? s.duracion : f.duracion }));
-  };
-  const ok = form.cliente.trim() && form.servicio && form.hora && (!withDate || form.fecha);
+
+  // Alterna una opción dentro de un campo-arreglo. Al cambiar servicios,
+  // recalcula la duración como la suma de los servicios seleccionados.
+  const toggleArr = (key, val) => setForm(f => {
+    const next = f[key].includes(val) ? f[key].filter(x => x !== val) : [...f[key], val];
+    if (key === 'servicios') {
+      const dur = next.reduce((acc, n) => {
+        const s = SERVICIOS.find(x => x.nombre === n);
+        return acc + (s ? s.duracion : 0);
+      }, 0);
+      return { ...f, servicios: next, duracion: dur || f.duracion };
+    }
+    return { ...f, [key]: next };
+  });
+
+  const ok = form.cliente.trim() && form.servicios.length && form.colaboradores.length
+    && form.espacios.length && form.hora && (!withDate || form.fecha);
 
   const save = () => {
     if (!ok) return;
@@ -319,8 +377,13 @@ function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose
       hora: form.hora,
       duracion: parseInt(form.duracion, 10) || 60,
       cliente: form.cliente.trim(),
-      servicio: form.servicio,
-      colaborador: form.colaborador,
+      servicios: form.servicios,
+      colaboradores: form.colaboradores,
+      espacios: form.espacios,
+      // Campos singulares derivados, para vistas que aún muestran texto plano.
+      servicio: form.servicios.join(', '),
+      colaborador: form.colaboradores.join(', '),
+      espacio: form.espacios.join(', '),
       estado: form.estado,
       notas: form.notas.trim(),
     });
@@ -373,18 +436,31 @@ function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose
           </div>
 
           <div className="reserva-field">
-            <label className="reserva-field-label">Servicio</label>
-            <select className="reserva-input" value={form.servicio} onChange={onServicio}>
-              <option value="" disabled>Seleccionar servicio…</option>
-              {SERVICIOS.map(s => <option key={s.nombre} value={s.nombre}>{s.nombre}</option>)}
-            </select>
+            <label className="reserva-field-label">Servicios <span className="reserva-field-opt">(uno o más)</span></label>
+            <ReservaChips
+              options={SERVICIOS.map(s => s.nombre)}
+              selected={form.servicios}
+              onToggle={v => toggleArr('servicios', v)}
+            />
           </div>
 
           <div className="reserva-field">
-            <label className="reserva-field-label">Colaborador</label>
-            <select className="reserva-input" value={form.colaborador} onChange={up('colaborador')}>
-              {RESERVA_COLABORADORES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <label className="reserva-field-label">Colaboradores <span className="reserva-field-opt">(uno o más)</span></label>
+            <ReservaChips
+              options={RESERVA_COLABORADORES}
+              selected={form.colaboradores}
+              onToggle={v => toggleArr('colaboradores', v)}
+            />
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Espacios <span className="reserva-field-opt">(uno o más)</span></label>
+            <ReservaChips
+              options={espacioOpts}
+              selected={form.espacios}
+              onToggle={v => toggleArr('espacios', v)}
+              empty="No hay espacios activos"
+            />
           </div>
 
           {withDate && (

@@ -1487,6 +1487,48 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .reserva-field-label { font-size: 13px; font-weight: 500; color: var(--fg-2); }
 .reserva-field-opt { color: var(--fg-3); font-weight: 400; }
 
+/* Multi-selección por chips (servicios / colaboradores / espacios) */
+.reserva-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.reserva-chips-empty { font-size: 13px; color: var(--fg-3); font-style: italic; padding: 4px 0; }
+.reserva-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-2);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color var(--d-fast) var(--ease-out),
+              background var(--d-fast) var(--ease-out),
+              color var(--d-fast) var(--ease-out);
+}
+.reserva-chip svg { width: 14px; height: 14px; }
+.reserva-chip:hover { border-color: var(--accent-live); color: var(--fg-1); }
+.reserva-chip.on {
+  background: var(--accent-tint);
+  border-color: var(--accent-live);
+  color: var(--accent-live);
+}
+
+/* Chips de solo lectura en el detalle de la reserva */
+.cita-detail-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cita-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-1);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+}
+
 .reserva-input {
   font-family: var(--font-body);
   font-size: 14px;
