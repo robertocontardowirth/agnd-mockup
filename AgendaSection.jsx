@@ -13,14 +13,14 @@ const MOCK_CITAS_HOY = [
 ];
 
 const MOCK_CITAS_SEMANA = [
-  { id: 10, dayIndex: 0, hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 11, dayIndex: 0, hora: '11:00', duracion: 45, cliente: 'Sofía Herrera',    servicio: 'Manicure',         colaborador: 'Paula R.',  estado: 'pending' },
-  { id: 12, dayIndex: 1, hora: '10:00', duracion: 90, cliente: 'Carolina Pérez',   servicio: 'Coloración',       colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 13, dayIndex: 2, hora: '09:30', duracion: 60, cliente: 'Camila Fuentes',   servicio: 'Corte + Brushing', colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 14, dayIndex: 2, hora: '14:00', duracion: 45, cliente: 'Fernanda Muñoz',   servicio: 'Manicure',         colaborador: 'Paula R.',  estado: 'confirmed' },
-  { id: 15, dayIndex: 3, hora: '11:00', duracion: 60, cliente: 'Daniela Torres',   servicio: 'Pedicure',         colaborador: 'Paula R.',  estado: 'done' },
-  { id: 16, dayIndex: 4, hora: '09:00', duracion: 90, cliente: 'Isabel Castro',    servicio: 'Coloración',       colaborador: 'Andrea M.', estado: 'confirmed' },
-  { id: 17, dayIndex: 4, hora: '11:30', duracion: 60, cliente: 'Valentina Rojas',  servicio: 'Corte',            colaborador: 'Andrea M.', estado: 'confirmed' },
+  { id: 10, dayIndex: 0, hora: '09:00', duracion: 60, cliente: 'Valentina Rojas',  servicios: ['Corte + Brushing'], colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 11, dayIndex: 0, hora: '11:00', duracion: 45, cliente: 'Sofía Herrera',    servicios: ['Manicure'],         colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'pending' },
+  { id: 12, dayIndex: 1, hora: '10:00', duracion: 90, cliente: 'Carolina Pérez',   servicios: ['Coloración'],       colaboradores: ['Andrea M.'],             espacios: ['Sala de color'],        estado: 'confirmed' },
+  { id: 13, dayIndex: 2, hora: '09:30', duracion: 60, cliente: 'Camila Fuentes',   servicios: ['Corte + Brushing'], colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
+  { id: 14, dayIndex: 2, hora: '14:00', duracion: 45, cliente: 'Fernanda Muñoz',   servicios: ['Manicure'],         colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'confirmed' },
+  { id: 15, dayIndex: 3, hora: '11:00', duracion: 60, cliente: 'Daniela Torres',   servicios: ['Pedicure'],         colaboradores: ['Paula R.'],              espacios: ['Estación de manicure'], estado: 'done' },
+  { id: 16, dayIndex: 4, hora: '09:00', duracion: 90, cliente: 'Isabel Castro',    servicios: ['Coloración', 'Corte'], colaboradores: ['Andrea M.', 'Paula R.'], espacios: ['Sala de color'],     estado: 'confirmed' },
+  { id: 17, dayIndex: 4, hora: '11:30', duracion: 60, cliente: 'Valentina Rojas',  servicios: ['Corte'],            colaboradores: ['Andrea M.'],             espacios: ['Box 1'],                estado: 'confirmed' },
 ];
 
 const MOCK_CITAS_MES = [
@@ -643,6 +643,9 @@ function isoToWeekDayIndex(iso, weekOffset) {
 }
 
 function CitaCardCompact({ cita, selected, onOpen }) {
+  const servicios = toArr(cita.servicios, cita.servicio);
+  const colaboradores = toArr(cita.colaboradores, cita.colaborador);
+  const espacios = toArr(cita.espacios, cita.espacio);
   return (
     <div
       className={`semana-cita-card${selected ? ' selected' : ''}`}
@@ -652,6 +655,13 @@ function CitaCardCompact({ cita, selected, onOpen }) {
     >
       <div className="semana-cita-time">{cita.hora}</div>
       <div className="semana-cita-client">{cita.cliente}</div>
+      {servicios.length > 0 && <div className="semana-cita-meta">{servicios.join(' · ')}</div>}
+      {colaboradores.length > 0 && (
+        <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="user" />{colaboradores.join(' · ')}</div>
+      )}
+      {espacios.length > 0 && (
+        <div className="semana-cita-meta semana-cita-meta--icon"><Icon name="map-pin" />{espacios.join(' · ')}</div>
+      )}
       <EstadoBadge estado={cita.estado} />
     </div>
   );

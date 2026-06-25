@@ -1036,6 +1036,16 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.semana-cita-meta {
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.semana-cita-meta--icon { display: flex; align-items: center; gap: 4px; }
+.semana-cita-meta--icon svg { width: 11px; height: 11px; flex-shrink: 0; }
 
 .semana-empty {
   display: flex;
