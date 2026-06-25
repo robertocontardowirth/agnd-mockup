@@ -2772,3 +2772,17 @@ select.reserva-input { cursor: pointer; }
 .import-done-check svg { width: 28px; height: 28px; }
 .import-done-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--fg-1); margin: 0; }
 .import-done-sub { font-size: 14px; color: var(--fg-2); margin: 0 0 8px; }
+
+/* ── SERVICIOS · gestión de categorías ───────────────────────────────────────── */
+.cat-card-actions { margin-left: auto; display: flex; gap: 4px; }
+
+.icon-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.icon-picker-btn {
+  width: 40px; height: 40px; border-radius: var(--r-md); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); border: 1.5px solid var(--border); color: var(--fg-2);
+  transition: border-color var(--d-fast) var(--ease-out), background var(--d-fast) var(--ease-out), color var(--d-fast) var(--ease-out);
+}
+.icon-picker-btn svg { width: 18px; height: 18px; }
+.icon-picker-btn:hover { border-color: var(--accent-live); color: var(--fg-1); }
+.icon-picker-btn.is-active { background: var(--accent-tint); border-color: var(--accent-live); color: var(--accent-live); }

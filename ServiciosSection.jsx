@@ -22,11 +22,11 @@ function svcInitials(nombre) {
 
 // ── MODAL DE SERVICIO ──────────────────────────────────────────────────────────
 
-function buildServicioForm(s, colaboradores) {
+function buildServicioForm(s, colaboradores, categorias) {
   const firstCol = colaboradores[0] ? colaboradores[0].id : null;
   return {
     nombre:        s?.nombre        || '',
-    categoria:     s?.categoria     || SERVICIO_CATEGORIAS[0],
+    categoria:     s?.categoria     || categorias[0] || '',
     colaboradorId: s?.colaboradorId ?? firstCol,
     duracion:      s?.duracion      || 45,
     precio:        s?.precio        ?? '',
@@ -34,9 +34,9 @@ function buildServicioForm(s, colaboradores) {
   };
 }
 
-function ServicioModal({ mode, servicio, colaboradores, onClose, onSave }) {
+function ServicioModal({ mode, servicio, colaboradores, categorias, onClose, onSave }) {
   const isEdit = mode === 'edit';
-  const [form, setForm] = React.useState(() => buildServicioForm(servicio, colaboradores));
+  const [form, setForm] = React.useState(() => buildServicioForm(servicio, colaboradores, categorias));
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const up = k => e => set(k, e.target.value);
   const ok = form.nombre.trim() && form.colaboradorId != null && Number(form.precio) > 0 && Number(form.duracion) > 0;
@@ -82,7 +82,7 @@ function ServicioModal({ mode, servicio, colaboradores, onClose, onSave }) {
         <div className="reserva-field">
           <label className="reserva-field-label">Categoría</label>
           <select className="reserva-input" value={form.categoria} onChange={up('categoria')}>
-            {SERVICIO_CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
+            {categorias.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="reserva-field">
@@ -146,11 +146,12 @@ function ServicioRow({ servicio, onEdit }) {
   );
 }
 
-function ServiciosTodosView({ servicios, onSave }) {
+function ServiciosTodosView({ servicios, categorias, onSave }) {
   const [query, setQuery] = React.useState('');
   const [cat, setCat] = React.useState('todas');
   const [modal, setModal] = React.useState(null);
   const colaboradores = (window.MOCK_COLABORADORES || []).filter(c => c.activo !== false);
+  const categoriaNombres = categorias.map(c => c.nombre);
 
   const handleSave = (s) => { onSave(s); setModal(null); };
 
@@ -183,7 +184,7 @@ function ServiciosTodosView({ servicios, onSave }) {
         </div>
         <div className="servicios-cat-filter">
           <button className={`chip-filter${cat === 'todas' ? ' active' : ''}`} onClick={() => setCat('todas')}>Todas</button>
-          {SERVICIO_CATEGORIAS.map(c => (
+          {categoriaNombres.map(c => (
             <button key={c} className={`chip-filter${cat === c ? ' active' : ''}`} onClick={() => setCat(c)}>{c}</button>
           ))}
         </div>
@@ -210,6 +211,7 @@ function ServiciosTodosView({ servicios, onSave }) {
           mode={modal.mode}
           servicio={modal.servicio}
           colaboradores={colaboradores}
+          categorias={categoriaNombres}
           onClose={() => setModal(null)}
           onSave={handleSave}
         />
@@ -220,45 +222,142 @@ function ServiciosTodosView({ servicios, onSave }) {
 
 // ── POR CATEGORÍA ──────────────────────────────────────────────────────────────
 
-function ServiciosCategoriasView({ servicios }) {
-  const grupos = SERVICIO_CATEGORIAS.map(cat => {
-    const items = servicios.filter(s => s.categoria === cat);
+// Íconos disponibles para una categoría (deben existir en lucide).
+const CATEGORIA_ICONOS = ['scissors', 'sparkles', 'hand', 'brush', 'palette', 'droplet', 'heart', 'star', 'flame', 'tag'];
+
+function CategoriaModal({ mode, categoria, onClose, onSave }) {
+  const isEdit = mode === 'edit';
+  const [form, setForm] = React.useState(() => ({
+    nombre: categoria?.nombre || '',
+    icon:   categoria?.icon   || CATEGORIA_ICONOS[0],
+  }));
+  const ok = form.nombre.trim();
+
+  const save = () => {
+    if (!ok) return;
+    onSave({ id: isEdit ? categoria.id : Date.now(), nombre: form.nombre.trim(), icon: form.icon });
+  };
+
+  const footer = (
+    <React.Fragment>
+      <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
+      <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
+        <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Crear categoría'}
+      </button>
+    </React.Fragment>
+  );
+
+  return (
+    <Modal eyebrow="Servicios" title={isEdit ? 'Editar categoría' : 'Nueva categoría'} onClose={onClose} footer={footer}>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Nombre de la categoría</label>
+        <input type="text" className="reserva-input" placeholder="Ej: Cabello, Uñas…" value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} autoFocus />
+      </div>
+      <div className="reserva-field">
+        <label className="reserva-field-label">Ícono</label>
+        <div className="icon-picker">
+          {CATEGORIA_ICONOS.map(ic => (
+            <button
+              key={ic}
+              type="button"
+              className={`icon-picker-btn${form.icon === ic ? ' is-active' : ''}`}
+              onClick={() => setForm(f => ({ ...f, icon: ic }))}
+              aria-label={ic}
+            >
+              <Icon name={ic} />
+            </button>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function ServiciosCategoriasView({ servicios, categorias, onSaveCategoria, onRemoveCategoria, onRename }) {
+  const [modal, setModal] = React.useState(null);          // null | { mode, categoria }
+  const [confirmDel, setConfirmDel] = React.useState(null); // categoría a eliminar
+
+  const handleSave = (cat) => {
+    if (modal.mode === 'edit') onRename(modal.categoria.nombre, cat.nombre);
+    onSaveCategoria(cat);
+    setModal(null);
+  };
+  const handleDelete = () => {
+    if (confirmDel) onRemoveCategoria(confirmDel.id);
+    setConfirmDel(null);
+  };
+
+  const statsDe = (nombre) => {
+    const items = servicios.filter(s => s.categoria === nombre);
     const activos = items.filter(s => s.activo);
     const precios = activos.map(s => s.precio);
-    return {
-      cat,
-      total: items.length,
-      activos: activos.length,
-      desde: precios.length ? Math.min(...precios) : null,
-    };
-  }).filter(g => g.total > 0);
+    return { total: items.length, activos: activos.length, desde: precios.length ? Math.min(...precios) : null };
+  };
+
+  const delCount = confirmDel ? statsDe(confirmDel.nombre).total : 0;
 
   return (
     <div className="mgmt-view">
       <div className="agenda-config-header">
         <div>
           <div className="agenda-config-title">Por categoría</div>
-          <div className="agenda-config-desc">Cómo se distribuye tu catálogo de servicios.</div>
+          <div className="agenda-config-desc">Organiza tu catálogo en categorías y revisa cómo se distribuye.</div>
         </div>
+        <button className="btn-primary-sm" onClick={() => setModal({ mode: 'new' })}>
+          <Icon name="plus" />Nueva categoría
+        </button>
       </div>
 
-      <div className="cards-grid">
-        {grupos.map(g => (
-          <div key={g.cat} className="entity-card">
-            <div className="entity-card-head">
-              <span className="entity-icon"><Icon name={SERVICIO_CAT_ICON[g.cat] || 'tag'} /></span>
-              <div className="entity-head-text">
-                <div className="entity-title">{g.cat}</div>
-                <div className="entity-sub">{g.activos} de {g.total} activos</div>
+      {categorias.length === 0 ? (
+        <div className="clientes-empty"><Icon name="layers" /><span>Aún no tienes categorías. Crea la primera.</span></div>
+      ) : (
+        <div className="cards-grid">
+          {categorias.map(c => {
+            const g = statsDe(c.nombre);
+            return (
+              <div key={c.id} className="entity-card">
+                <div className="entity-card-head">
+                  <span className="entity-icon"><Icon name={c.icon || 'tag'} /></span>
+                  <div className="entity-head-text">
+                    <div className="entity-title">{c.nombre}</div>
+                    <div className="entity-sub">{g.total === 0 ? 'Sin servicios' : `${g.activos} de ${g.total} activos`}</div>
+                  </div>
+                  <div className="cat-card-actions">
+                    <button className="agenda-action-btn edit" onClick={() => setModal({ mode: 'edit', categoria: c })} aria-label="Editar categoría"><Icon name="pencil" /></button>
+                    <button className="agenda-action-btn" onClick={() => setConfirmDel(c)} aria-label="Eliminar categoría"><Icon name="trash-2" /></button>
+                  </div>
+                </div>
+                <div className="entity-meta-row">
+                  <Icon name="tag" />
+                  <span>{g.desde != null ? `Desde ${precioCLP(g.desde)}` : 'Sin precio'}</span>
+                </div>
               </div>
-            </div>
-            <div className="entity-meta-row">
-              <Icon name="tag" />
-              <span>{g.desde != null ? `Desde ${precioCLP(g.desde)}` : 'Sin precio'}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
+
+      {modal && (
+        <CategoriaModal
+          mode={modal.mode}
+          categoria={modal.categoria}
+          onClose={() => setModal(null)}
+          onSave={handleSave}
+        />
+      )}
+
+      {confirmDel && (
+        <ConfirmDialog
+          title="Eliminar categoría"
+          message={delCount > 0
+            ? `La categoría “${confirmDel.nombre}” tiene ${delCount} ${delCount === 1 ? 'servicio' : 'servicios'}. Si la eliminas, esos servicios quedarán sin categoría.`
+            : `¿Eliminar la categoría “${confirmDel.nombre}”?`}
+          confirmLabel="Eliminar categoría"
+          danger
+          onConfirm={handleDelete}
+          onClose={() => setConfirmDel(null)}
+        />
+      )}
     </div>
   );
 }
@@ -267,8 +366,33 @@ function ServiciosCategoriasView({ servicios }) {
 
 function ServiciosSection({ sub, servicios, onSaveServicio }) {
   const view = sub || 'todos';
-  if (view === 'categorias') return <ServiciosCategoriasView servicios={servicios} />;
-  return <ServiciosTodosView servicios={servicios} onSave={onSaveServicio} />;
+
+  // Catálogo de categorías editable (persiste durante la sesión). Semilla desde
+  // el catálogo canónico compartido.
+  const [categorias, setCategorias] = usePersistedState('servicios.categorias', () =>
+    SERVICIO_CATEGORIAS.map((nombre, i) => ({ id: i + 1, nombre, icon: SERVICIO_CAT_ICON[nombre] || 'tag' }))
+  );
+  const saveCategoria = (cat) =>
+    setCategorias(p => (p.some(c => c.id === cat.id) ? p.map(c => (c.id === cat.id ? cat : c)) : [...p, cat]));
+  const removeCategoria = (id) => setCategorias(p => p.filter(c => c.id !== id));
+  // Renombrar una categoría propaga el nuevo nombre a los servicios que la usaban.
+  const renameInServicios = (oldName, newName) => {
+    if (!newName || oldName === newName) return;
+    servicios.filter(s => s.categoria === oldName).forEach(s => onSaveServicio({ ...s, categoria: newName }));
+  };
+
+  if (view === 'categorias') {
+    return (
+      <ServiciosCategoriasView
+        servicios={servicios}
+        categorias={categorias}
+        onSaveCategoria={saveCategoria}
+        onRemoveCategoria={removeCategoria}
+        onRename={renameInServicios}
+      />
+    );
+  }
+  return <ServiciosTodosView servicios={servicios} categorias={categorias} onSave={onSaveServicio} />;
 }
 
 Object.assign(window, { ServiciosSection });
