@@ -2629,7 +2629,7 @@ select.reserva-input { cursor: pointer; }
 }
 
 /* ── INICIO · estado de la página de reservas (landing) ──────────────────────── */
-.lp-body { display: flex; flex-direction: column; gap: 12px; }
+.lp-body { display: flex; flex-direction: column; gap: 12px; padding: 14px 18px; }
 .lp-progress-head { display: flex; align-items: baseline; justify-content: space-between; }
 .lp-progress-label { font-size: 13px; font-weight: 600; color: var(--fg-1); }
 .lp-progress-pct { font-size: 13px; font-weight: 700; color: var(--accent-live); font-variant-numeric: tabular-nums; }
@@ -2889,7 +2889,7 @@ select.reserva-input { cursor: pointer; }
 }
 
 /* Card "Pagos del mes" en el inicio. */
-.pago-mes-body { padding: 4px 2px 2px; }
+.pago-mes-body { padding: 14px 18px; }
 .pago-mes-total {
   font-family: var(--font-display);
   font-size: 30px;

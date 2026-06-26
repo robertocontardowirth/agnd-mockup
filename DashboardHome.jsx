@@ -335,10 +335,10 @@ function LandingStatusCard({ onNavigate }) {
       <div className="dash-card-header">
         <div className="dash-card-title">
           <Icon name="globe" />
-          Tu página de reservas
+          Mi Landing
         </div>
         <a className="btn-sm-ghost" href="reservar.html" target="_blank" rel="noopener">
-          Ver página<Icon name="external-link" />
+          Ver<Icon name="external-link" />
         </a>
       </div>
 
