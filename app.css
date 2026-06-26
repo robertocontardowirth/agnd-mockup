@@ -481,8 +481,8 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .badge {
   display: inline-flex;
   align-items: center;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   padding: 2px 9px;
   border-radius: var(--r-pill);
   white-space: nowrap;
