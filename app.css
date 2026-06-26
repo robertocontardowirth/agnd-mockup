@@ -1241,9 +1241,10 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
    Las columnas son lo bastante anchas para que las etiquetas ("COLABORADOR")
    no desborden y se empalmen con la columna vecina. */
 .excepciones-head,
-.excepciones-row { grid-template-columns: 120px 1fr 180px 72px; }
+.excepciones-row { grid-template-columns: 120px minmax(0, 1fr) 220px 72px; }
 .bloqueos-head,
-.bloqueos-row    { grid-template-columns: 120px 140px 160px 1fr 36px; }
+.bloqueos-row    { grid-template-columns: 120px 140px 160px minmax(0, 1fr) 72px; }
+.excepciones-row .badge { max-width: 100%; }
 
 .agenda-table-row.excepciones-row,
 .agenda-table-row.bloqueos-row {

@@ -1277,16 +1277,24 @@ function ExcepcionesView() {
 
 // ── BLOQUEOS VIEW ─────────────────────────────────────────────────────────────
 
-// Modal de bloqueo · acceso rápido para bloquear una franja desde cualquier lado
-function BloqueoModal({ onClose, onSave }) {
-  const [form, setForm] = React.useState({ fecha: '', desde: '', hasta: '', colaborador: COLABORADORES[0], motivo: '' });
+// Modal de bloqueo · acceso rápido para bloquear una franja desde cualquier lado.
+// Soporta crear (sin bloqueo) y editar (mode 'edit' con un bloqueo existente).
+function BloqueoModal({ mode, bloqueo, onClose, onSave }) {
+  const isEdit = mode === 'edit';
+  const [form, setForm] = React.useState({
+    fecha: bloqueo?.fecha || '',
+    desde: bloqueo?.desde || '',
+    hasta: bloqueo?.hasta || '',
+    colaborador: bloqueo?.colaborador || COLABORADORES[0],
+    motivo: bloqueo?.motivo || '',
+  });
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const ok = form.fecha && form.desde && form.hasta && form.motivo.trim();
 
   const save = () => {
     if (!ok) return;
     onSave({
-      id: Date.now(),
+      id: isEdit ? bloqueo.id : Date.now(),
       fecha: form.fecha,
       desde: form.desde,
       hasta: form.hasta,
@@ -1299,13 +1307,13 @@ function BloqueoModal({ onClose, onSave }) {
     <React.Fragment>
       <button className="btn-sm-ghost reserva-footer-btn" onClick={onClose}>Cancelar</button>
       <button className="btn-primary-sm reserva-footer-btn" disabled={!ok} onClick={save}>
-        <Icon name="check" />Bloquear
+        <Icon name="check" />{isEdit ? 'Guardar cambios' : 'Bloquear'}
       </button>
     </React.Fragment>
   );
 
   return (
-    <Modal eyebrow="Agenda" title="Bloquear horario" onClose={onClose} footer={footer}>
+    <Modal eyebrow="Agenda" title={isEdit ? 'Editar bloqueo' : 'Bloquear horario'} onClose={onClose} footer={footer}>
       <div className="reserva-field">
         <label className="reserva-field-label">Fecha</label>
         <input type="date" className="reserva-input" value={form.fecha} onChange={up('fecha')} autoFocus />
@@ -1335,9 +1343,9 @@ function BloqueoModal({ onClose, onSave }) {
 }
 
 function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
-  const [showModal, setShowModal] = React.useState(false);
+  const [modal, setModal] = React.useState(null); // null | { mode, bloqueo }
 
-  const handleSave = b => { onSaveBloqueo(b); setShowModal(false); };
+  const handleSave = b => { onSaveBloqueo(b); setModal(null); };
 
   const fmtFecha = iso => {
     const [y, m, d] = iso.split('-');
@@ -1352,7 +1360,7 @@ function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
           <div className="agenda-config-title">Bloqueos de horario</div>
           <div className="agenda-config-desc">Franjas de tiempo en que un colaborador no está disponible para reservas.</div>
         </div>
-        <button className="btn-primary-sm" onClick={() => setShowModal(true)}>
+        <button className="btn-primary-sm" onClick={() => setModal({ mode: 'new' })}>
           <Icon name="plus" />Nuevo bloqueo
         </button>
       </div>
@@ -1368,14 +1376,19 @@ function BloqueosView({ bloqueos, onSaveBloqueo, onRemoveBloqueo }) {
             <div className="agenda-table-rango">{b.desde} — {b.hasta}</div>
             <div style={{ fontSize: 13, color: 'var(--fg-2)' }}>{b.colaborador}</div>
             <div className="agenda-table-motivo">{b.motivo}</div>
-            <button className="agenda-action-btn" onClick={() => onRemoveBloqueo(b.id)} aria-label="Eliminar">
-              <Icon name="trash-2" />
-            </button>
+            <div className="agenda-row-actions">
+              <button className="agenda-action-btn edit" onClick={() => setModal({ mode: 'edit', bloqueo: b })} aria-label="Editar bloqueo">
+                <Icon name="pencil" />
+              </button>
+              <button className="agenda-action-btn" onClick={() => onRemoveBloqueo(b.id)} aria-label="Eliminar bloqueo">
+                <Icon name="trash-2" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {showModal && <BloqueoModal onClose={() => setShowModal(false)} onSave={handleSave} />}
+      {modal && <BloqueoModal mode={modal.mode} bloqueo={modal.bloqueo} onClose={() => setModal(null)} onSave={handleSave} />}
     </div>
   );
 }
