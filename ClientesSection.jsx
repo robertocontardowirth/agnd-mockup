@@ -4,12 +4,12 @@
 // ── MOCK DATA ────────────────────────────────────────────────────────────────
 
 const MOCK_CLIENTES = [
-  { id: 1, nombre: 'Valentina Rojas',  telefono: '+56 9 8123 4567', email: 'valentina.rojas@gmail.com', etiqueta: 'frecuente', visitas: 14, ultimaVisita: '2026-06-10', notas: 'Prefiere a Andrea. Alérgica a tintes con amoníaco.' },
+  { id: 1, nombre: 'Valentina Rojas',  telefono: '+56 9 8123 4567', email: 'valentina.rojas@gmail.com', direccion: 'Av. Providencia 1234, depto 56', region: 'Metropolitana de Santiago', comuna: 'Providencia', etiqueta: 'frecuente', visitas: 14, ultimaVisita: '2026-06-10', notas: 'Prefiere a Andrea. Alérgica a tintes con amoníaco.' },
   { id: 2, nombre: 'Carolina Pérez',   telefono: '+56 9 7654 3210', email: 'caro.perez@gmail.com',      etiqueta: 'frecuente', visitas: 9,  ultimaVisita: '2026-06-08', notas: '' },
   { id: 3, nombre: 'Sofía Herrera',    telefono: '+56 9 5544 3322', email: 'sofia.herrera@outlook.com', etiqueta: 'regular',   visitas: 4,  ultimaVisita: '2026-05-28', notas: 'Confirmar siempre por WhatsApp.' },
   { id: 4, nombre: 'Camila Fuentes',   telefono: '+56 9 4433 2211', email: 'camila.fuentes@gmail.com',  etiqueta: 'regular',   visitas: 5,  ultimaVisita: '2026-06-01', notas: '' },
   { id: 5, nombre: 'Daniela Torres',   telefono: '+56 9 3322 1100', email: 'dani.torres@gmail.com',     etiqueta: 'regular',   visitas: 3,  ultimaVisita: '2026-05-20', notas: '' },
-  { id: 6, nombre: 'Isabel Castro',    telefono: '+56 9 2211 0099', email: 'isabel.castro@gmail.com',   etiqueta: 'frecuente', visitas: 11, ultimaVisita: '2026-06-12', notas: 'Le gusta agendar temprano.' },
+  { id: 6, nombre: 'Isabel Castro',    telefono: '+56 9 2211 0099', email: 'isabel.castro@gmail.com',   direccion: 'Calle Valparaíso 480', region: 'Valparaíso', comuna: 'Viña del Mar', etiqueta: 'frecuente', visitas: 11, ultimaVisita: '2026-06-12', notas: 'Le gusta agendar temprano.' },
   { id: 7, nombre: 'Fernanda Muñoz',   telefono: '+56 9 1100 9988', email: 'fer.munoz@gmail.com',       etiqueta: 'nuevo',     visitas: 1,  ultimaVisita: '2026-06-13', notas: 'Primera visita esta semana.' },
   { id: 8, nombre: 'Andrea García',    telefono: '+56 9 9988 7766', email: 'andrea.garcia@gmail.com',   etiqueta: 'nuevo',     visitas: 1,  ultimaVisita: '2026-06-14', notas: '' },
 ];
@@ -67,11 +67,14 @@ function ClienteEtiquetaBadge({ etiqueta }) {
 
 function buildClienteForm(cliente) {
   return {
-    nombre:   cliente?.nombre   || '',
-    telefono: cliente?.telefono || '',
-    email:    cliente?.email    || '',
-    etiqueta: cliente?.etiqueta || 'nuevo',
-    notas:    cliente?.notas    || '',
+    nombre:    cliente?.nombre    || '',
+    telefono:  cliente?.telefono  || '',
+    email:     cliente?.email     || '',
+    direccion: cliente?.direccion || '',
+    region:    cliente?.region    || '',
+    comuna:    cliente?.comuna    || '',
+    etiqueta:  cliente?.etiqueta  || 'nuevo',
+    notas:     cliente?.notas     || '',
   };
 }
 
@@ -103,6 +106,9 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
       nombre: form.nombre.trim(),
       telefono: form.telefono.trim(),
       email: form.email.trim(),
+      direccion: form.direccion.trim(),
+      region: form.region,
+      comuna: form.comuna,
       etiqueta: form.etiqueta,
       notas: form.notas.trim(),
       visitas: isEdit ? cliente.visitas : 0,
@@ -162,6 +168,47 @@ function ClienteModal({ mode, cliente, onClose, onSave }) {
                 value={form.email}
                 onChange={up('email')}
               />
+            </div>
+          </div>
+
+          <div className="reserva-field">
+            <label className="reserva-field-label">Dirección <span className="reserva-field-opt">(opcional)</span></label>
+            <input
+              type="text"
+              className="reserva-input"
+              placeholder="Calle y número, depto…"
+              value={form.direccion}
+              onChange={up('direccion')}
+            />
+          </div>
+
+          <div className="reserva-field-grid">
+            <div className="reserva-field">
+              <label className="reserva-field-label">Región <span className="reserva-field-opt">(opcional)</span></label>
+              <select
+                className="reserva-input"
+                value={form.region}
+                onChange={e => setForm(f => ({ ...f, region: e.target.value, comuna: '' }))}
+              >
+                <option value="">Selecciona región…</option>
+                {(window.CHILE_REGIONES || []).map(r => (
+                  <option key={r.region} value={r.region}>{r.region}</option>
+                ))}
+              </select>
+            </div>
+            <div className="reserva-field">
+              <label className="reserva-field-label">Comuna <span className="reserva-field-opt">(opcional)</span></label>
+              <select
+                className="reserva-input"
+                value={form.comuna}
+                disabled={!form.region}
+                onChange={up('comuna')}
+              >
+                <option value="">{form.region ? 'Selecciona comuna…' : 'Elige región primero'}</option>
+                {comunasDeRegion(form.region).map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
           </div>
 
