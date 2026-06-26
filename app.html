@@ -27,6 +27,7 @@
 <script type="text/babel" src="EspaciosSection.jsx"></script>
 <script type="text/babel" src="RecursosSection.jsx"></script>
 <script type="text/babel" src="ServiciosSection.jsx"></script>
+<script type="text/babel" src="PagosSection.jsx"></script>
 <script type="text/babel" src="CuentaSection.jsx"></script>
 <script type="text/babel" src="ReservasConfigSection.jsx"></script>
 <script type="text/babel" src="NotificacionesSection.jsx"></script>
@@ -157,6 +158,8 @@ function AppRoot() {
         ? <EspaciosSection sub={sub} espacios={espacios} onSaveEspacio={saveEspacio} />
       : section === 'recursos'
         ? <RecursosSection sub={sub} recursos={recursos} onSaveRecurso={saveRecurso} />
+      : section === 'pagos'
+        ? <PagosSection sub={sub} />
       : section === 'reservas'
         ? <ReservasConfigSection sub={sub} />
       : section === 'notificaciones'

@@ -8,6 +8,7 @@ const APP_SECTIONS = [
   { id: 'equipo',    label: 'Equipo',    icon: 'user-check' },
   { id: 'espacios',  label: 'Espacios',  icon: 'building-2' },
   { id: 'recursos',  label: 'Recursos',  icon: 'package' },
+  { id: 'pagos',     label: 'Pagos',     icon: 'credit-card' },
   { id: 'reservas',  label: 'Reservas',  icon: 'globe' },
 ];
 
@@ -104,6 +105,16 @@ const SIDEBAR_CONFIG = {
         label: 'Ajustes',
         items: [
           { id: 'config-recursos', label: 'Configuración', icon: 'settings-2' },
+        ],
+      },
+    ],
+  },
+  pagos: {
+    groups: [
+      {
+        items: [
+          { id: 'transacciones', label: 'Transacciones', icon: 'receipt' },
+          { id: 'resumen',       label: 'Resumen',       icon: 'chart-column' },
         ],
       },
     ],
