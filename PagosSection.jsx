@@ -43,7 +43,7 @@ function fmtCLP(n) {
 
 // 2026-06-25 → "25 jun"
 const MESES_CORTO = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-function fmtFechaCorta(iso) {
+function fmtPagoFecha(iso) {
   const [y, m, d] = iso.split('-');
   return `${parseInt(d, 10)} ${MESES_CORTO[parseInt(m, 10) - 1]}`;
 }
@@ -118,7 +118,7 @@ function TransaccionesView({ pagos }) {
           const est = PAGO_ESTADOS[p.estado] || { label: p.estado, badge: 'badge-regular' };
           return (
             <div key={p.id} className="agenda-table-row pago-row">
-              <div className="pago-fecha">{fmtFechaCorta(p.fecha)}</div>
+              <div className="pago-fecha">{fmtPagoFecha(p.fecha)}</div>
               <div className="entity-row-strong">{p.cliente}</div>
               <div className="pago-servicio">{p.servicio}</div>
               <div><MetodoTag metodo={p.metodo} /></div>
@@ -141,7 +141,7 @@ function TransaccionesView({ pagos }) {
 
 // ── RESUMEN ───────────────────────────────────────────────────────────────────
 
-function StatCard({ icon, value, label, accent }) {
+function PagoStatCard({ icon, value, label, accent }) {
   return (
     <div className={`dash-stat-card${accent ? ' accent' : ''}`}>
       <div className="dash-stat-icon"><Icon name={icon} /></div>
@@ -179,10 +179,10 @@ function ResumenView({ pagos }) {
       </div>
 
       <div className="dash-stats-row">
-        <StatCard icon="circle-dollar-sign" value={fmtCLP(ingresos)} label="Ingresos cobrados" accent />
-        <StatCard icon="receipt" value={pagados.length} label="Pagos cobrados" />
-        <StatCard icon="trending-up" value={fmtCLP(ticket)} label="Ticket promedio" />
-        <StatCard icon="wallet" value={fmtCLP(pendiente)} label="Pendiente por cobrar" />
+        <PagoStatCard icon="circle-dollar-sign" value={fmtCLP(ingresos)} label="Ingresos cobrados" accent />
+        <PagoStatCard icon="receipt" value={pagados.length} label="Pagos cobrados" />
+        <PagoStatCard icon="trending-up" value={fmtCLP(ticket)} label="Ticket promedio" />
+        <PagoStatCard icon="wallet" value={fmtCLP(pendiente)} label="Pendiente por cobrar" />
       </div>
 
       <div className="pago-breakdown">
