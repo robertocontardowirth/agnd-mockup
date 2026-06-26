@@ -368,6 +368,51 @@ function LandingStatusCard({ onNavigate }) {
   );
 }
 
+// Tarjeta con los pagos del mes en curso. Lee el mock de pagos (compartido con
+// la sección Pagos) y resume ingresos cobrados, nº de pagos y monto pendiente.
+function PagosMesCard({ onNavigate }) {
+  const fmt = n => '$' + Number(n || 0).toLocaleString('es-CL');
+  const pagos = window.MOCK_PAGOS || [];
+
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const mesNombre = now.toLocaleDateString('es-CL', { month: 'long' });
+
+  const delMes = pagos.filter(p => String(p.fecha).startsWith(ym));
+  const pagados = delMes.filter(p => p.estado === 'pagado');
+  const ingresos = pagados.reduce((s, p) => s + p.monto, 0);
+  const pendiente = delMes.filter(p => p.estado === 'pendiente').reduce((s, p) => s + p.monto, 0);
+
+  return (
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <div className="dash-card-title">
+          <Icon name="credit-card" />
+          Pagos del mes
+        </div>
+        <button className="btn-sm-ghost" onClick={() => onNavigate && onNavigate('pagos')}>
+          Ver pagos<Icon name="arrow-right" />
+        </button>
+      </div>
+
+      <div className="pago-mes-body">
+        <div className="pago-mes-total">{fmt(ingresos)}</div>
+        <div className="pago-mes-label">Ingresos cobrados · {mesNombre}</div>
+        <div className="pago-mes-stats">
+          <div className="pago-mes-stat">
+            <span className="pago-mes-stat-val">{pagados.length}</span>
+            <span className="pago-mes-stat-lbl">{pagados.length === 1 ? 'pago' : 'pagos'}</span>
+          </div>
+          <div className="pago-mes-stat">
+            <span className="pago-mes-stat-val">{fmt(pendiente)}</span>
+            <span className="pago-mes-stat-lbl">pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ActividadReciente() {
   return (
     <div className="dash-card">
@@ -487,6 +532,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
           {!panel && (
             <div className="dash-col-side">
               <AccionesRapidas onNuevaReserva={openNew} onAgregarCliente={openNuevoCliente} onBloquearHorario={openBloqueo} />
+              <PagosMesCard onNavigate={onNavigate} />
               <LandingStatusCard onNavigate={onNavigate} />
               <ActividadReciente />
             </div>

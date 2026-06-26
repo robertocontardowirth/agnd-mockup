@@ -2887,3 +2887,35 @@ select.reserva-input { cursor: pointer; }
   color: var(--fg-1);
   font-variant-numeric: tabular-nums;
 }
+
+/* Card "Pagos del mes" en el inicio. */
+.pago-mes-body { padding: 4px 2px 2px; }
+.pago-mes-total {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--fg-1);
+}
+.pago-mes-label {
+  font-size: 14px;
+  color: var(--fg-3);
+  margin-top: 6px;
+  text-transform: capitalize;
+}
+.pago-mes-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.pago-mes-stat { display: flex; flex-direction: column; gap: 2px; }
+.pago-mes-stat-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg-1);
+  font-variant-numeric: tabular-nums;
+}
+.pago-mes-stat-lbl { font-size: 13px; color: var(--fg-3); }
