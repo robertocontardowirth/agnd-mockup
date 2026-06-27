@@ -457,6 +457,23 @@ i[data-lucide] { display: inline-flex; flex-shrink: 0; }
 .cita-meta-item svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--fg-3); }
 .cita-meta-text { overflow: hidden; text-overflow: ellipsis; }
 
+/* Bloque de horario desocupado (clic para crear una reserva a esa hora). */
+.cita-row--free { background: repeating-linear-gradient(135deg, transparent, transparent 7px, rgba(127,127,127,.045) 7px, rgba(127,127,127,.045) 14px); }
+.cita-row--free:hover { background: var(--accent-tint); }
+.cita-free-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  color: var(--fg-3);
+}
+.cita-free-label svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--fg-3); }
+.cita-row--free:hover .cita-free-label,
+.cita-row--free:hover .cita-free-label svg,
+.cita-row--free:hover .cita-hora { color: var(--accent-live); }
+.cita-free-range { color: var(--fg-3); opacity: .8; }
+
 .cita-action {
   width: 26px;
   height: 26px;

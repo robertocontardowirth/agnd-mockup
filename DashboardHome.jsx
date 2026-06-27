@@ -192,7 +192,37 @@ function CitaRowMenu({ cita, onEdit, onUpdate, onRequestCancel }) {
   );
 }
 
-function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onVerCalendario, activeId }) {
+// Mezcla cronológica de citas y bloques de horario desocupados. Los tramos libres
+// se calculan sobre la jornada del timeline, con el intervalo configurado, y se
+// fusionan los consecutivos en un solo bloque con su rango.
+function buildAgendaFilas(citas) {
+  const step = parseInt(getIntervaloMin(), 10) || 30;
+  const startMin = TIMELINE_START * 60;
+  const endMin = TIMELINE_END * 60;
+
+  // Toda cita (de cualquier estado) ocupa su ventana, para no marcar como libre
+  // un horario que ya tiene una fila propia.
+  const ocupadas = citas.map(c => ({ start: toMin(c.hora), end: toMin(c.hora) + (c.duracion || step) }));
+
+  const freeStarts = [];
+  for (let t = startMin; t < endMin; t += step) {
+    if (!ocupadas.some(o => t < o.end && o.start < t + step)) freeStarts.push(t);
+  }
+  const bloques = [];
+  for (const t of freeStarts) {
+    const last = bloques[bloques.length - 1];
+    if (last && last.end === t) last.end = t + step;
+    else bloques.push({ start: t, end: t + step });
+  }
+
+  return [
+    ...citas.map(c => ({ kind: 'cita', start: toMin(c.hora), cita: c })),
+    ...bloques.map(b => ({ kind: 'free', start: b.start, end: b.end })),
+  ].sort((a, b) => a.start - b.start);
+}
+
+function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onNew, onVerCalendario, activeId }) {
+  const filas = buildAgendaFilas(citas);
   return (
     <div className="dash-card">
       <div className="dash-card-header">
@@ -205,7 +235,25 @@ function AgendaHoy({ citas, onRowClick, onEdit, onUpdate, onRequestCancel, onVer
         </button>
       </div>
       <div className="cita-list">
-        {citas.map(c => {
+        {filas.map(f => {
+          if (f.kind === 'free') {
+            return (
+              <div
+                key={`free-${f.start}`}
+                className="cita-row cita-row--free"
+                role="button"
+                tabIndex="0"
+                onClick={() => onNew(fmtMin(f.start))}
+              >
+                <div className="cita-hora">{fmtMin(f.start)}</div>
+                <div className="cita-free-label">
+                  <Icon name="plus" />
+                  <span>Disponible <span className="cita-free-range">· hasta {fmtMin(f.end)}</span></span>
+                </div>
+              </div>
+            );
+          }
+          const c = f.cita;
           const servicios = toArr(c.servicios, c.servicio);
           const colaboradores = toArr(c.colaboradores, c.colaborador);
           const espacios = toArr(c.espacios, c.espacio);
@@ -525,6 +573,7 @@ function DashboardHome({ citas, onSaveCita, onSaveCliente, onSaveBloqueo, onNavi
               onEdit={openEdit}
               onUpdate={onSaveCita}
               onRequestCancel={setConfirmCancel}
+              onNew={(hora) => setPanel({ mode: 'new', hora })}
               onVerCalendario={() => onNavigate && onNavigate('agenda')}
               activeId={panel && panel.cita ? panel.cita.id : null}
             />
