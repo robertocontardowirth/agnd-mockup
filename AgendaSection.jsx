@@ -323,6 +323,21 @@ function buildInitialForm({ cita, initialHora, initialFecha }) {
   };
 }
 
+// Tramos horarios "HH:MM" entre startHour y endHour (horas enteras) cada stepMin.
+function buildHoraSlots(startHour, endHour, stepMin) {
+  const step = parseInt(stepMin, 10) || 30;
+  const out = [];
+  for (let min = startHour * 60; min < endHour * 60; min += step) {
+    out.push(`${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`);
+  }
+  return out;
+}
+
+// Intervalo entre horas configurado en Reservas → Reglas (compartido vía config).
+function getIntervaloMin() {
+  return (typeof rcLoadConfig === 'function' ? rcLoadConfig().intervaloMin : null) || '30';
+}
+
 // Multi-selección por chips: cada opción se enciende/apaga con un clic.
 function ReservaChips({ options, selected, onToggle, empty }) {
   if (!options.length) return <div className="reserva-chips-empty">{empty || 'Sin opciones'}</div>;
@@ -364,6 +379,14 @@ function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose
   }, [onClose]);
 
   const espacioOpts = (window.MOCK_ESPACIOS || []).filter(e => e.activo).map(e => e.nombre);
+
+  // Opciones de hora según el intervalo configurado. Si la cita en edición tiene
+  // una hora fuera de la grilla (p. ej. 09:30 con intervalo 60), se inyecta para
+  // no perderla.
+  const horaOpts = React.useMemo(() => {
+    const base = buildHoraSlots(TIMELINE_START, TIMELINE_END, getIntervaloMin());
+    return (form.hora && !base.includes(form.hora)) ? [...base, form.hora].sort() : base;
+  }, [form.hora]);
 
   const up = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
@@ -488,7 +511,10 @@ function ReservaPanel({ mode, cita, initialHora, initialFecha, withDate, onClose
           <div className="reserva-field-grid">
             <div className="reserva-field">
               <label className="reserva-field-label">Hora</label>
-              <input type="time" className="reserva-input" value={form.hora} onChange={up('hora')} />
+              <select className="reserva-input" value={form.hora} onChange={up('hora')}>
+                {!form.hora && <option value="">Selecciona hora…</option>}
+                {horaOpts.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
             <div className="reserva-field">
               <label className="reserva-field-label">Duración</label>

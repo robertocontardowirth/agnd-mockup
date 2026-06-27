@@ -51,6 +51,7 @@ function reservasDefaults() {
     confirmacionAuto: true,
     anticipacionMin: '60',
     ventanaDias: '14',
+    intervaloMin: '30',
     requiereTelefono: true,
     requiereEmail: false,
     politica: 'Puedes cancelar o reagendar tu hora hasta 2 horas antes sin costo.',
@@ -303,6 +304,15 @@ function RcReglasView({ cfg, up, set }) {
               <option value="14">Próximos 14 días</option>
               <option value="30">Próximos 30 días</option>
               <option value="60">Próximos 60 días</option>
+            </select>
+          </Field>
+          <Field label="Intervalo entre horas">
+            <select className="reserva-input" value={cfg.intervaloMin} onChange={up('intervaloMin')}>
+              <option value="15">Cada 15 minutos</option>
+              <option value="20">Cada 20 minutos</option>
+              <option value="30">Cada 30 minutos</option>
+              <option value="45">Cada 45 minutos</option>
+              <option value="60">Cada 1 hora</option>
             </select>
           </Field>
         </div>

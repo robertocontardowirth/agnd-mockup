@@ -59,6 +59,7 @@ const RESERVAS_CONFIG_DEFAULTS = {
   confirmacionAuto: true,
   anticipacionMin: '60',
   ventanaDias: '14',
+  intervaloMin: '30',
   requiereTelefono: true,
   requiereEmail: false,
   politica: '',
@@ -161,24 +162,29 @@ function buildDates(dias) {
   return out;
 }
 
-// Slots de 30 min entre 10:00 y 19:00. Disponibilidad mock determinista por fecha.
-// earliestTs (opcional): marca como ocupados los slots anteriores a esa marca de
-// tiempo, para respetar la anticipación mínima configurada.
-function buildSlots(fecha, earliestTs) {
+// Jornada de atención del público (minutos desde medianoche).
+const BK_OPEN_MIN = 10 * 60;   // 10:00
+const BK_CLOSE_MIN = 19 * 60;  // 19:00
+
+// Slots según el intervalo configurado (stepMin) entre apertura y cierre.
+// Disponibilidad mock determinista por fecha. earliestTs (opcional): marca como
+// ocupados los slots anteriores a esa marca de tiempo, para respetar la
+// anticipación mínima configurada.
+function buildSlots(fecha, earliestTs, stepMin) {
   if (!fecha || fecha.cerrado) return { manana: [], tarde: [] };
+  const step = parseInt(stepMin, 10) || 30;
   const manana = [], tarde = [];
-  for (let h = 10; h < 19; h++) {
-    for (const m of [0, 30]) {
-      const idx = (h * 2) + (m === 30 ? 1 : 0);
-      let libre = (fecha.num + idx) % 3 !== 0;
-      if (libre && earliestTs != null) {
-        const slot = new Date(fecha.date);
-        slot.setHours(h, m, 0, 0);
-        if (slot.getTime() < earliestTs) libre = false;
-      }
-      const t = `${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`;
-      (h < 13 ? manana : tarde).push({ t, libre });
+  let idx = 0;
+  for (let min = BK_OPEN_MIN; min < BK_CLOSE_MIN; min += step, idx++) {
+    const h = Math.floor(min / 60), m = min % 60;
+    let libre = (fecha.num + idx) % 3 !== 0;
+    if (libre && earliestTs != null) {
+      const slot = new Date(fecha.date);
+      slot.setHours(h, m, 0, 0);
+      if (slot.getTime() < earliestTs) libre = false;
     }
+    const t = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    (h < 13 ? manana : tarde).push({ t, libre });
   }
   return { manana, tarde };
 }
@@ -520,9 +526,9 @@ function ProfesionalStep({ servicio, value, onPick, cfg }) {
 
 // ── PASO 3 · FECHA Y HORA ─────────────────────────────────────────────────────
 
-function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora, earliestTs }) {
+function FechaHoraStep({ fechas, fechaKey, hora, onPickFecha, onPickHora, earliestTs, intervaloMin }) {
   const fecha = fechas.find(f => f.key === fechaKey) || null;
-  const { manana, tarde } = buildSlots(fecha, earliestTs);
+  const { manana, tarde } = buildSlots(fecha, earliestTs, intervaloMin);
   const hayCupos = manana.some(s => s.libre) || tarde.some(s => s.libre);
 
   const renderGroup = (label, slots) => (
@@ -863,7 +869,7 @@ function ReservarApp() {
             <div className="bk-card">
               {step === 0 && <ServicioStep catalogo={catalogo} value={servicioId} onPick={pickServicio} cfg={cfg} />}
               {step === 1 && <ProfesionalStep servicio={servicio} value={proId} onPick={setProId} cfg={cfg} />}
-              {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} earliestTs={earliestTs} />}
+              {step === 2 && <FechaHoraStep fechas={fechas} fechaKey={fechaKey} hora={hora} onPickFecha={setFechaKey} onPickHora={setHora} earliestTs={earliestTs} intervaloMin={cfg.intervaloMin} />}
               {step === 3 && <DatosStep datos={datos} acepta={acepta} onChange={setDato} onAcepta={setAcepta} cfg={cfg} cliente={cliente} />}
 
               <div className="bk-actions">
